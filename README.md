@@ -35,6 +35,11 @@ cd ../BalatroFrontEnd && npm run dev                          # the game, :5173
 npm install && npm run dev                                    # the portal, :5174
 ```
 
+Or all of it at once: `make dev` in BalatroFrontEnd. That runs the identity
+service, the API, the game and this portal from their repositories, with
+their logs together. Here, `make run` is `npm run dev`, and `make` lists the
+other commands.
+
 Open **http://localhost:5174**. The game is at http://localhost:5174/play/:
 open it through the portal, so that both share the session. Opened directly
 on 5173, the game has no portal to send you to for signing in.

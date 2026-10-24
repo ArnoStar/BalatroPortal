@@ -64,7 +64,9 @@ needs it; until then the code stays in the page that uses it (Steiger's
 
 ```
 npm install
-npm run dev         # :5174 (with the game on :5173, the API on :8000, the identity service on :8001)
+npm run dev         # (make run) :5174, with the game on :5173, the API on :8000, the identity service on :8001
+                    # (BalatroFrontEnd's `make dev` runs them all)
+npm run check       # (make check) typecheck + lint
 npm run typecheck
 npm run lint
 npm run build
