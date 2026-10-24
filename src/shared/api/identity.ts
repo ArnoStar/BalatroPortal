@@ -1,0 +1,54 @@
+// The identity service (BalatroIndentityService): accounts and sign-in.
+import { IDENTITY_BASE } from '@/shared/config';
+import { read_json } from './problem';
+import { authorized_fetch, type Tokens } from './session';
+
+export type Provider = 'google';
+
+export interface Account {
+  id: string;
+  email: string;
+  display_name: string;
+  email_verified: boolean;
+  has_password: boolean;
+  providers: Provider[];
+  created_at: string;
+}
+
+function post<T>(path: string, body: unknown): Promise<T> {
+  return fetch(`${IDENTITY_BASE}${path}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  }).then((res) => read_json<T>(res));
+}
+
+function authorized<T>(method: string, path: string, body?: unknown): Promise<T> {
+  return authorized_fetch(`${IDENTITY_BASE}${path}`, {
+    method,
+    headers: body !== undefined ? { 'content-type': 'application/json' } : undefined,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  }).then((res) => read_json<T>(res));
+}
+
+export const identity = {
+  register: (email: string, password: string, display_name: string) =>
+    post<{ user_id: string }>('/auth/register', { email, password, display_name }),
+  confirm_email: (email: string, code: string) => post<void>('/auth/confirm-email', { email, code }),
+  resend_confirmation: (email: string) => post<void>('/auth/resend-confirmation', { email }),
+  login: (email: string, password: string) => post<Tokens>('/auth/login', { email, password }),
+  logout: (refresh_token: string) => post<void>('/auth/logout', { refresh_token }),
+  logout_all: () => authorized<void>('POST', '/auth/logout-all'),
+  forgot_password: (email: string) => post<void>('/auth/password/forgot', { email }),
+  reset_password: (email: string, code: string, password: string) =>
+    post<void>('/auth/password/reset', { email, code, password }),
+  me: () => authorized<Account>('GET', '/auth/me'),
+  update_me: (changes: { display_name?: string }) => authorized<Account>('PATCH', '/auth/me', changes),
+  delete_me: () => authorized<void>('DELETE', '/auth/me'),
+  providers: () => fetch(`${IDENTITY_BASE}/oauth/providers`).then((res) => read_json<{ providers: Provider[] }>(res)),
+  authorize: (provider: Provider, redirect_uri: string) =>
+    post<{ authorization_url: string; state: string }>(`/oauth/${provider}/authorize`, { redirect_uri }),
+  oauth_callback: (provider: Provider, code: string, state: string) =>
+    post<Tokens>(`/oauth/${provider}/callback`, { code, state }),
+  unlink: (provider: Provider) => authorized<void>('DELETE', `/oauth/${provider}`),
+};
