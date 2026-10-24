@@ -9,6 +9,7 @@ import { useFinishSignIn } from '../model/use-finish';
 /** Where Google sends the browser back (?code=...&state=... or ?error=...). */
 export function OAuthCallback({ params }: { params: URLSearchParams }) {
   const [error, setError] = useState<string | null>(null);
+  const [back, setBack] = useState('/login');
   const finish = useFinishSignIn();
   const started = useRef(false);
 
@@ -18,6 +19,7 @@ export function OAuthCallback({ params }: { params: URLSearchParams }) {
     const code = params.get('code');
     const state = params.get('state');
     const next = safe_next(take_oauth_next());
+    if (next.startsWith('/account')) setBack('/account'); // (linking from the account page)
     if (params.get('error') || !code || !state) {
       setError(params.get('error') === 'access_denied' ? 'The sign-in was cancelled.' : 'Google didn\'t sign you in.');
       return;
@@ -33,7 +35,7 @@ export function OAuthCallback({ params }: { params: URLSearchParams }) {
     <>
       <Alert>{error}</Alert>
       <p>
-        <Link to="/login">Back to the sign-in</Link>
+        <Link to={back}>{back === '/account' ? 'Back to your account' : 'Back to the sign-in'}</Link>
       </p>
     </>
   );

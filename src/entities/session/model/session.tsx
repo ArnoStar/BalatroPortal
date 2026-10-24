@@ -52,7 +52,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [load]);
 
   const sign_in = useCallback(async (tokens: Tokens) => {
+    const previous = read_session();
     save_tokens(tokens);
+    // (signing in again, or linking a provider, makes a new session: end the old one)
+    if (previous && previous.refresh_token !== tokens.refresh_token) {
+      void identity.logout(previous.refresh_token).catch(() => undefined);
+    }
     const me = await identity.me();
     setAccount(me);
     setStatus('signed-in');

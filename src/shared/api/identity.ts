@@ -48,6 +48,9 @@ export const identity = {
   providers: () => fetch(`${IDENTITY_BASE}/oauth/providers`).then((res) => read_json<{ providers: Provider[] }>(res)),
   authorize: (provider: Provider, redirect_uri: string) =>
     post<{ authorization_url: string; state: string }>(`/oauth/${provider}/authorize`, { redirect_uri }),
+  /** as `authorize`, but the provider's account is linked to the signed-in account */
+  link: (provider: Provider, redirect_uri: string) =>
+    authorized<{ authorization_url: string; state: string }>('POST', `/oauth/${provider}/link`, { redirect_uri }),
   oauth_callback: (provider: Provider, code: string, state: string) =>
     post<Tokens>(`/oauth/${provider}/callback`, { code, state }),
   unlink: (provider: Provider) => authorized<void>('DELETE', `/oauth/${provider}`),

@@ -42,6 +42,11 @@ on 5173, the game has no portal to send you to for signing in.
 The confirmation and reset codes are in the identity service's output, with
 its default `EMAIL_BACKEND=console`.
 
+Google sign-in (*Continue with Google*, and *Link Google* on the account page)
+appears once the identity service has a Google client id and secret. Its
+README, "Google sign-in", explains how to get them. For development, register
+`http://localhost:5174/auth/callback` as a redirect URI.
+
 `BALATRO_GAME`, `BALATRO_API` and `BALATRO_IDENTITY` change where the dev
 server sends `/play`, `/api` and `/identity`.
 
@@ -58,7 +63,7 @@ BalatroFrontEnd, then open http://localhost:8087.
 | `/confirm?email=&next=` | the emailed code; signs in at once when the password is still in memory |
 | `/forgot`, `/reset?email=` | a reset code, then a new password |
 | `/auth/callback` | where Google sends the browser back (one of the identity service's `OAUTH_REDIRECT_URIS`) |
-| `/account` | display name, sign-in methods (unlink Google, set a password), log out (everywhere), delete the account |
+| `/account` | display name, sign-in methods (link or unlink Google, set a password), log out (everywhere), delete the account |
 
 ## The session
 
