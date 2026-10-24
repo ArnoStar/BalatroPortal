@@ -52,7 +52,7 @@ export function save_tokens(t: Tokens): Session {
 
 function with_lock<T>(fn: () => Promise<T>): Promise<T> {
   const locks = (navigator as Navigator & { locks?: LockManager }).locks;
-  return locks ? locks.request(LOCK, fn) : fn();
+  return locks ? (locks.request(LOCK, fn) as Promise<T>) : fn();
 }
 
 /** A fresh session, or null when signed out. `failed` is an access token a

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { RunCard } from '@/entities/run';
+import { RunCard } from './run-card';
 import { game_api, describe } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
 import { use_async } from '@/shared/lib';

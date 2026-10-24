@@ -1,5 +1,8 @@
 import { useSession } from '@/entities/session';
-import { DeleteAccount, DisplayNameForm, SignInMethods, SignOutButtons } from '@/features/account';
+import { DeleteAccount } from './delete-account';
+import { DisplayNameForm } from './display-name-form';
+import { SignOutButtons } from './sessions';
+import { SignInMethods } from './sign-in-methods';
 import { Panel } from '@/shared/ui';
 
 const since = new Intl.DateTimeFormat(undefined, { dateStyle: 'long' });

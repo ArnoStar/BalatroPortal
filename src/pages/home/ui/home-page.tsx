@@ -1,5 +1,5 @@
 import { useSession } from '@/entities/session';
-import { RunsList } from '@/widgets/runs';
+import { RunsList } from './runs-list';
 import { game_api } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
 import { use_async } from '@/shared/lib';

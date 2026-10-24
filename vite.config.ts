@@ -16,7 +16,7 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       // the game's dev server (npm run dev in ../BalatroFrontEnd)
-      '/play': { target: process.env.BALATRO_GAME ?? 'http://127.0.0.1:5173', ws: true },
+      '/play': { target: process.env.BALATRO_GAME ?? 'http://localhost:5173', ws: true },
       // the API (uv run balatro-api)
       '/api': process.env.BALATRO_API ?? 'http://127.0.0.1:8000',
       // the identity service (make run)
