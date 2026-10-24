@@ -9,7 +9,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "lint": "steiger src"
+    "lint": "steiger src",
+    "check": "npm run typecheck && npm run lint"
   },
   "dependencies": {
     "react": "^19.3.1",
