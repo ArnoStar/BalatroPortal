@@ -1,17 +1,23 @@
+import { useSearchParams } from 'react-router';
 import { useSession } from '@/entities/session';
 import { DeleteAccount } from './delete-account';
 import { DisplayNameForm } from './display-name-form';
 import { SignOutButtons } from './sessions';
 import { SignInMethods } from './sign-in-methods';
-import { Panel } from '@/shared/ui';
+import { Alert, Panel } from '@/shared/ui';
 
 const since = new Intl.DateTimeFormat(undefined, { dateStyle: 'long' });
 
 export function AccountPage() {
   const { account } = useSession();
+  const [params] = useSearchParams();
   if (!account) return null;
+  const linked = params.get('linked');
   return (
     <div className="stack">
+      {linked === 'google' && account.providers.includes('google') ? (
+        <Alert tone="success">Google is linked: you can sign in with it from now on.</Alert>
+      ) : null}
       <Panel title="Your account">
         <p>
           <strong>{account.email}</strong>

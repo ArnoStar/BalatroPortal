@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
+import { LinkProviderButtons } from '@/features/auth';
 import { useSession } from '@/entities/session';
 import { identity, describe, type Provider } from '@/shared/api';
 import { Alert, Button } from '@/shared/ui';
@@ -48,9 +49,9 @@ export function SignInMethods() {
           </li>
         ))}
       </ul>
-      {!account.providers.length ? (
-        <p className="muted">Signing in with Google with the address {account.email} links it to this account.</p>
-      ) : null}
+      <div className="row">
+        <LinkProviderButtons linked={account.providers} />
+      </div>
     </>
   );
 }
