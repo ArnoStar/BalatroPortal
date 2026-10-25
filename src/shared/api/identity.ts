@@ -5,6 +5,9 @@ import { authorized_fetch, type Tokens } from './session';
 
 export type Provider = 'google';
 
+/** what an account may do beyond playing (each service decides what a role allows there) */
+export type Role = 'admin' | 'developer' | 'tester';
+
 export interface Account {
   id: string;
   email: string;
@@ -12,6 +15,17 @@ export interface Account {
   email_verified: boolean;
   has_password: boolean;
   providers: Provider[];
+  created_at: string;
+  roles?: Role[];
+}
+
+/** an account as the admins see it */
+export interface AccountSummary {
+  id: string;
+  email: string;
+  display_name: string;
+  email_verified: boolean;
+  roles: Role[];
   created_at: string;
 }
 
@@ -54,4 +68,13 @@ export const identity = {
   oauth_callback: (provider: Provider, code: string, state: string) =>
     post<Tokens>(`/oauth/${provider}/callback`, { code, state }),
   unlink: (provider: Provider) => authorized<void>('DELETE', `/oauth/${provider}`),
+  roles: () => fetch(`${IDENTITY_BASE}/roles`).then((res) => read_json<{ role: Role; description: string }[]>(res)),
+  /** admins: accounts whose email or name contains `query` */
+  accounts: (filters: { query?: string; role?: Role; offset?: number; limit?: number } = {}) => {
+    const q = new URLSearchParams({ limit: String(filters.limit ?? 50), offset: String(filters.offset ?? 0) });
+    if (filters.query) q.set('query', filters.query);
+    if (filters.role) q.set('role', filters.role);
+    return authorized<{ accounts: AccountSummary[]; total: number }>('GET', `/admin/accounts?${q}`);
+  },
+  set_roles: (id: string, roles: Role[]) => authorized<AccountSummary>('PUT', `/admin/accounts/${id}/roles`, { roles }),
 };

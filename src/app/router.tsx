@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate, Outlet, useLocation } from 'react-router
 import { useSession } from '@/entities/session';
 import { Layout } from '@/widgets/layout';
 import { AccountPage } from '@/pages/account';
+import { AdminPage } from '@/pages/admin';
 import { AuthCallbackPage } from '@/pages/auth-callback';
 import { BugPage } from '@/pages/bug';
 import { BugsPage } from '@/pages/bugs';
@@ -50,7 +51,14 @@ export const router = createBrowserRouter([
       { path: 'forgot', element: <ForgotPasswordPage /> },
       { path: 'reset', element: <ResetPasswordPage /> },
       { path: 'auth/callback', element: <AuthCallbackPage /> },
-      { element: <RequireSignIn />, children: [{ path: 'account', element: <AccountPage /> }] },
+      {
+        element: <RequireSignIn />,
+        children: [
+          { path: 'account', element: <AccountPage /> },
+          // admins' (the identity service refuses everyone else)
+          { path: 'admin', element: <AdminPage /> },
+        ],
+      },
       {
         element: <RequirePlayer />,
         children: [

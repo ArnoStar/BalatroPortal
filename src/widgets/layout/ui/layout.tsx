@@ -21,6 +21,7 @@ export function Layout() {
           <NavLink to="/leaderboards">Leaderboards</NavLink>
           {status === 'signed-in' ? <NavLink to="/stats">Your stats</NavLink> : null}
           {me.data?.admin ? <NavLink to="/bugs">Bug reports</NavLink> : null}
+          {account?.roles?.includes('admin') ? <NavLink to="/admin">Accounts</NavLink> : null}
           {status === 'signed-in' && account ? (
             <NavLink to="/account" className="nav__account">
               {account.display_name}

@@ -790,6 +790,28 @@ input:focus-visible,
   .refreshing { transition: none; }
 }
 
+/* ---------------------------------------------------------------- roles */
+.role {
+  display: inline-block;
+  padding: 0.05rem 0.55rem;
+  border-radius: 999px;
+  color: var(--black);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.role--admin { background: var(--red); color: var(--text); }
+.role--developer { background: var(--blue); color: var(--text); }
+.role--tester { background: var(--gold); }
+.roles-legend { display: grid; gap: 0.5rem; margin: 0 0 0.75rem; }
+.roles-legend div { display: grid; grid-template-columns: 7rem minmax(0, 1fr); align-items: center; gap: 0.75rem; }
+.roles-legend dd { margin: 0; }
+.table td.admin__email { white-space: normal; overflow-wrap: anywhere; }
+.admin__search { min-width: min(100%, 18rem); }
+.admin__role { text-align: center !important; text-transform: capitalize; }
+.admin__check { width: 1.15rem; height: 1.15rem; accent-color: var(--blue); cursor: pointer; }
+.admin__check:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
 /* ---------------------------------------------------------------- bug reports */
 .field textarea {
   width: 100%;

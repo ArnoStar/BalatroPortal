@@ -24,6 +24,14 @@ export function AccountPage() {
           {account.email_verified ? null : <span className="tag tag--warn">not verified</span>}
           <span className="muted"> · since {since.format(new Date(account.created_at))}</span>
         </p>
+        {account.roles?.length ? (
+          <p>
+            Roles:{' '}
+            {account.roles.map((r) => (
+              <span key={r} className={`role role--${r}`}>{r}</span>
+            )).reduce<React.ReactNode[]>((all, el, i) => (i ? [...all, ' ', el] : [el]), [])}
+          </p>
+        ) : null}
         <DisplayNameForm />
       </Panel>
       <Panel title="Sign-in methods">
