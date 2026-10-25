@@ -16,5 +16,7 @@ const PHASES: Record<Phase, string> = {
 };
 
 export const deck_name = (key: string) => DECKS[key] ?? key;
+/** the decks a run can be started with, in the game's order */
+export const DECK_KEYS = Object.keys(DECKS).filter((k) => k !== 'b_challenge');
 export const stake_name = (stake: number) => `${STAKES[stake - 1] ?? stake} Stake`;
 export const phase_name = (phase: Phase) => PHASES[phase] ?? phase;
