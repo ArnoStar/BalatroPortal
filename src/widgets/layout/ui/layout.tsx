@@ -14,6 +14,8 @@ export function Layout() {
           <a className="nav__play" href={`${GAME_URL}/`}>
             Play
           </a>
+          <NavLink to="/leaderboards">Leaderboards</NavLink>
+          {status === 'signed-in' ? <NavLink to="/stats">Your stats</NavLink> : null}
           {status === 'signed-in' && account ? (
             <NavLink to="/account" className="nav__account">
               {account.display_name}

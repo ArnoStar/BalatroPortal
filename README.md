@@ -2,8 +2,8 @@
 
 Everything of Balatro in the browser that isn't the game: signing in,
 creating an account, confirming an email, resetting a password, Google
-sign-in, the account page, and the list of your runs. Leaderboards, lobbies
-and the duel and co-op modes will come here too. The game itself is
+sign-in, the account page, the list of your runs, your statistics and the
+leaderboards. Lobbies and the duel and co-op modes will come here too. The game itself is
 [BalatroFrontEnd](../BalatroFrontEnd).
 
 It is also the site's **front door**. Everything is served from one origin, so
@@ -69,6 +69,16 @@ BalatroFrontEnd, then open http://localhost:8087.
 | `/forgot`, `/reset?email=` | a reset code, then a new password |
 | `/auth/callback` | where Google sends the browser back (one of the identity service's `OAUTH_REDIRECT_URIS`) |
 | `/account` | display name, sign-in methods (link or unlink Google, set a password), log out (everywhere), delete the account |
+| `/stats` | the player's statistics, like the game's Profile > Stats: high scores, career stats, the last 30 days, poker hands, decks, jokers, consumables, vouchers |
+| `/leaderboards` | best hand, highest ante and round, most money, bosses in a row and wins, by deck and stake; then everyone's runs together |
+
+`/stats` and `/leaderboards` need a signed-in player, unless the API runs
+without sign-in (`GET /api/v1/health` says `"auth": "off"`). The numbers come
+from the API (`/stats/me`, `/leaderboards/{board}`, `/stats/global`); the
+portal only shows them. As in the game, runs with a chosen seed and
+challenges don't count. The charts are plain HTML and CSS
+(`shared/ui/charts.tsx`): one hue each, values at the bar tips, tooltips on
+hover and keyboard focus, and a table view.
 
 ## The session
 
@@ -88,13 +98,16 @@ the history.
 ```
 src/
   app/        entry point, the router (with the sign-in guard), global styles
-  pages/      home (and the runs list), login, register, confirm-email,
-              forgot-password, reset-password, auth-callback, account, not-found
+  pages/      home (and the runs list), stats, leaderboards (and everyone's stats),
+              login, register, confirm-email, forgot-password, reset-password,
+              auth-callback, account, not-found
   widgets/    layout (header, navigation, footer)
   features/   auth: the sign-in forms, Google, the callback, the email codes
-  entities/   session: the signed-in player (React context)
+  entities/   session: the signed-in player (React context); catalog: the game's
+              names for decks, stakes, cards (from the API's catalog)
   shared/     api (identity, game API, session, problem details), config (URLs),
-              lib, ui (buttons, fields, panels in the game's colours)
+              lib (number formats), ui (buttons, fields, panels, charts in the
+              game's colours)
 ```
 
 Steiger asks for a slice only once two places use it. The runs list and the
