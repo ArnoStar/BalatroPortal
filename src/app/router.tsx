@@ -3,6 +3,8 @@ import { useSession } from '@/entities/session';
 import { Layout } from '@/widgets/layout';
 import { AccountPage } from '@/pages/account';
 import { AuthCallbackPage } from '@/pages/auth-callback';
+import { BugPage } from '@/pages/bug';
+import { BugsPage } from '@/pages/bugs';
 import { ConfirmEmailPage } from '@/pages/confirm-email';
 import { ForgotPasswordPage } from '@/pages/forgot-password';
 import { HomePage } from '@/pages/home';
@@ -54,6 +56,9 @@ export const router = createBrowserRouter([
         children: [
           { path: 'stats', element: <StatsPage /> },
           { path: 'leaderboards', element: <LeaderboardsPage /> },
+          // the developers' (the report service refuses everyone else)
+          { path: 'bugs', element: <BugsPage /> },
+          { path: 'bugs/:id', element: <BugPage /> },
         ],
       },
       // (the game is at /play/: a link there leaves the portal)

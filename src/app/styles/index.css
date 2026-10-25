@@ -790,6 +790,80 @@ input:focus-visible,
   .refreshing { transition: none; }
 }
 
+/* ---------------------------------------------------------------- bug reports */
+.field textarea {
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  border: 2px solid var(--l-black);
+  border-radius: var(--radius);
+  color: var(--text);
+  font: inherit;
+  background: var(--black);
+  resize: vertical;
+}
+
+.field textarea:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+.reports__desc { white-space: normal !important; min-width: 16rem; }
+.reports__desc a { color: var(--text); }
+
+.bug__quote {
+  margin: 0 0 0.5rem;
+  padding: 0.75rem 1rem;
+  border-left: 6px solid var(--red);
+  border-radius: var(--radius);
+  background: var(--l-black);
+  font-size: 1.15rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.bug__shot { width: 100%; border-radius: var(--radius); border: 2px solid var(--l-black); }
+.bug__fact { overflow-wrap: anywhere; text-align: right; font-weight: 600 !important; }
+
+.errors { display: grid; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+.errors summary { cursor: pointer; overflow-wrap: anywhere; }
+
+pre {
+  overflow-x: auto;
+  margin: 0.4rem 0 0;
+  padding: 0.6rem;
+  border-radius: 8px;
+  background: var(--black);
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.timeline {
+  display: grid;
+  gap: 2px;
+  max-height: 70vh;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+
+.timeline__row {
+  display: grid;
+  grid-template-columns: 5.5rem 3.5rem minmax(0, 1fr);
+  gap: 0.5rem;
+  padding: 0.2rem 0.4rem;
+  border-left: 4px solid var(--grey);
+  border-radius: 4px;
+  background: rgba(55, 66, 68, 0.6);
+}
+
+.timeline__row--action { border-left-color: var(--blue); }
+.timeline__row--api { border-left-color: var(--green); }
+.timeline__row--run { border-left-color: var(--gold); }
+.timeline__row--error { border-left-color: var(--red); background: rgba(254, 95, 85, 0.15); }
+.timeline__t { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+.timeline__k { color: var(--muted); font-weight: 700; }
+.timeline__body summary { cursor: pointer; overflow-wrap: anywhere; }
+
 @media (max-width: 560px) {
   .site__header { flex-wrap: wrap; justify-content: center; }
   .nav { flex-wrap: wrap; justify-content: center; }

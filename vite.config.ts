@@ -19,6 +19,12 @@ export default defineConfig({
       '/play': { target: process.env.BALATRO_GAME ?? 'http://localhost:5173', ws: true },
       // the API (uv run balatro-api)
       '/api': process.env.BALATRO_API ?? 'http://127.0.0.1:8000',
+      // the bug report service (make run in ../BalatroBugReportService)
+      '/reports': {
+        target: process.env.BALATRO_REPORTS ?? 'http://127.0.0.1:8003',
+        rewrite: (path) => path.replace(/^\/reports/, ''),
+        headers: { 'X-Forwarded-Prefix': '/reports' },
+      },
       // the identity service (make run)
       '/identity': {
         target: process.env.BALATRO_IDENTITY ?? 'http://127.0.0.1:8001',

@@ -31,6 +31,20 @@ server {
         proxy_pass $api_upstream;
     }
 
+    # the bug report service: reports carry a recording and a screenshot (larger
+    # bodies); it is told where it is mounted (its screenshot links)
+    location /reports/ {
+        set $reports_upstream ${REPORTS_UPSTREAM};
+        rewrite ^/reports/(.*)$ /$1 break;
+        client_max_body_size 25m;
+        # (a proxy_set_header here replaces the server's: all of them again)
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Prefix /reports;
+        proxy_pass $reports_upstream;
+    }
+
     location /identity/ {
         set $identity_upstream ${IDENTITY_UPSTREAM};
         rewrite ^/identity/(.*)$ /$1 break;

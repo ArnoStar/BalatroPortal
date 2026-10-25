@@ -10,6 +10,8 @@ function env(name: string): string {
 export const API_BASE = env('VITE_API_URL');
 /** the identity service (BalatroIndentityService) */
 export const IDENTITY_BASE = env('VITE_IDENTITY_URL') || '/identity';
+/** the bug report service (BalatroBugReportService): `<reports_base>/v1/...` */
+export const REPORTS_BASE = env('VITE_REPORTS_URL') || '/reports';
 /** the game (BalatroFrontEnd) */
 export const GAME_URL = env('VITE_GAME_URL') || '/play';
 
