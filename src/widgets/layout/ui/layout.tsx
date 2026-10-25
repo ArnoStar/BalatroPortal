@@ -1,9 +1,13 @@
 import { NavLink, Outlet, Link } from 'react-router';
 import { useSession } from '@/entities/session';
+import { reports_api } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
+import { use_async } from '@/shared/lib';
 
 export function Layout() {
   const { status, account } = useSession();
+  // the developers see the bug reports (the report service says who they are)
+  const me = use_async(() => (status === 'loading' ? Promise.resolve(null) : reports_api.me().catch(() => null)), [status]);
   return (
     <div className="site">
       <header className="site__header">
@@ -16,6 +20,7 @@ export function Layout() {
           </a>
           <NavLink to="/leaderboards">Leaderboards</NavLink>
           {status === 'signed-in' ? <NavLink to="/stats">Your stats</NavLink> : null}
+          {me.data?.admin ? <NavLink to="/bugs">Bug reports</NavLink> : null}
           {status === 'signed-in' && account ? (
             <NavLink to="/account" className="nav__account">
               {account.display_name}

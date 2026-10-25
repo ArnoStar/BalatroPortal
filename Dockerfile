@@ -24,6 +24,7 @@ FROM nginx:1.28-alpine
 ENV GAME_UPSTREAM=http://web:80 \
     API_UPSTREAM=http://api:8000 \
     IDENTITY_UPSTREAM=http://identity:8000 \
+    REPORTS_UPSTREAM=http://reports:8000 \
     RESOLVER=127.0.0.11
 COPY docker/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/dist /usr/share/nginx/html
