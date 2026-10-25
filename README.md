@@ -71,7 +71,8 @@ BalatroFrontEnd, then open http://localhost:8087.
 | `/account` | display name, sign-in methods (link or unlink Google, set a password), log out (everywhere), delete the account |
 | `/stats` | the player's statistics, like the game's Profile > Stats: high scores, career stats, the last 30 days, poker hands, decks, jokers, consumables, vouchers |
 | `/leaderboards` | best hand, highest ante and round, most money, bosses in a row and wins, by deck and stake; then everyone's runs together |
-| `/bugs`, `/bugs/:id` | the bug reports players sent from the game (developers only: the accounts in `ADMINS`): the player's words, the screenshot, where they were, the errors, the game's recording as a timeline (API calls with their request ids, actions, states, inputs), notes, close/reopen, download, and *Replay it in the game* (`/play/?report=<id>`) |
+| `/admin` | accounts and their roles (admins only): find accounts, tick roles (`admin`, `developer`, `tester`); the identity service checks and records it |
+| `/bugs`, `/bugs/:id` | the bug reports players sent from the game (developers only: the developer or admin role): the player's words, the screenshot, where they were, the errors, the game's recording as a timeline (API calls with their request ids, actions, states, inputs), notes, close/reopen, download, and *Replay it in the game* (`/play/?report=<id>`) |
 
 `/stats` and `/leaderboards` need a signed-in player, unless the API runs
 without sign-in (`GET /api/v1/health` says `"auth": "off"`). The numbers come
@@ -99,7 +100,7 @@ the history.
 ```
 src/
   app/        entry point, the router (with the sign-in guard), global styles
-  pages/      home (and the runs list), stats, leaderboards (and everyone's stats), bugs, bug,
+  pages/      home (and the runs list), stats, leaderboards (and everyone's stats), bugs, bug, admin,
               login, register, confirm-email, forgot-password, reset-password,
               auth-callback, account, not-found
   widgets/    layout (header, navigation, footer)

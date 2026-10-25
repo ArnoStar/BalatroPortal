@@ -1,4 +1,4 @@
-export { identity, type Account, type Provider } from './identity';
+export { identity, type Account, type AccountSummary, type Provider, type Role } from './identity';
 export {
   BOARDS,
   game_api,
