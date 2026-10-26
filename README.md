@@ -68,7 +68,8 @@ BalatroFrontEnd, then open http://localhost:8087.
 | `/confirm?email=&next=` | the emailed code; signs in at once when the password is still in memory |
 | `/forgot`, `/reset?email=` | a reset code, then a new password |
 | `/auth/callback` | where Google sends the browser back (one of the identity service's `OAUTH_REDIRECT_URIS`) |
-| `/account` | display name, sign-in methods (link or unlink Google, set a password), log out (everywhere), delete the account |
+| `/account` | display name, in the game (private profile; "unlock everything" for testers, developers and admins), sign-in methods (link or unlink Google, set a password), log out (everywhere), delete the account |
+| `/players/:id`, `/players/me` | a player's profile: their stats, collection (what they have discovered and unlocked, stakes won by deck) and recent runs (another player's: finished ones), each with *Watch* (`/play/?watch=<id>`). A private profile shows only the name. Leaderboard names link here |
 | `/stats` | the player's statistics, like the game's Profile > Stats: high scores, career stats, the last 30 days, poker hands, decks, jokers, consumables, vouchers |
 | `/leaderboards` | best hand, highest ante and round, most money, bosses in a row and wins, by deck and stake; then everyone's runs together |
 | `/admin` | accounts and their roles (admins only): find accounts, tick roles (`admin`, `developer`, `tester`); the identity service checks and records it |

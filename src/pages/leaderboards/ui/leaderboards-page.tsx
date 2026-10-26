@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import { useState } from 'react';
 import { Everyone } from './everyone';
 import { DECK_KEYS, STAKES, deck_name, stake_name } from '@/entities/catalog';
@@ -122,7 +123,7 @@ function Row({ board, e }: { board: BoardName; e: LeaderboardEntry }) {
         <span className={e.rank <= 3 ? `medal medal--${e.rank}` : undefined}>{e.rank}</span>
       </td>
       <th scope="row">
-        {e.player ?? <span className="muted">Anonymous</span>}
+        {e.player_id ? <Link to={`/players/${encodeURIComponent(e.player_id)}`}>{e.player ?? 'Anonymous'}</Link> : (e.player ?? <span className="muted">Anonymous</span>)}
         {e.you ? <span className="tag">You</span> : null}
       </th>
       <td className="num board__value">{value}</td>

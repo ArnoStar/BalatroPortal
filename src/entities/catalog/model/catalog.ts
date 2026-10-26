@@ -7,7 +7,10 @@ let loading: Promise<Map<string, string>> | null = null;
 
 function load_names(): Promise<Map<string, string>> {
   loading ??= game_api.catalog().then(
-    (c: Catalog) => new Map([c.decks, c.jokers, c.tarots, c.planets, c.spectrals, c.vouchers].flat().map((i) => [i.key, i.name])),
+    (c: Catalog) => new Map([
+      ...[c.decks, c.jokers, c.tarots, c.planets, c.spectrals, c.vouchers].flat().map((i): [string, string] => [i.key, i.name]),
+      ...(c.challenges ?? []).map((ch): [string, string] => [ch.id, ch.name]),
+    ]),
     (err: unknown) => {
       loading = null; // try again next time
       throw err;
