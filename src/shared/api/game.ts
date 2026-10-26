@@ -58,6 +58,8 @@ export type BoardName = (typeof BOARDS)[number];
 export interface LeaderboardEntry {
   rank: number;
   player: string | null;
+  /** the player's profile (/players/:id) */
+  player_id?: string | null;
   you: boolean;
   value: Score;
   deck: string | null;
@@ -88,6 +90,41 @@ export interface GlobalStats {
 export interface Catalog {
   decks: CatalogItem[]; jokers: CatalogItem[]; tarots: CatalogItem[]; planets: CatalogItem[];
   spectrals: CatalogItem[]; vouchers: CatalogItem[];
+  challenges?: { id: string; name: string }[];
+}
+
+/** the player's progress, as the game's profile keeps it (what is unlocked and discovered) */
+export interface ProgressView {
+  all_unlocked: boolean;
+  can_unlock_all: boolean;
+  unlocked: string[];
+  discovered: string[];
+  challenges_completed: string[];
+  challenges_unlocked: number;
+  deck_stakes: Record<string, number>;
+  max_stakes: Record<string, number>;
+}
+
+export interface MeView { id: string; name: string | null; private: boolean; progress: ProgressView }
+
+export interface CollectionCount { found: number; total: number }
+
+export interface CollectionView {
+  jokers: CollectionCount; tarots: CollectionCount; planets: CollectionCount; spectrals: CollectionCount;
+  vouchers: CollectionCount; boosters: CollectionCount; editions: CollectionCount; blinds: CollectionCount;
+  tags: CollectionCount; decks: CollectionCount; challenges: CollectionCount;
+  deck_stakes: Record<string, number>;
+}
+
+/** a player's public profile; a private one (not yours) has only the name */
+export interface PlayerProfile {
+  id: string;
+  name: string | null;
+  you: boolean;
+  private: boolean;
+  stats: PlayerStats | null;
+  collection: CollectionView | null;
+  runs: RunSummary[];
 }
 export interface CatalogItem { key: string; name: string }
 
@@ -112,5 +149,12 @@ export const game_api = {
     return authorized_fetch(`${API_BASE}/api/v1/leaderboards/${board}?${q}`).then((res) => read_json<Leaderboard>(res));
   },
   catalog: () => fetch(`${API_BASE}/api/v1/catalog`).then((res) => read_json<Catalog>(res)),
+  me: () => authorized_fetch(`${API_BASE}/api/v1/players/me`).then((res) => read_json<MeView>(res)),
+  update_me: (changes: { private?: boolean; all_unlocked?: boolean }) =>
+    authorized_fetch(`${API_BASE}/api/v1/players/me`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(changes),
+    }).then((res) => read_json<MeView>(res)),
+  player: (id: string) =>
+    authorized_fetch(`${API_BASE}/api/v1/players/${encodeURIComponent(id)}`).then((res) => read_json<PlayerProfile>(res)),
   delete_run: (id: string) => authorized_fetch(`${API_BASE}/api/v1/games/${id}`, { method: 'DELETE' }).then((res) => read_json<void>(res)),
 };

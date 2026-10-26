@@ -2,6 +2,7 @@ import { useSearchParams } from 'react-router';
 import { useSession } from '@/entities/session';
 import { DeleteAccount } from './delete-account';
 import { DisplayNameForm } from './display-name-form';
+import { GameSettings } from './game-settings';
 import { SignOutButtons } from './sessions';
 import { SignInMethods } from './sign-in-methods';
 import { Alert, Panel } from '@/shared/ui';
@@ -33,6 +34,9 @@ export function AccountPage() {
           </p>
         ) : null}
         <DisplayNameForm />
+      </Panel>
+      <Panel title="In the game">
+        <GameSettings />
       </Panel>
       <Panel title="Sign-in methods">
         <SignInMethods />

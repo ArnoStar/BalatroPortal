@@ -12,6 +12,7 @@ import { HomePage } from '@/pages/home';
 import { LeaderboardsPage } from '@/pages/leaderboards';
 import { LoginPage } from '@/pages/login';
 import { NotFoundPage } from '@/pages/not-found';
+import { PlayerPage } from '@/pages/player';
 import { RegisterPage } from '@/pages/register';
 import { ResetPasswordPage } from '@/pages/reset-password';
 import { StatsPage } from '@/pages/stats';
@@ -64,6 +65,7 @@ export const router = createBrowserRouter([
         children: [
           { path: 'stats', element: <StatsPage /> },
           { path: 'leaderboards', element: <LeaderboardsPage /> },
+          { path: 'players/:id', element: <PlayerPage /> },
           // the developers' (the report service refuses everyone else)
           { path: 'bugs', element: <BugsPage /> },
           { path: 'bugs/:id', element: <BugPage /> },

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { RunCard } from './run-card';
+import { RunCard } from '@/widgets/run-card';
 import { game_api, describe } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
 import { use_async } from '@/shared/lib';
@@ -41,6 +41,7 @@ export function RunsList() {
             <RunCard
               key={run.id}
               run={run}
+              watch
               actions={
                 <Button tone="grey" className="btn--small" busy={deleting === run.id} onClick={() => remove(run.id)} aria-label="Delete this run">
                   Delete
