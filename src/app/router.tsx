@@ -9,13 +9,17 @@ import { BugsPage } from '@/pages/bugs';
 import { ConfirmEmailPage } from '@/pages/confirm-email';
 import { ForgotPasswordPage } from '@/pages/forgot-password';
 import { HomePage } from '@/pages/home';
+import { InventoryPage } from '@/pages/inventory';
+import { ItemPage } from '@/pages/item';
 import { LeaderboardsPage } from '@/pages/leaderboards';
 import { LoginPage } from '@/pages/login';
+import { NewTradePage } from '@/pages/new-trade';
 import { NotFoundPage } from '@/pages/not-found';
 import { PlayerPage } from '@/pages/player';
 import { RegisterPage } from '@/pages/register';
 import { ResetPasswordPage } from '@/pages/reset-password';
 import { StatsPage } from '@/pages/stats';
+import { TradesPage } from '@/pages/trades';
 import { game_api } from '@/shared/api';
 import { use_async } from '@/shared/lib';
 import { Spinner } from '@/shared/ui';
@@ -66,6 +70,11 @@ export const router = createBrowserRouter([
           { path: 'stats', element: <StatsPage /> },
           { path: 'leaderboards', element: <LeaderboardsPage /> },
           { path: 'players/:id', element: <PlayerPage /> },
+          // the item service's (its paths are /items/...: these pages aren't there)
+          { path: 'inventory', element: <InventoryPage /> },
+          { path: 'item/:id', element: <ItemPage /> },
+          { path: 'trades', element: <TradesPage /> },
+          { path: 'trades/new', element: <NewTradePage /> },
           // the developers' (the report service refuses everyone else)
           { path: 'bugs', element: <BugsPage /> },
           { path: 'bugs/:id', element: <BugPage /> },

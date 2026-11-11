@@ -74,6 +74,8 @@ BalatroFrontEnd, then open http://localhost:8087.
 | `/leaderboards` | best hand, highest ante and round, most money, bosses in a row and wins, by deck and stake; then everyone's runs together |
 | `/admin` | accounts and their roles (admins only): find accounts, tick roles (`admin`, `developer`, `tester`); the identity service checks and records it |
 | `/bugs`, `/bugs/:id` | the bug reports players sent from the game (developers only: the developer or admin role): the player's words, the screenshot, where they were, the errors, the game's recording as a timeline (API calls with their request ids, actions, states, inputs), notes, close/reopen, download, and *Replay it in the game* (`/play/?report=<id>`) |
+| `/inventory`, `/item/:id` | the player's items (BalatroItemService, `/items/`): the game's jokers and tags with an edition, drawn with the game's sprites; this week's drops, *Look for new items*, how items are found (the odds); an item's number, odds, where it came from (with a *Watch* link to the run), its history, and *Show it on your title screen* |
+| `/trades`, `/trades/new` | offers made to the player and theirs: accept, decline, cancel; a new offer to a player (found by name, or from their profile or an item), their items for yours |
 
 `/stats` and `/leaderboards` need a signed-in player, unless the API runs
 without sign-in (`GET /api/v1/health` says `"auth": "off"`). The numbers come
