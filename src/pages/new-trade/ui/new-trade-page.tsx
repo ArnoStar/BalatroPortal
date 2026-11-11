@@ -93,7 +93,9 @@ function Offer({ to, preset }: { to: string; preset: string[] }) {
       <ul className="item-grid">
         {items.map((i) => (
           <ItemCard key={i.id} item={i} selected={list.includes(i.id)} onSelect={i.tradable ? () => toggle(list, set, i.id) : undefined}>
-            {i.tradable ? null : <span className="muted">Tradable from {new Date(i.tradable_at).toLocaleDateString()}</span>}
+            {i.tradable ? null : (
+              <span className="muted">{i.staked ? 'Staked in the casino' : `Tradable from ${new Date(i.tradable_at).toLocaleDateString()}`}</span>
+            )}
           </ItemCard>
         ))}
       </ul>

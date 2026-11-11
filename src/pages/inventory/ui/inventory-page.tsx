@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { ItemCard } from '@/entities/item';
 import { describe, items_api, type Item, type Odds, type Week } from '@/shared/api';
 import { use_async } from '@/shared/lib';
@@ -49,6 +50,7 @@ export function InventoryPage() {
         <div className="row">
           <Button onClick={find} busy={finding}>Look for new items</Button>
           <LinkButton to="/trades" tone="orange">Trades</LinkButton>
+          <LinkButton to="/casino" tone="red">Casino</LinkButton>
           {!m.can_trade ? <span className="muted">Trading opens after your first win.</span> : null}
         </div>
         {error ? <Alert>{describe(error)}</Alert> : null}
@@ -71,6 +73,7 @@ export function InventoryPage() {
             {items.data.map((i) => (
               <ItemCard key={i.id} item={i} to={`/item/${i.id}`}>
                 {m.showcase?.id === i.id ? <span className="tag">On your title screen</span> : null}
+                {i.staked ? <Link className="tag tag--warn" to={`/casino/${encodeURIComponent(i.staked)}`}>In the casino</Link> : null}
               </ItemCard>
             ))}
           </ul>

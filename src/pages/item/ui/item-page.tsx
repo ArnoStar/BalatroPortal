@@ -65,7 +65,11 @@ export function ItemPage() {
             <dt>Owner</dt>
             <dd>{mine ? 'You' : <Link to={`/players/${encodeURIComponent(item.owner)}`}>{item.owner_name ?? 'A player'}</Link>}</dd>
             <dt>Tradable</dt>
-            <dd>{item.tradable ? 'Yes' : `From ${when(item.tradable_at)}`}</dd>
+            <dd>
+              {item.staked ? (
+                <>No: staked in a <Link to={`/casino/${encodeURIComponent(item.staked)}`}>casino game</Link></>
+              ) : item.tradable ? 'Yes' : `From ${when(item.tradable_at)}`}
+            </dd>
           </dl>
         </div>
         <div className="row">
@@ -87,7 +91,14 @@ export function ItemPage() {
         <ol className="plain-list">
           {history.map((h, i) => (
             <li key={i}>
-              {when(h.at)}: {h.from_player ? <>from {h.from_name ?? 'a player'} to {h.to_name ?? 'a player'} (a trade)</> : <>found by {h.to_name ?? 'a player'}</>}
+              {when(h.at)}:{' '}
+              {h.game ? (
+                <>won by {h.to_name ?? 'a player'} from {h.from_name ?? 'a player'} (<Link to={`/casino/${encodeURIComponent(h.game)}`}>a casino game</Link>)</>
+              ) : h.from_player ? (
+                <>from {h.from_name ?? 'a player'} to {h.to_name ?? 'a player'} (a trade)</>
+              ) : (
+                <>found by {h.to_name ?? 'a player'}</>
+              )}
             </li>
           ))}
         </ol>
