@@ -1,0 +1,107 @@
+/* The portal's design tokens. A night-time card room: deep violet ink, glass
+ * surfaces, and the game's two forces as the brand: Chips (blue) times Mult
+ * (red). Gold is money and first place; green a win. */
+:root {
+  color-scheme: dark;
+
+  /* ink: the page and its surfaces, deepest first */
+  --ink-0: #07060c;
+  --ink-1: #0b0912;
+  --ink-2: #110e1b;
+  --surface: #16131f; /* a panel (opaque equivalent: charts are validated on it) */
+  --surface-2: #1c1828; /* a tile in a panel */
+  --surface-3: #252036; /* hover, pressed */
+  --glass: rgba(20, 17, 32, 0.78);
+  --line: rgba(255, 255, 255, 0.075);
+  --line-2: rgba(255, 255, 255, 0.13);
+  --line-3: rgba(255, 255, 255, 0.22);
+
+  /* text (all at least 5.9:1 on --surface) */
+  --text: #f4f1ff;
+  --text-2: #c3bddb;
+  --muted: #958fb3;
+  --link: #a9bcff;
+
+  /* the game's meanings, lit for the dark */
+  --chips: #4c9dff;
+  --mult: #ff5c7a;
+  --gold: #ffc53d;
+  --green: #2fe0a0;
+  --orange: #ff9f43;
+  --violet: #9b7bff;
+  --violet-soft: #b9a8ff;
+  --cyan: #3fd5ff;
+
+  /* the brand: chips x mult */
+  --grad-brand: linear-gradient(100deg, #3f86ff 0%, #7a5cff 50%, #ff4f7b 100%);
+  --grad-blue: linear-gradient(135deg, #3f7bff 0%, #6a5cff 60%, #8b4dff 100%);
+  --grad-red: linear-gradient(135deg, #ff6b85 0%, #e0285a 100%);
+  --grad-gold: linear-gradient(135deg, #ffe38f 0%, #ffbd2e 50%, #ff8d3a 100%);
+  --grad-green: linear-gradient(135deg, #4ff5bb 0%, #12b886 100%);
+  --grad-orange: linear-gradient(135deg, #ffbd59 0%, #ff7a2f 100%);
+
+  /* charts: the dataviz palette's dark steps, validated on --surface
+   * (validate_palette.js --mode dark --surface #16131f: all checks pass) */
+  --viz-1: #3987e5;
+  --viz-1-hover: #5598e7;
+  --viz-1-track: rgba(57, 135, 229, 0.2);
+  --viz-other: #6b6584;
+  --cat-1: #3987e5;
+  --cat-2: #d95926;
+  --cat-3: #199e70;
+  --cat-4: #c98500;
+  --cat-5: #d55181;
+  --cat-6: #008300;
+  --cat-7: #9085e9;
+  --cat-8: #e66767;
+
+  /* the stakes' chips (White ... Gold), as in the game */
+  --stake-1: #f2efe8;
+  --stake-2: #fe5f55;
+  --stake-3: #4bc292;
+  --stake-4: #4f6367;
+  --stake-5: #009dff;
+  --stake-6: #8867a5;
+  --stake-7: #fda200;
+  --stake-8: #eac058;
+
+  /* rarities (Common ... Legendary), as in the game */
+  --rarity-1: #3d9bff;
+  --rarity-2: #33d39b;
+  --rarity-3: #ff5c6c;
+  --rarity-4: #c07bff;
+
+  /* medals */
+  --medal-1: #ffc53d;
+  --medal-2: #d4dcec;
+  --medal-3: #e3995c;
+
+  /* shape */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --shadow-1: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 18px 40px -24px rgba(0, 0, 0, 0.75);
+  --shadow-2: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 30px 70px -30px rgba(0, 0, 0, 0.85);
+
+  /* type */
+  --font-sans: 'Inter Variable', Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Unbounded Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* motion */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* the shell */
+  --sidebar-w: 268px;
+  --topbar-h: 60px;
+}
+
+@property --spin {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}

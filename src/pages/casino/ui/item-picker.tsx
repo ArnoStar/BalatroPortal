@@ -1,5 +1,6 @@
 import { ItemCard } from '@/entities/item';
 import type { Item } from '@/shared/api';
+import { EmptyState } from '@/shared/ui';
 
 /** the value of the picked items: each is worth its odds (1 in N drops: N) */
 export const picked_value = (items: Item[], picked: string[]) =>
@@ -17,15 +18,17 @@ export function ItemPicker({ items, picked, onChange, max }: {
     <>
       {stakable.length ? (
         <ul className="item-grid item-grid--small">
-          {stakable.map((i) => <ItemCard key={i.id} item={i} selected={picked.includes(i.id)} onSelect={() => toggle(i.id)} />)}
+          {stakable.map((i, n) => (
+            <ItemCard key={i.id} item={i} index={n} selected={picked.includes(i.id)} onSelect={() => toggle(i.id)} />
+          ))}
         </ul>
       ) : (
-        <p className="muted">You have no item to stake right now.</p>
+        <EmptyState icon="cards" title="You have no item to stake right now" />
       )}
       {others ? (
         <p className="muted">
-          {others === 1 ? 'One of your items' : `${others} of your items`} can't be staked now: in their trade hold
-          (a week after they change hands or are found), or already staked.
+          {others === 1 ? 'One of your items' : `${others} of your items`} can't be staked now: in their trade hold (a week
+          after they change hands or are found), or already staked.
         </p>
       ) : null}
     </>

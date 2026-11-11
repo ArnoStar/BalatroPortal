@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { describe, game_api, type MeView } from '@/shared/api';
 import { use_async } from '@/shared/lib';
-import { Alert, Spinner } from '@/shared/ui';
+import { Alert, Icon, Spinner } from '@/shared/ui';
 
 /** The game's side of the account: profile privacy, and "unlock everything" for testers. */
 export function GameSettings() {
@@ -32,29 +32,33 @@ export function GameSettings() {
     <div className="stack">
       {save_error ? <Alert>{save_error}</Alert> : null}
       <label className="check">
-        <input type="checkbox" checked={me.private} disabled={busy} onChange={(e) => change({ private: e.target.checked })} />
-        <span>
-          Private profile
-          <span className="muted"> · others see only your name, and can't watch your runs</span>
+        <input type="checkbox" role="switch" checked={me.private} disabled={busy} onChange={(e) => change({ private: e.target.checked })} />
+        <span className="check__text">
+          <strong>Private profile</strong>
+          <span>Others see only your name, and can't watch your runs.</span>
         </span>
       </label>
       {p.can_unlock_all ? (
         <label className="check">
-          <input type="checkbox" checked={p.all_unlocked} disabled={busy} onChange={(e) => change({ all_unlocked: e.target.checked })} />
-          <span>
-            Unlock everything (for tests)
-            <span className="muted">
-              {' '}· your new runs start with every deck, stake, challenge and card open. They add nothing to your
-              progress, which stays as it is: switch this off to get it back.
+          <input type="checkbox" role="switch" checked={p.all_unlocked} disabled={busy} onChange={(e) => change({ all_unlocked: e.target.checked })} />
+          <span className="check__text">
+            <strong>Unlock everything (for tests)</strong>
+            <span>
+              Your new runs start with every deck, stake, challenge and card open. They add nothing to your progress, which
+              stays as it is: switch this off to get it back.
             </span>
           </span>
         </label>
       ) : null}
-      <p className="muted">
+      <p className="muted settings-note">
+        <Icon name="info" />
         {p.all_unlocked
           ? 'Everything is unlocked for your new runs.'
           : `Progress: ${p.unlocked.length} cards and decks unlocked beyond a new save, ${p.challenges_unlocked} challenges open.`}{' '}
-        <Link to="/players/me">See your profile</Link>.
+        <Link to="/players/me" viewTransition>
+          See your profile
+        </Link>
+        .
       </p>
     </div>
   );

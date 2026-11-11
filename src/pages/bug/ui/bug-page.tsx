@@ -4,7 +4,7 @@ import { Timeline } from './timeline';
 import { describe, reports_api, ProblemError, type Report } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
 import { use_async } from '@/shared/lib';
-import { Alert, AnchorButton, Button, Panel, Spinner } from '@/shared/ui';
+import { Alert, AnchorButton, Avatar, Button, EmptyState, Icon, PageHeader, Panel, Spinner } from '@/shared/ui';
 
 const when = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'medium' });
 
@@ -37,8 +37,18 @@ function Bug({ report: initial }: { report: Report }) {
 
   useEffect(() => {
     let url: string | null = null;
-    if (report.screenshot_url) reports_api.screenshot(report.id).then((u) => { url = u; setShot(u); }, () => setShot(null));
-    return () => { if (url) URL.revokeObjectURL(url); };
+    if (report.screenshot_url) {
+      reports_api.screenshot(report.id).then(
+        (u) => {
+          url = u;
+          setShot(u);
+        },
+        () => setShot(null),
+      );
+    }
+    return () => {
+      if (url) URL.revokeObjectURL(url);
+    };
   }, [report.id, report.screenshot_url]);
 
   async function triage(change: { status?: 'open' | 'closed'; notes?: string }) {
@@ -60,35 +70,62 @@ function Bug({ report: initial }: { report: Report }) {
   const span = events.length ? end - events[0].t : 0;
   const c = report.client;
   const history = report.history;
+  const open = report.status === 'open';
   return (
     <div className="stack">
-      <p>
-        <Link to="/bugs">← Bug reports</Link>
-      </p>
-      <Panel title={<>Bug report <span className={`tag${report.status === 'open' ? ' tag--warn' : ''}`}>{report.status}</span></>}>
-        <blockquote className="bug__quote">{report.description}</blockquote>
-        <p className="muted">
-          {report.reporter_name ?? report.reporter} · <time dateTime={report.created_at}>{when.format(new Date(report.created_at))}</time>
-          {c.build ? ` · build ${String(c.build)}` : ''}
+      <PageHeader
+        eyebrow={
+          <Link to="/bugs" className="back" viewTransition>
+            <Icon name="chevron-left" /> Bug reports
+          </Link>
+        }
+        title={
+          <>
+            Bug report{' '}
+            <span className={`status status--${open ? 'lost' : 'won'}`}>
+              <Icon name={open ? 'dot' : 'check-circle'} />
+              {report.status}
+            </span>
+          </>
+        }
+        actions={
+          <Button tone={open ? 'green' : 'orange'} busy={busy} onClick={() => triage({ status: open ? 'closed' : 'open' })} icon={<Icon name={open ? 'check' : 'refresh'} />}>
+            {open ? 'Close' : 'Reopen'}
+          </Button>
+        }
+      />
+      <Panel tone="glow">
+        <blockquote className="bug__quote">
+          <Icon name="note" />
+          <span>{report.description}</span>
+        </blockquote>
+        <p className="bug__by">
+          <span className="who">
+            <Avatar name={report.reporter_name ?? report.reporter} size="sm" />
+            {report.reporter_name ?? report.reporter}
+          </span>
+          <time dateTime={report.created_at}>{when.format(new Date(report.created_at))}</time>
+          {c.build ? <span className="mono">build {String(c.build)}</span> : null}
         </p>
         <div className="row">
           {history ? (
             <>
-              <AnchorButton href={`${GAME_URL}/?report=${report.id}`}>Replay it in the game</AnchorButton>
-              <AnchorButton tone="grey" href={`${GAME_URL}/?report=${report.id}&at=${report.game_version ?? history.commands.length}`}>
+              <AnchorButton href={`${GAME_URL}/?report=${report.id}`} icon={<Icon name="play" />}>
+                Replay it in the game
+              </AnchorButton>
+              <AnchorButton tone="grey" href={`${GAME_URL}/?report=${report.id}&at=${report.game_version ?? history.commands.length}`} icon={<Icon name="target" />}>
                 Open the run where it was reported
               </AnchorButton>
             </>
           ) : null}
-          <Button tone="grey" onClick={() => download(report)}>Download (JSON)</Button>
-          <Button tone={report.status === 'open' ? 'green' : 'orange'} busy={busy} onClick={() => triage({ status: report.status === 'open' ? 'closed' : 'open' })}>
-            {report.status === 'open' ? 'Close' : 'Reopen'}
+          <Button tone="grey" onClick={() => download(report)} icon={<Icon name="download" />}>
+            Download (JSON)
           </Button>
         </div>
         {history ? (
           <p className="muted">
-            The replay rebuilds the run from its {history.commands.length} moves (engine {history.engine_version}) where the recording starts, then plays
-            the player's inputs again. The API rebuilds runs for the accounts in ADMINS.
+            The replay rebuilds the run from its {history.commands.length} moves (engine {history.engine_version}) where the recording starts, then
+            plays the player's inputs again. The API rebuilds runs for the accounts in ADMINS.
           </p>
         ) : (
           <p className="muted">No run history{c.history_error ? ` (${String(c.history_error)})` : report.game_id ? '' : ': the player was not in a run'}.</p>
@@ -97,11 +134,19 @@ function Bug({ report: initial }: { report: Report }) {
       </Panel>
 
       <div className="grid-2">
-        <Panel title="Screen">
-          {report.screenshot_url ? (shot ? <img className="bug__shot" src={shot} alt="the game when the player reported" /> : <Spinner />) : <p className="muted">No screenshot.</p>}
+        <Panel title="Screen" icon="image">
+          {report.screenshot_url ? (
+            shot ? (
+              <img className="bug__shot" src={shot} alt="the game when the player reported" />
+            ) : (
+              <Spinner />
+            )
+          ) : (
+            <EmptyState icon="image" title="No screenshot" />
+          )}
         </Panel>
-        <Panel title="Where">
-          <dl className="facts">
+        <Panel title="Where" icon="target">
+          <dl className="facts facts--single">
             <Fact label="Run" value={report.game_id ? `${report.game_id.slice(0, 8)}, version ${report.game_version}` : '–'} />
             <Fact label="Moves in its history" value={history ? String(history.commands.length) : '–'} />
             <Fact label="Seed, deck, stake" value={history ? `${String(history.settings.seed)}, ${String(history.settings.deck)}, ${String(history.settings.stake)}` : '–'} />
@@ -114,7 +159,7 @@ function Bug({ report: initial }: { report: Report }) {
         </Panel>
       </div>
 
-      <Panel title={`Errors (${errors.length})`}>
+      <Panel title={`Errors (${errors.length})`} icon="alert" tone={errors.length ? 'danger' : undefined}>
         {errors.length ? (
           <ul className="errors">
             {errors.map((e, i) => (
@@ -129,22 +174,24 @@ function Bug({ report: initial }: { report: Report }) {
             ))}
           </ul>
         ) : (
-          <p className="muted">The game recorded no error.</p>
+          <EmptyState icon="check-circle" title="The game recorded no error" />
         )}
       </Panel>
 
-      <Panel title="What happened before">
+      <Panel title="What happened before" icon="history">
         <Timeline events={events} end={end} />
       </Panel>
 
-      <Panel title="Notes">
+      <Panel title="Notes" icon="note">
         <div className="form">
           <div className="field">
             <label htmlFor="bug-notes">For the developers (the player doesn't see them)</label>
             <textarea id="bug-notes" rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
           <p>
-            <Button busy={busy} disabled={notes === report.notes} onClick={() => triage({ notes })}>Save the notes</Button>
+            <Button busy={busy} disabled={notes === report.notes} onClick={() => triage({ notes })} icon={<Icon name="check" />}>
+              Save the notes
+            </Button>
           </p>
         </div>
       </Panel>

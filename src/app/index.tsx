@@ -2,6 +2,9 @@
 // runs; later leaderboards and lobbies). See README.md.
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
+import '@fontsource-variable/unbounded';
 import { RouterProvider } from 'react-router';
 import { SessionProvider } from '@/entities/session';
 import { router } from './router';

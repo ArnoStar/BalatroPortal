@@ -44,8 +44,9 @@ export function Timeline({ events, end }: { events: RecordedEvent[]; end: number
     <div className="stack">
       <div className="filters" role="group" aria-label="Kinds of events">
         {KINDS.map(([k, label]) => (
-          <button key={k} type="button" className="segmented__item" aria-pressed={shown.has(k)} onClick={() => toggle(k)}>
-            {label} ({events.filter((e) => e.k === k).length})
+          <button key={k} type="button" className={`chip-toggle chip-toggle--${k}`} aria-pressed={shown.has(k)} onClick={() => toggle(k)}>
+            <span className="chip-toggle__dot" aria-hidden />
+            {label} <span className="muted">{events.filter((e) => e.k === k).length}</span>
           </button>
         ))}
       </div>

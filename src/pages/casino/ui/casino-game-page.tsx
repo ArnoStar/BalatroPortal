@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { describe, items_api, type CasinoGame } from '@/shared/api';
 import { use_async } from '@/shared/lib';
-import { Alert, Button, Panel, Spinner } from '@/shared/ui';
+import { Alert, Avatar, Button, Icon, PageHeader, Panel, Spinner } from '@/shared/ui';
 import { check_draw, type DrawCheck } from '../lib/fair';
 import { MODE_NAMES, value_label } from '../lib/text';
 import { Coin } from './coin';
@@ -20,7 +20,7 @@ export function CasinoGamePage() {
   if (game.loading && !game.data) return <Spinner />;
   if (game.error) {
     return (
-      <Panel title="Casino game">
+      <Panel title="Casino game" icon="dice">
         <Alert>{describe(game.error)}</Alert>
       </Panel>
     );
@@ -28,27 +28,78 @@ export function CasinoGamePage() {
   const g = game.data!;
   const you = me.data?.id;
   return (
-    <div className="stack">
-      <Panel title={<>{MODE_NAMES[g.mode]} <span className={`tag${g.status === 'open' ? '' : ' tag--muted'}`}>{STATUS[g.status]}</span></>}>
-        <div className="stack">
-          <div className="item-hero">
-            {g.mode === 'coinflip' && g.status === 'done' ? <Coin game={g} /> : null}
-            <dl>
+    <div className="stack casino">
+      <PageHeader
+        eyebrow={
+          <Link to={`/casino?tab=${g.mode === 'jackpot' ? 'jackpot' : 'coinflip'}`} className="back" viewTransition>
+            <Icon name="chevron-left" /> Casino
+          </Link>
+        }
+        title={
+          <>
+            {MODE_NAMES[g.mode]}{' '}
+            <span className={`status status--${g.status === 'open' ? 'live' : g.status === 'done' ? 'won' : 'lost'}`}>
+              <Icon name={g.status === 'open' ? 'dot' : g.status === 'done' ? 'check-circle' : 'x-circle'} />
+              {STATUS[g.status]}
+            </span>
+          </>
+        }
+        actions={
+          g.status === 'open' ? (
+            <Button tone="grey" busy={game.loading} onClick={game.reload} icon={<Icon name="refresh" />}>
+              Refresh
+            </Button>
+          ) : null
+        }
+      />
+      <Panel>
+        <div className="game-head">
+          {g.mode === 'coinflip' && g.status === 'done' ? <Coin game={g} /> : null}
+          <dl className="specs game-head__specs">
+            <div>
               <dt>Started</dt>
               <dd>{when(g.created_at)}</dd>
-              {g.status !== 'open' ? (<><dt>{g.status === 'done' ? 'Drawn' : 'Cancelled'}</dt><dd>{when(g.updated_at)}</dd></>) : null}
-              {g.status === 'open' && g.closes_at ? (<><dt>Drawn at</dt><dd>{when(g.closes_at)}</dd></>) : null}
+            </div>
+            {g.status !== 'open' ? (
+              <div>
+                <dt>{g.status === 'done' ? 'Drawn' : 'Cancelled'}</dt>
+                <dd>{when(g.updated_at)}</dd>
+              </div>
+            ) : null}
+            {g.status === 'open' && g.closes_at ? (
+              <div>
+                <dt>Drawn at</dt>
+                <dd>{when(g.closes_at)}</dd>
+              </div>
+            ) : null}
+            <div>
               <dt>Pot</dt>
-              <dd>{value_label(g.value)}</dd>
-              {g.winner ? (<><dt>Winner</dt><dd>{g.winner === you ? 'You' : <Link to={`/players/${encodeURIComponent(g.winner)}`}>{g.winner_name ?? 'A player'}</Link>}</dd></>) : null}
-            </dl>
-          </div>
+              <dd>
+                <strong>{value_label(g.value)}</strong>
+              </dd>
+            </div>
+            {g.winner ? (
+              <div>
+                <dt>Winner</dt>
+                <dd>
+                  {g.winner === you ? (
+                    <strong className="win">You</strong>
+                  ) : (
+                    <span className="who">
+                      <Avatar name={g.winner_name} size="sm" />
+                      <Link to={`/players/${encodeURIComponent(g.winner)}`} viewTransition>
+                        {g.winner_name ?? 'A player'}
+                      </Link>
+                    </span>
+                  )}
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+        </div>
+        <div className="stack">
           <PotBar game={g} />
           <GameEntries game={g} me={you} />
-          <div className="row">
-            {g.status === 'open' ? <Button tone="grey" busy={game.loading} onClick={game.reload}>Refresh</Button> : null}
-            <Link to={`/casino?tab=${g.mode === 'jackpot' ? 'jackpot' : 'coinflip'}`}>Back to the casino</Link>
-          </div>
         </div>
       </Panel>
       <Fairness game={g} />
@@ -83,12 +134,21 @@ function Fairness({ game }: { game: CasinoGame }) {
   }
 
   return (
-    <Panel title="Check the draw">
+    <Panel
+      title="Check the draw"
+      icon="shield"
+      actions={
+        game.status === 'done' ? (
+          <Button busy={busy} onClick={run} icon={<Icon name="shield" />}>
+            Check it in your browser
+          </Button>
+        ) : null
+      }
+    >
       <p className="muted">
-        The server chose a secret seed when the game opened and showed its SHA-256 at once; each stake brought its
-        player's seed. The roll is the first 13 hex digits of HMAC-SHA256(key = server seed, message = game id and the
-        seeds joined by ":"), times the pot's value, divided by 16<sup>13</sup>. The entry whose part of the pot holds
-        the roll wins (the entries' values laid end to end, in order).
+        The server chose a secret seed when the game opened and showed its SHA-256 at once; each stake brought its player's seed. The roll is the
+        first 13 hex digits of HMAC-SHA256(key = server seed, message = game id and the seeds joined by ":"), times the pot's value, divided by
+        16<sup>13</sup>. The entry whose part of the pot holds the roll wins (the entries' values laid end to end, in order).
       </p>
       <dl className="fair">
         <Row label="Game">{game.id}</Row>
@@ -99,25 +159,36 @@ function Fairness({ game }: { game: CasinoGame }) {
             {e.seed}
           </Row>
         ))}
-        {game.roll !== null ? <Row label="Roll">{value_label(game.roll)} of {value_label(game.value)}</Row> : null}
+        {game.roll !== null ? (
+          <Row label="Roll">
+            {value_label(game.roll)} of {value_label(game.value)}
+          </Row>
+        ) : null}
       </dl>
-      {game.status === 'done' ? (
-        <div className="row">
-          <Button busy={busy} onClick={run}>Check it in your browser</Button>
-        </div>
-      ) : null}
       {error ? <Alert>{describe(error)}</Alert> : null}
       {check ? (
         <>
           <ul className="fair-checks">
-            <li className={check.hash ? 'fair-checks--ok' : 'fair-checks--bad'}>The server seed is the one whose SHA-256 was shown from the start</li>
-            <li className={check.value ? 'fair-checks--ok' : 'fair-checks--bad'}>The pot is the sum of the stakes</li>
-            <li className={check.roll === game.roll ? 'fair-checks--ok' : 'fair-checks--bad'}>The roll is {value_label(check.roll)}</li>
-            <li className={check.winner === game.winner ? 'fair-checks--ok' : 'fair-checks--bad'}>It falls in the winner's part of the pot</li>
+            <Check ok={check.hash}>The server seed is the one whose SHA-256 was shown from the start</Check>
+            <Check ok={check.value}>The pot is the sum of the stakes</Check>
+            <Check ok={check.roll === game.roll}>The roll is {value_label(check.roll)}</Check>
+            <Check ok={check.winner === game.winner}>It falls in the winner's part of the pot</Check>
           </ul>
-          <Alert tone={check.ok ? 'success' : 'error'}>{check.ok ? 'The draw checks out.' : 'The draw doesn\'t check out.'}</Alert>
+          <Alert tone={check.ok ? 'success' : 'error'}>{check.ok ? 'The draw checks out.' : "The draw doesn't check out."}</Alert>
         </>
       ) : null}
     </Panel>
+  );
+}
+
+function Check({ ok, children }: { ok: boolean; children: React.ReactNode }) {
+  return (
+    <li className={ok ? 'fair-checks--ok' : 'fair-checks--bad'}>
+      <Icon name={ok ? 'check-circle' : 'x-circle'} />
+      <span>
+        {children}
+        <span className="visually-hidden">{ok ? ': yes' : ': no'}</span>
+      </span>
+    </li>
   );
 }

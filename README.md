@@ -83,7 +83,8 @@ from the API (`/stats/me`, `/leaderboards/{board}`, `/stats/global`); the
 portal only shows them. As in the game, runs with a chosen seed and
 challenges don't count. The charts are plain HTML and CSS
 (`shared/ui/charts.tsx`): one hue each, values at the bar tips, tooltips on
-hover and keyboard focus, and a table view.
+hover and keyboard focus, and a table view; shares (the collection, win rates)
+are meters and rings.
 
 ## The session
 
@@ -102,23 +103,60 @@ the history.
 
 ```
 src/
-  app/        entry point, the router (with the sign-in guard), global styles
-  pages/      home (and the runs list), stats, leaderboards (and everyone's stats), bugs, bug, admin,
-              login, register, confirm-email, forgot-password, reset-password,
-              auth-callback, account, not-found
-  widgets/    layout (header, navigation, footer)
+  app/        entry point, the router (with the sign-in guard), the styles (app/styles, below)
+  pages/      home (the hero; a visitor's landing or a player's dashboard and runs), stats,
+              leaderboards (and everyone's stats), players, inventory, item, trades, new-trade,
+              casino (coinflips, the jackpot, a game and the check of its draw), bugs, bug, admin,
+              login, register, confirm-email, forgot-password, reset-password, auth-callback,
+              account, not-found
+  widgets/    layout (the sidebar, a drawer on narrow screens, the search palette, the WebGL
+              backdrop, the footer), run-card, auth-shell (the sign-in pages' layout)
   features/   auth: the sign-in forms, Google, the callback, the email codes
   entities/   session: the signed-in player (React context); catalog: the game's
-              names for decks, stakes, cards (from the API's catalog)
-  shared/     api (identity, game API, session, problem details), config (URLs),
-              lib (number formats), ui (buttons, fields, panels, charts in the
-              game's colours)
+              names for decks, stakes, cards (from the API's catalog), and a deck's
+              glyph; item: an item drawn with the game's sprites, and its card
+  shared/     api (identity, game API, items, reports, session, problem details),
+              config (URLs), lib (number and time formats), ui (icons, buttons, panels,
+              page headers, fields, the segmented control, avatars, charts, counting
+              numbers, the pointer tilt, the hand of cards)
 ```
 
 Steiger asks for a slice only once two places use it. The runs list and the
 account forms therefore live in their pages for now. Move them to
 `widgets`/`features`/`entities` when another page needs them, for example a
 leaderboard that shows runs.
+
+## Look and feel
+
+The portal has its own look, a night-time card room: deep violet ink, glass
+panels, and the game's two forces as the brand, Chips (blue) times Mult (red).
+Gold is money and first place, green a win. The game's own art appears only
+where it is the subject (the items, drawn with the game's sprites); the hand of
+cards, the deck glyphs, the poker-chip coin and the backdrop are the portal's.
+
+- **Styles** live in `src/app/styles/`, imported in order by `index.css`:
+  `tokens.css` (colours, type, shape, motion: change the look there first),
+  `base.css`, `layout.css` (the shell), `components.css` (the shared pieces),
+  `cards.css`, one file per part of the site (`home`, `auth`, `play`, `items`,
+  `casino`, `staff`), and `motion.css` last.
+- **Type** is self-hosted (Fontsource, no request to a font service): Inter for
+  text and numbers, Unbounded for titles, JetBrains Mono for seeds and hashes.
+- **The backdrop** is a small WebGL shader (`widgets/layout/ui/backdrop.tsx`):
+  drawn at 40% of the screen's resolution, 30 frames a second, paused in a
+  hidden tab, one still frame with reduced motion, and the CSS gradients
+  without WebGL.
+- **Movement** follows the player: pages cross-fade (React Router's view
+  transitions), panels rise as they scroll into view, numbers count up, cards
+  tilt toward the pointer, items found are dealt face down and turned over, a
+  coinflip's chip is tossed, and a drawn jackpot runs as a reel that stops on
+  the roll. With `prefers-reduced-motion` all of it stands still
+  (`motion.css`), and results show at once.
+- **Search**: Ctrl K (⌘ K) or `/` opens a palette of every page the player can
+  open.
+- **Charts** follow the dataviz rules: one hue per chart, thin marks, values in
+  the text colours, a table view. The casino's player colours are the dataviz
+  palette's eight categorical slots, validated on the panels' surface (a ninth
+  player and after share a neutral grey; the entries list names them all).
 
 ## Checks
 

@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
 import { useSession } from '@/entities/session';
 import { identity, describe } from '@/shared/api';
-import { Alert, Button, Field } from '@/shared/ui';
+import { Alert, Button, Field, Icon } from '@/shared/ui';
 
 const CONFIRM = 'DELETE';
 
@@ -35,9 +35,11 @@ export function DeleteAccount() {
       </p>
       {error ? <Alert>{error}</Alert> : null}
       <Field label={`Type ${CONFIRM} to confirm`} autoComplete="off" value={typed} onChange={(e) => setTyped(e.target.value)} />
-      <Button type="submit" tone="red" busy={busy} disabled={typed !== CONFIRM}>
-        Delete my account
-      </Button>
+      <div>
+        <Button type="submit" tone="red" busy={busy} disabled={typed !== CONFIRM} icon={<Icon name="trash" />}>
+          Delete my account
+        </Button>
+      </div>
     </form>
   );
 }

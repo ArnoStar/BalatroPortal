@@ -1,0 +1,945 @@
+/* The casino: coinflips (a poker chip for a coin), the jackpot (the pot, its
+ * clock, the reel), and the check of every draw. */
+
+/* the title, lit like a sign */
+.neon {
+  display: inline-block;
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+  text-shadow:
+    0 0 6px rgba(255, 255, 255, 0.8),
+    0 0 18px rgba(255, 79, 123, 0.9),
+    0 0 42px rgba(255, 79, 123, 0.7),
+    0 0 80px rgba(122, 92, 255, 0.6);
+  animation: neon-on 2.2s linear both;
+}
+
+@keyframes neon-on {
+  0%,
+  8%,
+  12%,
+  20%,
+  24% {
+    opacity: 0.25;
+    text-shadow: none;
+  }
+  10%,
+  22%,
+  30%,
+  100% {
+    opacity: 1;
+  }
+}
+
+.casino__tabs .segmented__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1.1rem;
+  font-size: 0.92rem;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: var(--violet-soft);
+  text-decoration: none;
+}
+
+.back:hover {
+  color: #fff;
+}
+
+.game-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.game-mode .icon {
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------------- the coin: a poker chip */
+.coin {
+  --size: 9rem;
+  --edge-a: #2a5fff;
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--size);
+  height: calc(var(--size) * 1.25);
+  perspective: 700px;
+}
+
+.coin--sm {
+  --size: 3.4rem;
+  height: var(--size);
+}
+
+.coin__toss {
+  width: var(--size);
+  height: var(--size);
+  transform-style: preserve-3d;
+}
+
+.coin__body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.coin--mult .coin__body {
+  transform: rotateY(180deg);
+}
+
+.coin__face,
+.coin__edge {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.coin__edge {
+  background: repeating-conic-gradient(#d8dcff 0 15deg, #4b45c9 15deg 30deg);
+  filter: brightness(0.75);
+}
+
+.coin__face {
+  --chip: #2f7bff;
+  --chip-deep: #1a3fb8;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background:
+    radial-gradient(circle, var(--chip) 0 52%, rgba(255, 255, 255, 0.9) 53% 55%, var(--chip-deep) 56% 62%, transparent 63%),
+    repeating-conic-gradient(var(--chip) 0 15deg, #ffffff 15deg 30deg);
+  box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.25), inset 0 6px 14px rgba(255, 255, 255, 0.25), inset 0 -8px 16px rgba(0, 0, 0, 0.3);
+  transform: translateZ(4px);
+}
+
+.coin__face b {
+  font-family: var(--font-display);
+  font-size: calc(var(--size) * 0.15);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.coin--sm .coin__face b {
+  font-size: calc(var(--size) * 0.18);
+}
+
+.coin__face--mult {
+  --chip: #ff4f72;
+  --chip-deep: #b3173f;
+  transform: rotateY(180deg) translateZ(4px);
+}
+
+.coin__shadow {
+  position: absolute;
+  bottom: 0;
+  width: 70%;
+  height: 10%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.55), transparent);
+}
+
+.coin--sm .coin__shadow {
+  display: none;
+}
+
+.coin--flip .coin__toss {
+  animation: coin-toss 2.4s cubic-bezier(0.3, 0.6, 0.4, 1) both;
+}
+
+.coin--flip.coin--chips .coin__body {
+  animation: coin-to-chips 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) both;
+}
+
+.coin--flip.coin--mult .coin__body {
+  animation: coin-to-mult 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) both;
+}
+
+.coin--flip .coin__shadow {
+  animation: coin-shadow 2.4s cubic-bezier(0.3, 0.6, 0.4, 1) both;
+}
+
+@keyframes coin-toss {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-55%) scale(1.15);
+  }
+  80% {
+    transform: translateY(0) scale(1);
+  }
+  88% {
+    transform: translateY(-8%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes coin-shadow {
+  0%,
+  80%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(0.5);
+    opacity: 0.4;
+  }
+}
+
+@keyframes coin-to-chips {
+  from {
+    transform: rotateY(0deg) rotateX(0deg);
+  }
+  45% {
+    transform: rotateY(1080deg) rotateX(20deg);
+  }
+  to {
+    transform: rotateY(1800deg) rotateX(0deg);
+  }
+}
+
+@keyframes coin-to-mult {
+  from {
+    transform: rotateY(0deg) rotateX(0deg);
+  }
+  45% {
+    transform: rotateY(1080deg) rotateX(20deg);
+  }
+  to {
+    transform: rotateY(1980deg) rotateX(0deg);
+  }
+}
+
+/* ---------------------------------------------------------------- coinflips */
+.flips {
+  display: grid;
+  gap: 0.8rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flip {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.025);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  animation: fade-up 0.5s var(--ease-out) both;
+}
+
+.flip:hover {
+  border-color: var(--line-2);
+}
+
+.flip--yours {
+  border-color: rgba(150, 128, 255, 0.35);
+  background: linear-gradient(90deg, rgba(122, 92, 255, 0.1), transparent 60%);
+}
+
+.flip--open {
+  border-color: rgba(47, 224, 160, 0.4);
+  box-shadow: 0 30px 70px -40px rgba(47, 224, 160, 0.6);
+}
+
+.flip__main {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.8rem 1.25rem;
+}
+
+.flip .coin--sm {
+  animation: coin-idle 6s ease-in-out infinite;
+}
+
+@keyframes coin-idle {
+  0%,
+  100% {
+    transform: rotate(-8deg);
+  }
+  50% {
+    transform: rotate(8deg) translateY(-3px);
+  }
+}
+
+.flip__text {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.flip__text .who {
+  flex-wrap: wrap;
+}
+
+.flip__value strong {
+  font-size: 1.1rem;
+}
+
+.flip__items,
+.entry__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flip__items a,
+.entry__items a {
+  display: block;
+  transition: transform 0.3s var(--ease-spring);
+}
+
+.flip__items a:hover,
+.entry__items a:hover {
+  transform: translateY(-4px) rotate(-3deg);
+}
+
+.flip__join {
+  display: grid;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width: 860px) {
+  .flip__main {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .flip__items,
+  .flip__action {
+    grid-column: 1 / -1;
+  }
+}
+
+.flip-new {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 159, 67, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 159, 67, 0.3);
+}
+
+.flip-new__side {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.picked {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.4rem;
+  margin: 0;
+}
+
+.picked span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.picked--bar {
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.picked--bar .btn {
+  margin-left: auto;
+}
+
+/* ---------------------------------------------------------------- the jackpot */
+.pot {
+  border-color: rgba(255, 197, 61, 0.25);
+  background: radial-gradient(70% 90% at 0% 0%, rgba(255, 197, 61, 0.1), transparent 60%), var(--glass);
+}
+
+.pot__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem 2.5rem;
+}
+
+.pot__total {
+  display: grid;
+}
+
+.pot__total .eyebrow {
+  margin-bottom: 0.2rem;
+  color: var(--gold);
+}
+
+.pot__total strong {
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  background: var(--grad-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 6px 24px rgba(255, 197, 61, 0.35));
+}
+
+.pot__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.8rem;
+  margin: 0;
+}
+
+.pot__facts dt {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.pot__facts dd {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.pot__facts small {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.pot__clock {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-left: auto;
+}
+
+.countdown {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 4.6rem;
+  height: 4.6rem;
+}
+
+.countdown svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.countdown__track {
+  fill: none;
+  stroke: rgba(255, 197, 61, 0.15);
+  stroke-width: 5;
+}
+
+.countdown__fill {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.25s linear;
+}
+
+.countdown__text {
+  font-weight: 800;
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown__text .icon {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--muted);
+}
+
+.countdown--soon .countdown__fill {
+  stroke: var(--mult);
+}
+
+.countdown--soon .countdown__track {
+  stroke: rgba(255, 92, 122, 0.18);
+}
+
+.countdown--soon {
+  color: var(--mult);
+  animation: pulse-soon 1s ease-in-out infinite;
+}
+
+.countdown--idle .countdown__fill {
+  stroke: var(--muted);
+  opacity: 0.35;
+}
+
+@keyframes pulse-soon {
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+/* the pot as a bar: each entry's part, a 2px gap between parts, the roll that won */
+.pot-bar {
+  position: relative;
+  padding: 0.4rem 0;
+}
+
+.pot-bar__track {
+  display: flex;
+  height: 1.3rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.pot-bar__part {
+  height: 100%;
+  min-width: 2px;
+  transform-origin: left;
+  animation: grow-x 0.8s var(--ease-out) both;
+}
+
+.pot-bar__part + .pot-bar__part {
+  box-shadow: inset 2px 0 0 var(--surface);
+}
+
+.pot-bar__roll {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: 0 0 0 2px var(--surface), 0 0 12px rgba(255, 255, 255, 0.9);
+}
+
+/* the draw: the pot laid end to end, sliding under the marker to the roll */
+.reel {
+  --pot: 88cqw;
+  position: relative;
+  width: 100%;
+  height: 5.2rem;
+  overflow: hidden;
+  container-type: inline-size;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--line-2), inset 0 0 40px rgba(0, 0, 0, 0.6);
+  -webkit-mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+
+.reel__strip {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  transform: translateX(calc(50cqw - var(--from) * var(--pot)));
+}
+
+.reel--go .reel__strip {
+  transform: translateX(calc(50cqw - var(--to) * var(--pot)));
+  transition: transform 5s cubic-bezier(0.06, 0.55, 0.1, 1);
+}
+
+.reel__pot {
+  display: flex;
+  flex: none;
+  width: var(--pot);
+  height: 100%;
+}
+
+.reel__part {
+  display: grid;
+  flex: none;
+  place-items: center;
+  height: 100%;
+  border-right: 2px solid var(--surface);
+}
+
+.reel__part .avatar {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25);
+}
+
+.reel__marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 4px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: 0 0 0 2px var(--surface), 0 0 16px 2px rgba(255, 255, 255, 0.9);
+}
+
+.reel__marker::before,
+.reel__marker::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  border: 8px solid transparent;
+  translate: -50% 0;
+}
+
+.reel__marker::before {
+  top: 0;
+  border-top-color: #fff;
+}
+
+.reel__marker::after {
+  bottom: 0;
+  border-bottom-color: #fff;
+}
+
+/* the entries (their colours mark the pot) */
+.entries {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) auto;
+  gap: 0.6rem 1rem;
+  padding: 0.75rem 0.95rem;
+  border-left: 4px solid var(--viz-other);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.03);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.entry--you {
+  background: linear-gradient(90deg, rgba(122, 92, 255, 0.12), transparent 60%);
+}
+
+.entry--won {
+  box-shadow: inset 0 0 0 1px rgba(255, 197, 61, 0.6), 0 0 30px -10px rgba(255, 197, 61, 0.7);
+}
+
+.entry__items {
+  grid-column: 1 / -1;
+}
+
+.entry__who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.entry__who a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.entry__who a:hover {
+  text-decoration: underline;
+}
+
+.entry__who .tag {
+  margin-left: 0;
+}
+
+.entry__swatch {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 3px;
+}
+
+.entry__numbers {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.entry__chance {
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+@media (max-width: 560px) {
+  .entry {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pot__clock {
+    margin-left: 0;
+  }
+}
+
+.last-pot {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.6rem;
+}
+
+/* ---------------------------------------------------------------- the moment of the draw */
+.stage {
+  width: min(720px, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-xl);
+  color: var(--text);
+  background: rgba(16, 13, 28, 0.96);
+  box-shadow: 0 50px 120px -30px rgba(0, 0, 0, 0.95);
+}
+
+.stage[open] {
+  animation: pop-in 0.4s var(--ease-spring) both;
+}
+
+.stage::backdrop {
+  background: radial-gradient(circle at 50% 40%, rgba(40, 24, 80, 0.55), rgba(5, 4, 10, 0.85));
+  backdrop-filter: blur(6px);
+}
+
+.stage__light {
+  position: absolute;
+  inset: -30% -10% auto;
+  height: 80%;
+  background: radial-gradient(closest-side, rgba(122, 92, 255, 0.35), transparent);
+  transition: background 0.6s;
+  pointer-events: none;
+}
+
+.stage--win .stage__light {
+  background: radial-gradient(closest-side, rgba(255, 197, 61, 0.45), transparent);
+}
+
+.stage--loss .stage__light {
+  background: radial-gradient(closest-side, rgba(255, 92, 122, 0.25), transparent);
+}
+
+.stage__body {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 1.2rem;
+  max-height: calc(100dvh - 2rem);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  overflow-y: auto;
+  text-align: center;
+}
+
+.stage__body .entries {
+  width: 100%;
+  text-align: left;
+}
+
+.stage__text {
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+}
+
+.stage__result {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 3vw, 1.7rem);
+  font-weight: 700;
+}
+
+.stage--win .stage__result {
+  background: var(--grad-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: pop-in 0.5s var(--ease-spring) both;
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confetti i {
+  position: absolute;
+  top: -5%;
+  left: var(--x);
+  width: 8px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--c);
+  rotate: var(--r);
+  animation: confetti-fall var(--t) cubic-bezier(0.2, 0.5, 0.4, 1) var(--d) both;
+}
+
+.confetti i:nth-child(3n) {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+@keyframes confetti-fall {
+  from {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(105vh) rotate(720deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- rules, fairness */
+.rules--casino li {
+  align-items: flex-start;
+}
+
+.rules--casino .icon {
+  color: var(--violet-soft);
+}
+
+.fair-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius);
+  background: rgba(47, 224, 160, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(47, 224, 160, 0.25);
+}
+
+.fair-note > .icon {
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-top: 0.1rem;
+  color: var(--green);
+}
+
+.fair-note p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 0.92rem;
+}
+
+.game-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 2.5rem;
+  margin-bottom: 1.2rem;
+}
+
+.game-head__specs {
+  flex: 1;
+  min-width: min(100%, 320px);
+  margin: 0;
+}
+
+.fair {
+  display: grid;
+  gap: 0;
+  margin: 1rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.fair__row {
+  display: grid;
+  grid-template-columns: minmax(10rem, 18rem) minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.fair dt {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.fair dd {
+  margin: 0;
+}
+
+.fair-checks {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.fair-checks li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  animation: fade-up 0.4s var(--ease-out) both;
+}
+
+.fair-checks li:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.fair-checks li:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+.fair-checks li:nth-child(4) {
+  animation-delay: 0.36s;
+}
+
+.fair-checks--ok .icon {
+  color: var(--green);
+}
+
+.fair-checks--bad .icon {
+  color: var(--mult);
+}
+
+@media (max-width: 560px) {
+  .fair__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.1rem;
+  }
+}

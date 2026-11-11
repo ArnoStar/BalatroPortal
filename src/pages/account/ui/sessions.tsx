@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useSession } from '@/entities/session';
 import { identity, describe } from '@/shared/api';
-import { Alert, Button } from '@/shared/ui';
+import { Alert, Button, Icon } from '@/shared/ui';
 
 export function SignOutButtons() {
   const { sign_out } = useSession();
@@ -27,10 +27,10 @@ export function SignOutButtons() {
     <>
       {error ? <Alert>{error}</Alert> : null}
       <div className="row">
-        <Button tone="orange" busy={busy === 'one'} onClick={() => out(false)}>
+        <Button tone="orange" busy={busy === 'one'} onClick={() => out(false)} icon={<Icon name="logout" />}>
           Log out
         </Button>
-        <Button tone="grey" busy={busy === 'all'} onClick={() => out(true)}>
+        <Button tone="grey" busy={busy === 'all'} onClick={() => out(true)} icon={<Icon name="shield" />}>
           Log out everywhere
         </Button>
       </div>

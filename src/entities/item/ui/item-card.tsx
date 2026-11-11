@@ -2,9 +2,10 @@
 // /play/resources/textures), its edition as a CSS effect over the card's
 // shape, and the stake sticker of the win it came from.
 import { Link } from 'react-router';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import type { Item } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
+import { Icon, useTilt } from '@/shared/ui';
 import { EDITION_NAMES, RARITY_NAMES, item_label, odds_label } from '../lib/text';
 
 const TEXTURES = `${GAME_URL}/resources/textures/2x`;
@@ -52,13 +53,24 @@ export function ItemArt({ item, scale = 1.5 }: { item: Item; scale?: number }) {
   );
 }
 
-/** an item with its name, rarity, edition, number and odds; `to`: where clicking it goes */
-export function ItemCard({ item, to, selected, onSelect, children }: {
-  item: Item; to?: string; selected?: boolean; onSelect?: () => void; children?: React.ReactNode;
+/** an item with its name, rarity, edition, number and odds; `to`: where clicking it goes. It tilts toward the
+ *  pointer; `index` staggers its entrance in a grid. */
+export function ItemCard({ item, to, selected, onSelect, index = 0, children }: {
+  item: Item; to?: string; selected?: boolean; onSelect?: () => void; index?: number; children?: ReactNode;
 }) {
+  const link = useTilt<HTMLAnchorElement>(12);
+  const button = useTilt<HTMLButtonElement>(12);
+  const plain = useTilt<HTMLDivElement>(12);
   const body = (
     <>
-      <ItemArt item={item} />
+      {selected ? (
+        <span className="item-card__check" aria-hidden>
+          <Icon name="check" />
+        </span>
+      ) : null}
+      <span className="item-card__stage">
+        <ItemArt item={item} />
+      </span>
       <span className="item-card__name">{item.name}</span>
       <span className="item-card__meta">
         <span className={`rarity rarity--${item.rarity}`}>{RARITY_NAMES[item.rarity]}</span>
@@ -69,19 +81,23 @@ export function ItemCard({ item, to, selected, onSelect, children }: {
       </span>
     </>
   );
-  const cls = `item-card${selected ? ' item-card--selected' : ''}${item.tradable ? '' : ' item-card--held'}`;
+  const cls = [
+    'item-card', `item-card--r${item.rarity}`, `item-card--${item.edition}`, selected && 'item-card--selected', !item.tradable && 'item-card--held',
+  ].filter(Boolean).join(' ');
   return (
-    <li className={cls}>
+    <li className={cls} style={{ '--i': Math.min(index, 24) } as CSSProperties}>
       {onSelect ? (
-        <button type="button" className="item-card__body" aria-pressed={!!selected} onClick={onSelect} title={item_label(item)}>
+        <button ref={button} type="button" className="item-card__body" aria-pressed={!!selected} onClick={onSelect} title={item_label(item)}>
           {body}
         </button>
       ) : to ? (
-        <Link className="item-card__body" to={to} title={item_label(item)}>
+        <Link ref={link} className="item-card__body" to={to} title={item_label(item)} viewTransition>
           {body}
         </Link>
       ) : (
-        <div className="item-card__body" title={item_label(item)}>{body}</div>
+        <div ref={plain} className="item-card__body" title={item_label(item)}>
+          {body}
+        </div>
       )}
       {children}
     </li>
