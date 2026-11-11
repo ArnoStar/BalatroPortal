@@ -54,10 +54,18 @@ needs it; until then the code stays in the page that uses it (Steiger's
 
 - TypeScript strict. Functions and variables use snake_case like the game,
   except React components and hooks.
-- Styling: `src/app/styles/index.css`, with the game's colours as CSS
-  variables. Components use its classes (`btn btn--blue`, `panel`, `field`).
-  Respect `prefers-reduced-motion`, keep labels on every input, and make
-  focus visible.
+- Styling: `src/app/styles/`, one file per concern, imported in order by
+  `index.css` (README, "Look and feel"). Colours, type and shape are tokens in
+  `tokens.css`: use the variables, not new hex values. Components use the
+  classes (`btn btn--blue`, `panel`, `field`) through `shared/ui` (`Button`,
+  `Panel`, `PageHeader`, `Segmented`, `Icon` ...). Keep labels on every input,
+  make focus visible, and respect `prefers-reduced-motion`: a new animation
+  needs nothing more if it is CSS (`motion.css` stills it), and a timed reveal
+  in JS waits 0 ms with reduced motion.
+- Charts and their colours follow the dataviz rules (one hue per chart, values
+  in the text colours, a table view); a set of categorical colours is checked
+  with the dataviz validator against `--surface` before it is used.
+- Fonts are self-hosted (Fontsource): no request to a third-party service.
 - Text addresses the player plainly ("Sign in", "Your runs").
 
 ## Commands

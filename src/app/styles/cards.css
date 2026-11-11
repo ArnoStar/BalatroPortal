@@ -1,0 +1,519 @@
+/* Cards: the portal's own hand of cards (decoration), and the items drawn with
+ * the game's sprites. */
+
+/* ---------------------------------------------------------------- the hand (CardFan) */
+.card-fan {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 1 / 0.9;
+  margin-inline: auto;
+  perspective: 1400px;
+}
+
+.card-fan--md {
+  max-width: 380px;
+}
+
+.card-fan__glow {
+  position: absolute;
+  inset: 6% 4% 16%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(122, 92, 255, 0.6), rgba(255, 79, 123, 0.28) 55%, transparent);
+  filter: blur(34px);
+  animation: glow-breathe 7s ease-in-out infinite;
+}
+
+.card-fan__hand {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(var(--rx, 0deg) * 0.9)) rotateY(calc(var(--ry, 0deg) * 1.2));
+  transition: transform 0.9s var(--ease-out);
+}
+
+[data-tilt] .card-fan__hand {
+  transition: transform 0.18s linear;
+}
+
+.card-fan__shadow {
+  position: absolute;
+  left: 16%;
+  right: 16%;
+  bottom: 3%;
+  height: 9%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.6), transparent);
+  filter: blur(8px);
+}
+
+.play-card {
+  --w: 31%;
+  position: absolute;
+  left: calc(50% - var(--w) / 2);
+  bottom: 15%;
+  width: var(--w);
+  aspect-ratio: 5 / 7;
+  border-radius: 9% / 6.4%;
+  color: #1c1830;
+  background:
+    radial-gradient(120% 90% at 30% 10%, #fffefa 0%, transparent 60%),
+    linear-gradient(160deg, #fffcf4 0%, #f3ecdc 60%, #e7dcc6 100%);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    inset 0 0 0 1px rgba(60, 40, 10, 0.12),
+    inset 0 0 0 5px #fffcf4,
+    inset 0 0 0 6px rgba(60, 40, 10, 0.1),
+    0 22px 44px -14px rgba(0, 0, 0, 0.7),
+    0 5px 12px rgba(0, 0, 0, 0.28);
+  transform-origin: 50% 150%;
+  transform: rotate(var(--angle)) translateY(var(--drop)) translateZ(var(--z));
+  animation: card-deal 0.95s var(--ease-spring) both, card-float 6.5s ease-in-out infinite;
+  animation-delay: var(--deal), var(--delay);
+  transition: bottom 0.45s var(--ease-out);
+  cursor: default;
+}
+
+.play-card:hover {
+  bottom: 21%;
+}
+
+.play-card--heart,
+.play-card--diamond {
+  color: #dd2f4c;
+}
+
+.play-card__corner {
+  position: absolute;
+  top: 6%;
+  left: 8%;
+  display: grid;
+  justify-items: center;
+  gap: 0.15em;
+  font-family: var(--font-display);
+  font-size: clamp(0.75rem, 1.9vw, 1.2rem);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.play-card__corner .icon {
+  width: 0.8em;
+  height: 0.8em;
+}
+
+.play-card__corner--end {
+  top: auto;
+  left: auto;
+  right: 8%;
+  bottom: 6%;
+  transform: rotate(180deg);
+}
+
+.play-card__pip {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.play-card__pip .icon {
+  width: 48%;
+  height: 48%;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.18));
+}
+
+.play-card__court {
+  position: absolute;
+  inset: 18% 17%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 4%;
+  border-radius: 7px;
+  background:
+    repeating-linear-gradient(45deg, rgba(40, 20, 60, 0.05) 0 5px, transparent 5px 10px),
+    linear-gradient(180deg, color-mix(in srgb, currentColor 12%, transparent), transparent 70%);
+  box-shadow:
+    inset 0 0 0 1.5px color-mix(in srgb, currentColor 50%, transparent),
+    inset 0 0 0 4px rgba(255, 252, 244, 0.7),
+    inset 0 0 0 5px color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.play-card__court b {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 5vw, 3.3rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.play-card__court .icon {
+  width: 24%;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.play-card__court .icon:last-child {
+  transform: rotate(180deg);
+}
+
+.play-card__glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at var(--px, 28%) var(--py, 18%), rgba(255, 255, 255, 0.7), transparent 55%);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+/* the wild card: holographic */
+.play-card--wild {
+  overflow: hidden;
+  color: #fff;
+  background: #120f22;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3), 0 22px 50px -14px rgba(122, 92, 255, 0.8), 0 5px 12px rgba(0, 0, 0, 0.3);
+}
+
+.play-card__holo {
+  position: absolute;
+  inset: -40%;
+  background: conic-gradient(from 0deg, #ff5c8a, #ffc53d, #3ddc97, #38b6ff, #9b6bff, #ff5c8a);
+  animation: spin 9s linear infinite;
+}
+
+.play-card--wild::before {
+  content: '';
+  position: absolute;
+  inset: 6%;
+  z-index: 1;
+  border-radius: 7% / 5%;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.28), transparent 58%),
+    repeating-radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.06) 0 2px, transparent 2px 9px),
+    linear-gradient(160deg, rgba(24, 18, 48, 0.86), rgba(10, 8, 22, 0.94));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+.play-card__wild {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+}
+
+.play-card__wild .icon {
+  width: 46%;
+  height: 46%;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.85)) drop-shadow(0 0 28px rgba(155, 107, 255, 0.95));
+  animation: sparkle-pulse 3.2s ease-in-out infinite;
+}
+
+.play-card--wild .play-card__corner {
+  z-index: 2;
+  color: var(--gold);
+}
+
+.play-card--wild .play-card__glare {
+  z-index: 3;
+}
+
+@keyframes card-deal {
+  from {
+    opacity: 0;
+    scale: 0.7;
+    rotate: -18deg;
+    translate: 0 30%;
+  }
+}
+
+@keyframes card-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -3.5%;
+  }
+}
+
+@keyframes sparkle-pulse {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.12) rotate(12deg);
+  }
+}
+
+/* ---------------------------------------------------------------- items (ItemCard, ItemArt) */
+.item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+  gap: 1.05rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item-grid--small {
+  grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
+}
+
+.item-card {
+  position: relative;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 0.45rem;
+  perspective: 900px;
+  animation: fade-up 0.6s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 35ms);
+}
+
+.item-card__body {
+  --r: var(--rarity-1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 1.05rem 0.6rem 0.85rem;
+  border: 0;
+  border-radius: 18px;
+  color: var(--text);
+  font: inherit;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  background:
+    radial-gradient(120% 70% at 50% 0%, color-mix(in srgb, var(--r) 24%, transparent), transparent 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.012)),
+    var(--surface-2);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--r) 32%, transparent), 0 16px 32px -20px rgba(0, 0, 0, 0.95);
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 0.7s var(--ease-out), box-shadow 0.3s;
+}
+
+.item-card__body[data-tilt] {
+  transition: transform 0.1s linear, box-shadow 0.3s;
+}
+
+.item-card__body:hover,
+.item-card__body:focus-visible {
+  color: var(--text);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--r) 72%, transparent),
+    0 0 34px -8px color-mix(in srgb, var(--r) 70%, transparent),
+    0 24px 44px -20px rgba(0, 0, 0, 0.95);
+}
+
+/* the glare that follows the pointer */
+.item-card__body::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at var(--px, 50%) var(--py, 0%), rgba(255, 255, 255, 0.2), transparent 55%);
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+}
+
+.item-card__body[data-tilt]::after {
+  opacity: 1;
+}
+
+.item-card--r1 .item-card__body { --r: var(--rarity-1); }
+.item-card--r2 .item-card__body { --r: var(--rarity-2); }
+.item-card--r3 .item-card__body { --r: var(--rarity-3); }
+.item-card--r4 .item-card__body { --r: var(--rarity-4); }
+
+/* legendary: a turning gold-to-violet edge */
+.item-card--r4 .item-card__body::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--spin), #ffc53d, #ff5c8a, #9b6bff, #3fd5ff, #ffc53d);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: spin-angle 4s linear infinite;
+  pointer-events: none;
+}
+
+.item-card__stage {
+  display: grid;
+  place-items: center;
+  min-height: 150px;
+  transform: translateZ(28px);
+  filter: drop-shadow(0 12px 14px rgba(0, 0, 0, 0.55));
+}
+
+.item-grid--small .item-card__stage {
+  min-height: 130px;
+}
+
+.item-card__name {
+  font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1.25;
+}
+
+.item-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.item-card__numbers {
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.item-card--selected .item-card__body {
+  box-shadow:
+    inset 0 0 0 2px var(--chips),
+    0 0 0 4px rgba(76, 157, 255, 0.22),
+    0 0 36px -8px rgba(76, 157, 255, 0.8);
+}
+
+.item-card__check {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--grad-blue);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  animation: pop-in 0.3s var(--ease-spring) both;
+}
+
+.item-card__check .icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.item-card--held .item-card__body {
+  opacity: 0.78;
+}
+
+.item-card > .tag,
+.item-card > .muted {
+  margin: 0;
+  font-size: 0.76rem;
+  text-align: center;
+}
+
+/* the item's picture: the game's sprite, its edition over the card's own shape */
+.item-art {
+  position: relative;
+  flex: none;
+}
+
+.item-art__layer {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+}
+
+.item-art--missing {
+  display: grid;
+  place-items: center;
+  padding: 0.4rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  background: var(--surface-3);
+}
+
+.item-art--foil .item-art__base {
+  filter: saturate(0.55) brightness(1.05) hue-rotate(-10deg);
+}
+
+.item-art--foil .item-art__edition {
+  background: linear-gradient(115deg, transparent 25%, rgba(140, 200, 255, 0.75) 42%, rgba(255, 255, 255, 0.9) 50%, rgba(140, 200, 255, 0.75) 58%, transparent 75%) 0 0 / 300% 100% no-repeat;
+  mix-blend-mode: screen;
+  animation: item-sheen 3.2s linear infinite;
+}
+
+.item-art--holographic .item-art__edition {
+  background: repeating-linear-gradient(125deg, #ff5f6d 0%, #ffc371 8%, #6bffb0 16%, #5fb8ff 24%, #c86bff 32%, #ff5f6d 40%) 0 0 / 300% 300%;
+  mix-blend-mode: color-dodge;
+  opacity: 0.55;
+  animation: item-sheen 5s linear infinite;
+}
+
+.item-art--polychrome .item-art__base,
+.item-art--polychrome .item-art__soul {
+  filter: saturate(1.7);
+  animation: item-hue 6s linear infinite;
+}
+
+.item-art--polychrome .item-art__edition {
+  background: linear-gradient(160deg, rgba(255, 80, 200, 0.35), rgba(80, 255, 200, 0.35), rgba(80, 160, 255, 0.35));
+  mix-blend-mode: overlay;
+}
+
+.item-art--negative .item-art__base,
+.item-art--negative .item-art__soul {
+  filter: invert(1) hue-rotate(180deg) saturate(1.3) brightness(0.9);
+}
+
+.item-art--negative .item-art__edition {
+  background: rgba(70, 20, 110, 0.45);
+  mix-blend-mode: multiply;
+}
+
+.item-art--negative {
+  filter: drop-shadow(0 0 8px rgba(150, 90, 255, 0.6));
+}
+
+/* a legendary's soul floats over its card */
+.item-art__soul {
+  animation: soul-float 4s ease-in-out infinite;
+}
+
+.item-art--polychrome .item-art__soul {
+  animation: item-hue 6s linear infinite, soul-float 4s ease-in-out infinite;
+}
+
+@keyframes item-sheen {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes item-hue {
+  from {
+    filter: saturate(1.7) hue-rotate(0deg);
+  }
+  to {
+    filter: saturate(1.7) hue-rotate(360deg);
+  }
+}
+
+@keyframes soul-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -4%;
+  }
+}

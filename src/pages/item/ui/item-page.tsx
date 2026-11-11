@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { useSession } from '@/entities/session';
 import { EDITION_NAMES, ItemArt, RARITY_NAMES, odds_label, source_label, stake_label } from '@/entities/item';
-import { describe, items_api } from '@/shared/api';
+import { describe, items_api, type Item, type Transfer } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
 import { use_async } from '@/shared/lib';
-import { Alert, Button, LinkButton, Panel, Spinner } from '@/shared/ui';
+import { Alert, Avatar, Button, Icon, LinkButton, Panel, Spinner, useTilt } from '@/shared/ui';
 
 const when = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
 
@@ -20,7 +20,7 @@ export function ItemPage() {
   if (detail.loading && !detail.data) return <Spinner />;
   if (detail.error) {
     return (
-      <Panel title="Item">
+      <Panel title="Item" icon="cards">
         <Alert>{describe(detail.error)}</Alert>
       </Panel>
     );
@@ -44,65 +44,156 @@ export function ItemPage() {
 
   return (
     <div className="stack">
-      <Panel title={item.name}>
-        <div className="item-hero">
-          <ItemArt item={item} scale={3} />
-          <dl>
-            <dt>Rarity</dt>
-            <dd><span className={`rarity rarity--${item.rarity}`}>{RARITY_NAMES[item.rarity]}</span> {item.kind}</dd>
-            <dt>Edition</dt>
-            <dd><span className={`edition edition--${item.edition}`}>{EDITION_NAMES[item.edition]}</span></dd>
-            <dt>Number</dt>
-            <dd>#{item.serial} of the {item.minted} found</dd>
-            <dt>Odds</dt>
-            <dd>{odds_label(item.odds)} drops</dd>
-            {item.stake ? (<><dt>Won at</dt><dd><span className={`stake stake--${item.stake}`}>{stake_label(item.stake)}</span></dd></>) : null}
-            <dt>Found</dt>
-            <dd>
-              {when(item.found_at)}, from {source_label(item.source)}
-              {item.source_run ? <> (<a href={`${GAME_URL}/?watch=${encodeURIComponent(item.source_run)}`}>watch the run</a>)</> : null}
-            </dd>
-            <dt>Owner</dt>
-            <dd>{mine ? 'You' : <Link to={`/players/${encodeURIComponent(item.owner)}`}>{item.owner_name ?? 'A player'}</Link>}</dd>
-            <dt>Tradable</dt>
-            <dd>
-              {item.staked ? (
-                <>No: staked in a <Link to={`/casino/${encodeURIComponent(item.staked)}`}>casino game</Link></>
-              ) : item.tradable ? 'Yes' : `From ${when(item.tradable_at)}`}
-            </dd>
+      <section className={`item-detail item-detail--r${item.rarity}`} aria-labelledby="item-title">
+        <Stage item={item} />
+        <div className="item-detail__info">
+          <p className="eyebrow">
+            <Icon name={item.kind === 'tag' ? 'hash' : 'cards'} /> {item.kind === 'tag' ? 'Tag' : 'Joker'} · #{item.serial} of the {item.minted} found
+          </p>
+          <h1 className="page-title" id="item-title">
+            {item.name}
+          </h1>
+          <p className="item-detail__chips">
+            <span className={`rarity rarity--${item.rarity}`}>{RARITY_NAMES[item.rarity]}</span>
+            {item.edition !== 'base' ? <span className={`edition edition--${item.edition}`}>{EDITION_NAMES[item.edition]}</span> : null}
+            {item.stake ? <span className={`stake stake--${item.stake}`}>Won at {stake_label(item.stake)}</span> : null}
+            {shown ? (
+              <span className="tag tag--gold">
+                <Icon name="star" /> On your title screen
+              </span>
+            ) : null}
+          </p>
+          <dl className="specs">
+            <div>
+              <dt>Odds</dt>
+              <dd>{odds_label(item.odds)} drops</dd>
+            </div>
+            <div>
+              <dt>Found</dt>
+              <dd>
+                {when(item.found_at)}, from {source_label(item.source)}
+                {item.source_run ? (
+                  <>
+                    {' '}
+                    (<a href={`${GAME_URL}/?watch=${encodeURIComponent(item.source_run)}`}>watch the run</a>)
+                  </>
+                ) : null}
+              </dd>
+            </div>
+            <div>
+              <dt>Owner</dt>
+              <dd>
+                {mine ? (
+                  'You'
+                ) : (
+                  <span className="who">
+                    <Avatar name={item.owner_name} size="sm" />
+                    <Link to={`/players/${encodeURIComponent(item.owner)}`} viewTransition>
+                      {item.owner_name ?? 'A player'}
+                    </Link>
+                  </span>
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>Tradable</dt>
+              <dd>
+                {item.staked ? (
+                  <>
+                    No: staked in a{' '}
+                    <Link to={`/casino/${encodeURIComponent(item.staked)}`} viewTransition>
+                      casino game
+                    </Link>
+                  </>
+                ) : item.tradable ? (
+                  <span className="win">Yes</span>
+                ) : (
+                  `From ${when(item.tradable_at)}`
+                )}
+              </dd>
+            </div>
           </dl>
-        </div>
-        <div className="row">
-          {mine ? (
-            shown ? (
-              <Button tone="grey" busy={busy} onClick={() => showcase(false)}>Take it off your title screen</Button>
-            ) : (
-              <Button busy={busy} onClick={() => showcase(true)}>Show it on your title screen</Button>
-            )
-          ) : (
-            <LinkButton to={`/trades/new?to=${encodeURIComponent(item.owner)}&take=${encodeURIComponent(item.id)}`} tone="orange">
-              Offer a trade for it
-            </LinkButton>
-          )}
-        </div>
-        {error ? <Alert>{describe(error)}</Alert> : null}
-      </Panel>
-      <Panel title="History">
-        <ol className="plain-list">
-          {history.map((h, i) => (
-            <li key={i}>
-              {when(h.at)}:{' '}
-              {h.game ? (
-                <>won by {h.to_name ?? 'a player'} from {h.from_name ?? 'a player'} (<Link to={`/casino/${encodeURIComponent(h.game)}`}>a casino game</Link>)</>
-              ) : h.from_player ? (
-                <>from {h.from_name ?? 'a player'} to {h.to_name ?? 'a player'} (a trade)</>
+          <div className="row">
+            {mine ? (
+              shown ? (
+                <Button tone="grey" busy={busy} onClick={() => showcase(false)} icon={<Icon name="close" />}>
+                  Take it off your title screen
+                </Button>
               ) : (
-                <>found by {h.to_name ?? 'a player'}</>
-              )}
-            </li>
+                <Button busy={busy} onClick={() => showcase(true)} icon={<Icon name="star" />}>
+                  Show it on your title screen
+                </Button>
+              )
+            ) : (
+              <LinkButton
+                to={`/trades/new?to=${encodeURIComponent(item.owner)}&take=${encodeURIComponent(item.id)}`}
+                tone="orange"
+                icon={<Icon name="swap" />}
+                viewTransition
+              >
+                Offer a trade for it
+              </LinkButton>
+            )}
+          </div>
+          {error ? <Alert>{describe(error)}</Alert> : null}
+        </div>
+      </section>
+      <Panel title="History" icon="history">
+        <ol className="timeline-v">
+          {history.map((h, i) => (
+            <Step key={i} h={h} />
           ))}
         </ol>
       </Panel>
     </div>
+  );
+}
+
+/** the item, large, tilting toward the pointer, on a pedestal of light */
+function Stage({ item }: { item: Item }) {
+  const ref = useTilt<HTMLDivElement>(18);
+  return (
+    <div className="item-detail__stage" ref={ref}>
+      <div className="item-detail__halo" aria-hidden />
+      <div className="item-detail__art">
+        <ItemArt item={item} scale={3.2} />
+        <span className="item-detail__glare" aria-hidden />
+      </div>
+      <div className="item-detail__floor" aria-hidden />
+    </div>
+  );
+}
+
+function Step({ h }: { h: Transfer }) {
+  const kind = h.game ? 'casino' : h.from_player ? 'trade' : 'found';
+  return (
+    <li className={`timeline-v__step timeline-v__step--${kind}`}>
+      <span className="timeline-v__dot" aria-hidden>
+        <Icon name={kind === 'casino' ? 'dice' : kind === 'trade' ? 'swap' : 'sparkle'} />
+      </span>
+      <div>
+        <p className="timeline-v__what">
+          {h.game ? (
+            <>
+              Won by <strong>{h.to_name ?? 'a player'}</strong> from {h.from_name ?? 'a player'} in{' '}
+              <Link to={`/casino/${encodeURIComponent(h.game)}`} viewTransition>
+                a casino game
+              </Link>
+            </>
+          ) : h.from_player ? (
+            <>
+              Traded from {h.from_name ?? 'a player'} to <strong>{h.to_name ?? 'a player'}</strong>
+            </>
+          ) : (
+            <>
+              Found by <strong>{h.to_name ?? 'a player'}</strong>
+            </>
+          )}
+        </p>
+        <time className="muted" dateTime={h.at}>
+          {when(h.at)}
+        </time>
+      </div>
+    </li>
   );
 }

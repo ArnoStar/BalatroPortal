@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { LinkProviderButtons } from '@/features/auth';
 import { useSession } from '@/entities/session';
 import { identity, describe, type Provider } from '@/shared/api';
-import { Alert, Button } from '@/shared/ui';
+import { Alert, Button, Icon } from '@/shared/ui';
 
 const NAMES: Record<Provider, string> = { google: 'Google' };
 
@@ -31,19 +31,27 @@ export function SignInMethods() {
       {error ? <Alert>{error}</Alert> : null}
       <ul className="methods">
         <li>
-          <span>
-            <strong>Password</strong> {account.has_password ? 'set' : 'not set'}
+          <span className="methods__icon">
+            <Icon name="key" />
           </span>
-          <Link className="btn btn--grey" to={`/forgot?${new URLSearchParams({ email: account.email, next: '/account' })}`}>
+          <span className="methods__text">
+            <strong>Password</strong>
+            <small>{account.has_password ? 'Set' : 'Not set'}</small>
+          </span>
+          <Link className="btn btn--grey btn--sm" to={`/forgot?${new URLSearchParams({ email: account.email, next: '/account' })}`} viewTransition>
             {account.has_password ? 'Change' : 'Set a password'}
           </Link>
         </li>
         {account.providers.map((provider) => (
           <li key={provider}>
-            <span>
-              <strong>{NAMES[provider] ?? provider}</strong> linked
+            <span className="methods__icon">
+              <Icon name="external" />
             </span>
-            <Button tone="red" busy={busy === provider} onClick={() => unlink(provider)}>
+            <span className="methods__text">
+              <strong>{NAMES[provider] ?? provider}</strong>
+              <small>Linked</small>
+            </span>
+            <Button tone="red" size="sm" busy={busy === provider} onClick={() => unlink(provider)} icon={<Icon name="close" />}>
               Unlink
             </Button>
           </li>
