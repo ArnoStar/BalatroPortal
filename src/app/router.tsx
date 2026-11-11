@@ -6,6 +6,7 @@ import { AdminPage } from '@/pages/admin';
 import { AuthCallbackPage } from '@/pages/auth-callback';
 import { BugPage } from '@/pages/bug';
 import { BugsPage } from '@/pages/bugs';
+import { CasinoGamePage, CasinoPage } from '@/pages/casino';
 import { ConfirmEmailPage } from '@/pages/confirm-email';
 import { ForgotPasswordPage } from '@/pages/forgot-password';
 import { HomePage } from '@/pages/home';
@@ -75,6 +76,8 @@ export const router = createBrowserRouter([
           { path: 'item/:id', element: <ItemPage /> },
           { path: 'trades', element: <TradesPage /> },
           { path: 'trades/new', element: <NewTradePage /> },
+          { path: 'casino', element: <CasinoPage /> },
+          { path: 'casino/:id', element: <CasinoGamePage /> },
           // the developers' (the report service refuses everyone else)
           { path: 'bugs', element: <BugsPage /> },
           { path: 'bugs/:id', element: <BugPage /> },
