@@ -1,9 +1,10 @@
 import { Link, useParams } from 'react-router';
 import { deck_name, stake_name, useCatalogNames } from '@/entities/catalog';
+import { ItemCard } from '@/entities/item';
 import { RunCard } from '@/widgets/run-card';
-import { describe, game_api, type CollectionView, type PlayerProfile } from '@/shared/api';
+import { ProblemError, describe, game_api, items_api, type CollectionView, type PlayerProfile } from '@/shared/api';
 import { format_number, use_async } from '@/shared/lib';
-import { Alert, Panel, Spinner, StatTile, plural } from '@/shared/ui';
+import { Alert, LinkButton, Panel, Spinner, StatTile, plural } from '@/shared/ui';
 
 /** /players/:id (``me``: your own): a player's stats, collection and recent runs */
 export function PlayerPage() {
@@ -34,9 +35,12 @@ function Profile({ p }: { p: PlayerProfile }) {
   );
   if (!p.stats) {
     return (
-      <Panel title={title}>
-        <p className="muted">This profile is private: only the name shows.</p>
-      </Panel>
+      <div className="stack">
+        <Panel title={title}>
+          <p className="muted">This profile is private: only the name shows.</p>
+        </Panel>
+        <Items player={p.id} you={p.you} />
+      </div>
     );
   }
   const s = p.stats;
@@ -64,6 +68,7 @@ function Profile({ p }: { p: PlayerProfile }) {
           />
         </section>
       </Panel>
+      <Items player={p.id} you={p.you} />
       {p.collection ? <Collection c={p.collection} /> : null}
       <Panel title={p.you ? 'Your recent runs' : 'Recent runs'}>
         {p.runs.length ? (
@@ -112,6 +117,39 @@ function Collection({ c }: { c: CollectionView }) {
       ) : (
         <p className="muted">No win yet.</p>
       )}
+    </Panel>
+  );
+}
+
+/** the player's items (the item service: inventories are public, to trade) */
+function Items({ player, you }: { player: string; you: boolean }) {
+  const { data, error, loading } = use_async(async () => {
+    try {
+      const [who, items] = await Promise.all([items_api.player(player), items_api.player_items(player)]);
+      return { who, items };
+    } catch (e) {
+      if (e instanceof ProblemError && e.code === 'player_not_found') return null; // no item yet
+      throw e;
+    }
+  }, [player]);
+  if (loading && data === undefined) return null;
+  return (
+    <Panel title={you ? 'Your items' : 'Items'}>
+      {error ? <Alert>{describe(error)}</Alert> : null}
+      {data === null || data?.items.length === 0 ? <p className="muted">No item yet.</p> : null}
+      {data?.who.showcase ? (
+        <p className="muted">On {you ? 'your' : 'their'} title screen: {data.who.showcase.name}.</p>
+      ) : null}
+      {data?.items.length ? (
+        <ul className="item-grid">{data.items.map((i) => <ItemCard key={i.id} item={i} to={`/item/${i.id}`} />)}</ul>
+      ) : null}
+      <div className="row">
+        {you ? (
+          <LinkButton to="/inventory">Your items</LinkButton>
+        ) : data?.who.can_trade ? (
+          <LinkButton to={`/trades/new?to=${encodeURIComponent(player)}`} tone="orange">Offer a trade</LinkButton>
+        ) : null}
+      </div>
     </Panel>
   );
 }

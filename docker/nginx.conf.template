@@ -4,6 +4,8 @@
 #   /play/      the game (BalatroFrontEnd's container)        GAME_UPSTREAM
 #   /api/       the game API (BalatroWebAPI)                  API_UPSTREAM
 #   /identity/  the identity service, without the /identity   IDENTITY_UPSTREAM
+#   /reports/   the bug report service, without the /reports  REPORTS_UPSTREAM
+#   /items/     the item service, without the /items          ITEMS_UPSTREAM
 # The upstreams are origins (http://host:port), looked up again as containers
 # are redeployed (RESOLVER: Docker's DNS by default).
 server {
@@ -43,6 +45,13 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Prefix /reports;
         proxy_pass $reports_upstream;
+    }
+
+    # the item service (BalatroItemService): the players' items and trades
+    location /items/ {
+        set $items_upstream ${ITEMS_UPSTREAM};
+        rewrite ^/items/(.*)$ /$1 break;
+        proxy_pass $items_upstream;
     }
 
     location /identity/ {
