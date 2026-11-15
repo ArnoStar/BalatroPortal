@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 
 /** a hue for a name or id: the same player always gets the same colours */
 export function hue_of(s: string): number {
@@ -13,14 +13,22 @@ function initials(name: string): string {
   return words.slice(0, 2).map((w) => [...w][0] ?? '').join('').toUpperCase() || '?';
 }
 
-/** a player's initials on their own gradient (decorative: the name is always written next to it) */
-export function Avatar({ name, seed, size = 'md', className }: {
-  name: string | null | undefined; seed?: string | null; size?: 'sm' | 'md' | 'lg' | 'xl'; className?: string;
+/**
+ * A player's profile picture (`src`), or their initials on their own gradient
+ * (also while the picture loads, or if it can't). Decorative: the name is
+ * always written next to it.
+ */
+export function Avatar({ name, seed, src, size = 'md', className }: {
+  name: string | null | undefined; seed?: string | null; src?: string | null; size?: 'sm' | 'md' | 'lg' | 'xl'; className?: string;
 }) {
   const n = name ?? 'A player';
+  const [failed, setFailed] = useState<string | null>(null);
   return (
     <span className={['avatar', `avatar--${size}`, className].filter(Boolean).join(' ')} style={{ '--h': hue_of(seed ?? n) } as CSSProperties} aria-hidden>
       {initials(n)}
+      {src && failed !== src ? (
+        <img className="avatar__img" src={src} alt="" loading="lazy" decoding="async" onError={() => setFailed(src)} />
+      ) : null}
     </span>
   );
 }

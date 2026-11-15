@@ -456,15 +456,17 @@
   animation: item-sheen 5s linear infinite;
 }
 
+/* polychrome: the card keeps its art, a rainbow moves across it (the hue changes from place to place) */
 .item-art--polychrome .item-art__base,
 .item-art--polychrome .item-art__soul {
-  filter: saturate(1.7);
-  animation: item-hue 6s linear infinite;
+  filter: saturate(1.35);
 }
 
 .item-art--polychrome .item-art__edition {
-  background: linear-gradient(160deg, rgba(255, 80, 200, 0.35), rgba(80, 255, 200, 0.35), rgba(80, 160, 255, 0.35));
-  mix-blend-mode: overlay;
+  background: linear-gradient(120deg, #ff4f6d, #ffd84f, #4fff9a, #4fc3ff, #b44fff, #ff4f6d, #ffd84f) 0 0 / 300% 300%;
+  mix-blend-mode: hue;
+  opacity: 0.7;
+  animation: item-sheen 6s linear infinite;
 }
 
 .item-art--negative .item-art__base,
@@ -486,25 +488,12 @@
   animation: soul-float 4s ease-in-out infinite;
 }
 
-.item-art--polychrome .item-art__soul {
-  animation: item-hue 6s linear infinite, soul-float 4s ease-in-out infinite;
-}
-
 @keyframes item-sheen {
   from {
     background-position: 100% 0;
   }
   to {
     background-position: -200% 0;
-  }
-}
-
-@keyframes item-hue {
-  from {
-    filter: saturate(1.7) hue-rotate(0deg);
-  }
-  to {
-    filter: saturate(1.7) hue-rotate(360deg);
   }
 }
 

@@ -6,6 +6,7 @@
 #   /identity/  the identity service, without the /identity   IDENTITY_UPSTREAM
 #   /reports/   the bug report service, without the /reports  REPORTS_UPSTREAM
 #   /items/     the item service, without the /items          ITEMS_UPSTREAM
+#   /social/    the social service, without the /social       SOCIAL_UPSTREAM
 # The upstreams are origins (http://host:port), looked up again as containers
 # are redeployed (RESOLVER: Docker's DNS by default).
 server {
@@ -52,6 +53,19 @@ server {
         set $items_upstream ${ITEMS_UPSTREAM};
         rewrite ^/items/(.*)$ /$1 break;
         proxy_pass $items_upstream;
+    }
+
+    # the social service (BalatroSocial): friends and chat. Its event stream
+    # (/social/v1/events) stays open and goes on as it comes: no buffering here,
+    # and X-Accel-Buffering passed on, so that a proxy in front doesn't buffer it either
+    location /social/ {
+        set $social_upstream ${SOCIAL_UPSTREAM};
+        rewrite ^/social/(.*)$ /$1 break;
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 1h;
+        proxy_pass_header X-Accel-Buffering;
+        proxy_pass $social_upstream;
     }
 
     location /identity/ {

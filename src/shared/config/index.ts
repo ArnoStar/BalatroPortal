@@ -14,6 +14,8 @@ export const IDENTITY_BASE = env('VITE_IDENTITY_URL') || '/identity';
 export const REPORTS_BASE = env('VITE_REPORTS_URL') || '/reports';
 /** the item service (BalatroItemService): `<items_base>/v1/...` */
 export const ITEMS_BASE = env('VITE_ITEMS_URL') || '/items';
+/** the social service (BalatroSocial): `<social_base>/v1/...` */
+export const SOCIAL_BASE = env('VITE_SOCIAL_URL') || '/social';
 /** the game (BalatroFrontEnd) */
 export const GAME_URL = env('VITE_GAME_URL') || '/play';
 

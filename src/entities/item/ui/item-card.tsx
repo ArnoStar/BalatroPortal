@@ -22,16 +22,22 @@ const STAKE_STICKERS: Record<number, [number, number]> = {
 
 type Atlas = typeof STICKERS;
 
-/** the CSS of one cell of a sheet, `scale` pixels per 1x pixel (as background and as mask) */
-function cell(atlas: Atlas, x: number, y: number, scale: number): CSSProperties {
+/**
+ * The CSS of one cell of a sheet, `scale` pixels per 1x pixel: its shape (a
+ * mask) and, unless `picture` is false, its picture. An edition's layer takes
+ * only the shape: its own light (the stylesheet's background and its
+ * animation) must not be the sprite sheet, which the animation would scroll
+ * across the card.
+ */
+function cell(atlas: Atlas, x: number, y: number, scale: number, picture = true): CSSProperties {
   const url = `url("${TEXTURES}/${atlas.file}")`;
   const size = `${atlas.cols * atlas.px * scale}px ${atlas.rows * atlas.py * scale}px`;
   const pos = `${-x * atlas.px * scale}px ${-y * atlas.py * scale}px`;
-  return {
+  const shape: CSSProperties = {
     width: atlas.px * scale, height: atlas.py * scale,
-    backgroundImage: url, backgroundSize: size, backgroundPosition: pos,
     maskImage: url, maskSize: size, maskPosition: pos, WebkitMaskImage: url, WebkitMaskSize: size, WebkitMaskPosition: pos,
   };
+  return picture ? { ...shape, backgroundImage: url, backgroundSize: size, backgroundPosition: pos } : shape;
 }
 
 /** the item's picture: `scale` 1 is the game's 1x size (71 x 95 for a joker) */
@@ -47,7 +53,7 @@ export function ItemArt({ item, scale = 1.5 }: { item: Item; scale?: number }) {
     <div className={`item-art item-art--${item.edition} item-art--${item.kind}`} style={{ width: atlas.px * scale, height: atlas.py * scale }}>
       <div className="item-art__layer item-art__base" style={cell(atlas, x, y, scale)} />
       {soul ? <div className="item-art__layer item-art__soul" style={cell(atlas, soul.x, soul.y, scale)} /> : null}
-      {item.edition !== 'base' ? <div className="item-art__layer item-art__edition" style={cell(atlas, x, y, scale)} /> : null}
+      {item.edition !== 'base' ? <div className="item-art__layer item-art__edition" style={cell(atlas, x, y, scale, false)} /> : null}
       {sticker ? <div className="item-art__layer item-art__sticker" style={cell(STICKERS, sticker[0], sticker[1], scale)} /> : null}
     </div>
   );

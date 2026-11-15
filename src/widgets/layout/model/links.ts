@@ -1,6 +1,7 @@
 // The site's pages for the player who is here: the sidebar and the search
 // palette list the same ones.
 import { useSession } from '@/entities/session';
+import { useSocial } from '@/entities/social';
 import { items_api, reports_api } from '@/shared/api';
 import { use_async } from '@/shared/lib';
 import type { IconName } from '@/shared/ui';
@@ -24,6 +25,7 @@ export interface LinkGroup {
 
 export function use_links(): LinkGroup[] {
   const { status, account } = useSession();
+  const social = useSocial();
   const signed_in = status === 'signed-in';
   // the developers see the bug reports (the report service says who they are)
   const reports = use_async(() => (status === 'loading' ? Promise.resolve(null) : reports_api.me().catch(() => null)), [status]);
@@ -49,6 +51,13 @@ export function use_links(): LinkGroup[] {
         links: [
           { to: '/stats', label: 'Your stats', icon: 'chart', hint: 'Your runs in numbers' },
           { to: '/players/me', label: 'Your profile', icon: 'user', hint: 'What other players see' },
+        ],
+      },
+      {
+        label: 'Social',
+        links: [
+          { to: '/friends', label: 'Friends', icon: 'users', hint: 'Who is online, requests, invite links', badge: social.incoming.length || undefined },
+          { to: '/chat', label: 'Chat', icon: 'chat', hint: 'Your friends and groups; share runs and seeds', badge: social.unread || undefined },
         ],
       },
       {
