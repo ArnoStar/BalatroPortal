@@ -5,6 +5,7 @@ export { BarList, ColumnChart, Meter, Ring, StatTile, plural, type Accent, type 
 export { CopyText } from './copy';
 export { Field } from './field';
 export { Icon, type IconName } from './icons';
+export { Modal } from './modal';
 export { CountUp, useTilt } from './motion';
 export { Alert, Divider, EmptyState, PageHeader, Panel, Spinner } from './panel';
 export { Segmented, type SegmentedOption } from './segmented';

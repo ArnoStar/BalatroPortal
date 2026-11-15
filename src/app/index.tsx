@@ -6,14 +6,24 @@ import '@fontsource-variable/inter';
 import '@fontsource-variable/jetbrains-mono';
 import '@fontsource-variable/unbounded';
 import { RouterProvider } from 'react-router';
-import { SessionProvider } from '@/entities/session';
+import type { ReactNode } from 'react';
+import { SessionProvider, useSession } from '@/entities/session';
+import { SocialProvider } from '@/entities/social';
 import { router } from './router';
 import './styles/index.css';
+
+/** friends and chat, for a signed-in player */
+function Social({ children }: { children: ReactNode }) {
+  const { status } = useSession();
+  return <SocialProvider enabled={status === 'signed-in'}>{children}</SocialProvider>;
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <SessionProvider>
-      <RouterProvider router={router} />
+      <Social>
+        <RouterProvider router={router} />
+      </Social>
     </SessionProvider>
   </StrictMode>,
 );

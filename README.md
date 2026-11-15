@@ -68,7 +68,7 @@ BalatroFrontEnd, then open http://localhost:8087.
 | `/confirm?email=&next=` | the emailed code; signs in at once when the password is still in memory |
 | `/forgot`, `/reset?email=` | a reset code, then a new password |
 | `/auth/callback` | where Google sends the browser back (one of the identity service's `OAUTH_REDIRECT_URIS`) |
-| `/account` | display name, in the game (private profile; "unlock everything" for testers, developers and admins), sign-in methods (link or unlink Google, set a password), log out (everywhere), delete the account |
+| `/account` | display name, profile picture (BalatroSocial: cut square and sent at 256 x 256; friends and the chat show it), in the game (private profile; "unlock everything" for testers, developers and admins), sign-in methods (link or unlink Google, set a password), log out (everywhere), delete the account |
 | `/players/:id`, `/players/me` | a player's profile: their stats, collection (what they have discovered and unlocked, stakes won by deck) and recent runs (another player's: finished ones), each with *Watch* (`/play/?watch=<id>`). A private profile shows only the name. Leaderboard names link here |
 | `/stats` | the player's statistics, like the game's Profile > Stats: high scores, career stats, the last 30 days, poker hands, decks, jokers, consumables, vouchers |
 | `/leaderboards` | best hand, highest ante and round, most money, bosses in a row and wins, by deck and stake; then everyone's runs together |
@@ -76,6 +76,8 @@ BalatroFrontEnd, then open http://localhost:8087.
 | `/bugs`, `/bugs/:id` | the bug reports players sent from the game (developers only: the developer or admin role): the player's words, the screenshot, where they were, the errors, the game's recording as a timeline (API calls with their request ids, actions, states, inputs), notes, close/reopen, download, and *Replay it in the game* (`/play/?report=<id>`) |
 | `/inventory`, `/item/:id` | the player's items (BalatroItemService, `/items/`): the game's jokers and tags with an edition, drawn with the game's sprites; this week's drops, *Look for new items*, how items are found (the odds); an item's number, odds, where it came from (with a *Watch* link to the run), its history, and *Show it on your title screen* |
 | `/trades`, `/trades/new` | offers made to the player and theirs: accept, decline, cancel; a new offer to a player (found by name, or from their profile or an item), their items for yours |
+| `/friends`, `/friends/add/:code` | friends (BalatroSocial, `/social/`): who is online and what they play, *Message*, remove, block; requests waiting (accept, decline, take back); finding players by name or friend code; the player's friend code and invite link (`/friends/add/<code>` shows the inviting player, with *Add friend*), who may send them requests and whether friends see them online; blocked players; *Among friends*: the bests of the player and their friends (their public profiles) |
+| `/chat`, `/chat/:id` | direct conversations and groups of friends, live (the social service's event stream): messages, read receipts, "… is writing", unread counts (also in the sidebar), muting; sharing a run (a card with its deck, stake, ante, best hand and seed: *Watch*, *Play this seed*) or a seed; groups: rename, add friends, remove (the owner), leave. The home page's runs have *Share* too |
 
 `/stats` and `/leaderboards` need a signed-in player, unless the API runs
 without sign-in (`GET /api/v1/health` says `"auth": "off"`). The numbers come
@@ -104,18 +106,20 @@ the history.
 ```
 src/
   app/        entry point, the router (with the sign-in guard), the styles (app/styles, below)
-  pages/      home (the hero; a visitor's landing or a player's dashboard and runs), stats,
-              leaderboards (and everyone's stats), players, inventory, item, trades, new-trade,
-              casino (coinflips, the jackpot, a game and the check of its draw), bugs, bug, admin,
-              login, register, confirm-email, forgot-password, reset-password, auth-callback,
-              account, not-found
+  pages/      home (the hero; a visitor's landing or a player's dashboard and runs, each with
+              Share), stats, leaderboards (and everyone's stats), players, inventory, item, trades,
+              new-trade, casino (coinflips, the jackpot, a game and the check of its draw), friends,
+              chat, bugs, bug, admin, account, not-found; auth/ (a group: login, register,
+              confirm-email, forgot-password, reset-password, auth-callback)
   widgets/    layout (the sidebar, a drawer on narrow screens, the search palette, the WebGL
               backdrop, the footer), run-card, auth-shell (the sign-in pages' layout)
   features/   auth: the sign-in forms, Google, the callback, the email codes
   entities/   session: the signed-in player (React context); catalog: the game's
               names for decks, stakes, cards (from the API's catalog), and a deck's
-              glyph; item: an item drawn with the game's sprites, and its card
-  shared/     api (identity, game API, items, reports, session, problem details),
+              glyph; item: an item drawn with the game's sprites, and its card; social:
+              friends, conversations and requests kept live by the social service's event
+              stream (SocialProvider, mounted by the app for a signed-in player)
+  shared/     api (identity, game API, items, reports, social, session, problem details),
               config (URLs), lib (number and time formats), ui (icons, buttons, panels,
               page headers, fields, the segmented control, avatars, charts, counting
               numbers, the pointer tilt, the hand of cards)
@@ -138,7 +142,7 @@ cards, the deck glyphs, the poker-chip coin and the backdrop are the portal's.
   `tokens.css` (colours, type, shape, motion: change the look there first),
   `base.css`, `layout.css` (the shell), `components.css` (the shared pieces),
   `cards.css`, one file per part of the site (`home`, `auth`, `play`, `items`,
-  `casino`, `staff`), and `motion.css` last.
+  `casino`, `staff`, `social`), and `motion.css` last.
 - **Type** is self-hosted (Fontsource, no request to a font service): Inter for
   text and numbers, Unbounded for titles, JetBrains Mono for seeds and hashes.
 - **The backdrop** is a small WebGL shader (`widgets/layout/ui/backdrop.tsx`):
@@ -177,9 +181,11 @@ same origin:
 | `VITE_IDENTITY_URL` | `/identity` | the identity service |
 | `VITE_GAME_URL` | `/play` | the game |
 
-The Docker image's nginx takes `GAME_UPSTREAM`, `API_UPSTREAM` and
-`IDENTITY_UPSTREAM`, which are origins (`http://host:port`), and `RESOLVER`
-(Docker's DNS by default).
+The Docker image's nginx takes `GAME_UPSTREAM`, `API_UPSTREAM`,
+`IDENTITY_UPSTREAM`, `REPORTS_UPSTREAM`, `ITEMS_UPSTREAM` and `SOCIAL_UPSTREAM`,
+which are origins (`http://host:port`), and `RESOLVER` (Docker's DNS by
+default). `/social/` is passed on unbuffered, for its event stream (and with
+`X-Accel-Buffering: no`, so that an nginx in front of it doesn't buffer it either).
 
 ## Deployment
 

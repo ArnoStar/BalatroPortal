@@ -43,5 +43,25 @@ export {
   type Week,
 } from './items';
 export { ProblemError, describe, type Problem } from './problem';
+export {
+  avatar_url,
+  read_social_events,
+  social_api,
+  type Activity,
+  type ChatMember,
+  type ChatMessage,
+  type Conversation,
+  type FriendRequest,
+  type PlayerRef,
+  type Presence,
+  type Relation,
+  type RequestStatus,
+  type RunCard,
+  type SeedCard,
+  type SocialEvent,
+  type SocialMe,
+  type SocialPlayer,
+  type SystemNote,
+} from './social';
 export { reports_api, type RecordedEvent, type Report, type ReportItem, type ReportStatus } from './reports';
 export { SESSION_KEY, access_token, read_session, refresh_session, save_tokens, write_session, type Session, type Tokens } from './session';

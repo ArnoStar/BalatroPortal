@@ -1,6 +1,8 @@
 import { useId } from 'react';
 import { Link, NavLink } from 'react-router';
 import { useSession } from '@/entities/session';
+import { useSocial } from '@/entities/social';
+import { avatar_url } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
 import { AnchorButton, Avatar, Icon, LinkButton } from '@/shared/ui';
 import type { LinkGroup } from '../model/links';
@@ -41,6 +43,7 @@ export function Brand() {
 /** the sidebar's content: Play, search, the pages, and who is signed in */
 export function Sidebar({ groups, onSearch }: { groups: LinkGroup[]; onSearch: () => void }) {
   const { status, account } = useSession();
+  const social = useSocial();
   const id = useId();
   return (
     <>
@@ -81,7 +84,7 @@ export function Sidebar({ groups, onSearch }: { groups: LinkGroup[]; onSearch: (
       <div className="sidebar__foot">
         {status === 'signed-in' && account ? (
           <NavLink to="/account" className="me" viewTransition>
-            <Avatar name={account.display_name} />
+            <Avatar name={account.display_name} src={avatar_url(account.id, social.me?.avatar)} />
             <span className="me__text">
               <span className="me__name">{account.display_name}</span>
               <span className="me__sub">{account.roles?.length ? account.roles.join(' · ') : 'Your account'}</span>

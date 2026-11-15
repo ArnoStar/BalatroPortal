@@ -3,22 +3,24 @@ import { useSession } from '@/entities/session';
 import { Layout } from '@/widgets/layout';
 import { AccountPage } from '@/pages/account';
 import { AdminPage } from '@/pages/admin';
-import { AuthCallbackPage } from '@/pages/auth-callback';
+import { AuthCallbackPage } from '@/pages/auth/auth-callback';
 import { BugPage } from '@/pages/bug';
 import { BugsPage } from '@/pages/bugs';
 import { CasinoGamePage, CasinoPage } from '@/pages/casino';
-import { ConfirmEmailPage } from '@/pages/confirm-email';
-import { ForgotPasswordPage } from '@/pages/forgot-password';
+import { ChatPage } from '@/pages/chat';
+import { ConfirmEmailPage } from '@/pages/auth/confirm-email';
+import { ForgotPasswordPage } from '@/pages/auth/forgot-password';
+import { FriendsPage } from '@/pages/friends';
 import { HomePage } from '@/pages/home';
 import { InventoryPage } from '@/pages/inventory';
 import { ItemPage } from '@/pages/item';
 import { LeaderboardsPage } from '@/pages/leaderboards';
-import { LoginPage } from '@/pages/login';
+import { LoginPage } from '@/pages/auth/login';
 import { NewTradePage } from '@/pages/new-trade';
 import { NotFoundPage } from '@/pages/not-found';
 import { PlayerPage } from '@/pages/player';
-import { RegisterPage } from '@/pages/register';
-import { ResetPasswordPage } from '@/pages/reset-password';
+import { RegisterPage } from '@/pages/auth/register';
+import { ResetPasswordPage } from '@/pages/auth/reset-password';
 import { StatsPage } from '@/pages/stats';
 import { TradesPage } from '@/pages/trades';
 import { game_api } from '@/shared/api';
@@ -61,6 +63,11 @@ export const router = createBrowserRouter([
         element: <RequireSignIn />,
         children: [
           { path: 'account', element: <AccountPage /> },
+          // the social service's (its paths are /social/...: these pages aren't there)
+          { path: 'friends', element: <FriendsPage /> },
+          { path: 'friends/add/:code', element: <FriendsPage /> },
+          { path: 'chat', element: <ChatPage /> },
+          { path: 'chat/:id', element: <ChatPage /> },
           // admins' (the identity service refuses everyone else)
           { path: 'admin', element: <AdminPage /> },
         ],

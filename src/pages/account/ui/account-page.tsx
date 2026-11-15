@@ -1,8 +1,11 @@
 import { useSearchParams } from 'react-router';
 import { useSession } from '@/entities/session';
+import { useSocial } from '@/entities/social';
+import { avatar_url } from '@/shared/api';
 import { DeleteAccount } from './delete-account';
 import { DisplayNameForm } from './display-name-form';
 import { GameSettings } from './game-settings';
+import { ProfilePicture } from './profile-picture';
 import { SignOutButtons } from './sessions';
 import { SignInMethods } from './sign-in-methods';
 import { Alert, Avatar, Icon, LinkButton, PageHeader, Panel } from '@/shared/ui';
@@ -11,6 +14,7 @@ const since = new Intl.DateTimeFormat(undefined, { dateStyle: 'long' });
 
 export function AccountPage() {
   const { account } = useSession();
+  const social = useSocial();
   const [params] = useSearchParams();
   if (!account) return null;
   const linked = params.get('linked');
@@ -22,7 +26,7 @@ export function AccountPage() {
       ) : null}
       <div className="account">
         <aside className="account__card" aria-label="Your account">
-          <Avatar name={account.display_name} size="xl" />
+          <Avatar name={account.display_name} src={avatar_url(account.id, social.me?.avatar)} size="xl" />
           <h2 className="account__name">{account.display_name}</h2>
           <p className="account__email">
             <Icon name="mail" />
@@ -52,6 +56,9 @@ export function AccountPage() {
         <div className="stack">
           <Panel title="Display name" icon="user">
             <DisplayNameForm />
+          </Panel>
+          <Panel title="Profile picture" icon="image">
+            <ProfilePicture />
           </Panel>
           <Panel title="In the game" icon="play">
             <GameSettings />
