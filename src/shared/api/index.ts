@@ -52,6 +52,7 @@ export {
   type RequestStatus,
   type RunCard,
   type SeedCard,
+  type MatchInvite,
   type SocialEvent,
   type SocialMe,
   type SocialPlayer,

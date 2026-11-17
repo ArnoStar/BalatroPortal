@@ -111,6 +111,19 @@ export interface Conversation {
   updated_at: string;
 }
 
+/** an invite to a friend's multiplayer match: join it in the game with its code (<game>/?match=<code>) */
+export interface MatchInvite {
+  id: string;
+  sender: PlayerRef;
+  recipient: PlayerRef;
+  /** the match's mode: pvp, coop */
+  mode: string;
+  code: string;
+  status: 'pending' | 'accepted' | 'declined';
+  created_at: string;
+  expires_at: string;
+}
+
 /** the live events (BalatroSocial's docs/events.md) */
 export type SocialEvent =
   | { type: 'hello' | 'me'; data: SocialMe }
@@ -122,6 +135,7 @@ export type SocialEvent =
   | { type: 'friend_request'; data: FriendRequest }
   | { type: 'friend'; data: SocialPlayer }
   | { type: 'presence'; data: { player: string; presence: Presence } }
+  | { type: 'invite'; data: MatchInvite }
   | { type: 'expired' | 'reset'; data: Record<string, never> };
 
 const url = (path: string) => `${SOCIAL_BASE}${path}`;
@@ -232,6 +246,9 @@ export const social_api = {
     send<ChatMessage>('POST', `/v1/conversations/${id(c)}/messages`, message),
   delete_message: (c: string, message: string) => send<ChatMessage>('DELETE', `/v1/conversations/${id(c)}/messages/${id(message)}`),
   read: (c: string, seq: number) => send<void>('POST', `/v1/conversations/${id(c)}/read`, { seq }),
+  /** your open invites to friends' matches */
+  invites: () => get<MatchInvite[]>('/v1/invites'),
+  answer_invite: (invite: string, answer: 'accept' | 'decline') => send<MatchInvite>('POST', `/v1/invites/${id(invite)}/${answer}`),
   typing: (c: string) => send<void>('POST', `/v1/conversations/${id(c)}/typing`),
 };
 

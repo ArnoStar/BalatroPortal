@@ -7,6 +7,13 @@
 import type { Dictionary } from '../i18n';
 
 export const ru: Dictionary = {
+  "{name} invites you to play coop": "{name} зовёт вас играть вместе",
+  "{name} invites you to a PvP match": "{name} зовёт вас в PvP-матч",
+  "{name} wants to be your friend": "{name} хочет добавить вас в друзья",
+  "Notifications ({n})": "Уведомления ({n})",
+  "Notifications": "Уведомления",
+  "Nothing new": "Ничего нового",
+  "Join": "Войти",
   "Choosing a blind": "Выбор блайнда",
   "Playing a blind": "Блайнд",
   "Cashing out": "Подсчёт",

@@ -11,6 +11,7 @@ import {
   social_api,
   type Conversation,
   type FriendRequest,
+  type MatchInvite,
   type SocialEvent,
   type SocialMe,
   type SocialPlayer,
@@ -22,6 +23,8 @@ interface State {
   conversations: Conversation[];
   /** pending, to the player and from them */
   requests: FriendRequest[];
+  /** open invites to friends' matches */
+  invites: MatchInvite[];
   /** the event stream is open */
   live: boolean;
   /** the service couldn't be reached (the last try) */
@@ -29,13 +32,13 @@ interface State {
 }
 
 type Action =
-  | { type: 'loaded'; me: SocialMe; friends: SocialPlayer[]; conversations: Conversation[]; requests: FriendRequest[] }
+  | { type: 'loaded'; me: SocialMe; friends: SocialPlayer[]; conversations: Conversation[]; requests: FriendRequest[]; invites: MatchInvite[] }
   | { type: 'live'; live: boolean }
   | { type: 'error'; error: unknown }
   | { type: 'reset' }
   | { type: 'event'; event: SocialEvent };
 
-const EMPTY: State = { me: null, friends: [], conversations: [], requests: [], live: false, error: null };
+const EMPTY: State = { me: null, friends: [], conversations: [], requests: [], invites: [], live: false, error: null };
 
 const by_recent = (a: Conversation, b: Conversation) => b.updated_at.localeCompare(a.updated_at) || a.id.localeCompare(b.id);
 const by_presence = (a: SocialPlayer, b: SocialPlayer) =>
@@ -90,6 +93,10 @@ function apply(state: State, e: SocialEvent): State {
       return { ...state, friends: upsert(state.friends, e.data).sort(by_presence) };
     case 'friend_removed':
       return { ...state, friends: state.friends.filter((f) => f.id !== e.data.id) };
+    case 'invite': {
+      const others = state.invites.filter((i) => i.id !== e.data.id);
+      return { ...state, invites: e.data.status === 'pending' && e.data.recipient.id === me ? [e.data, ...others] : others };
+    }
     case 'presence':
       return {
         ...state,
@@ -105,7 +112,7 @@ function reduce(state: State, a: Action): State {
     case 'loaded':
       return {
         ...state, me: a.me, friends: [...a.friends].sort(by_presence), conversations: [...a.conversations].sort(by_recent),
-        requests: a.requests, error: null,
+        requests: a.requests, invites: a.invites, error: null,
       };
     case 'live':
       return { ...state, live: a.live, error: a.live ? null : state.error };
@@ -150,10 +157,11 @@ export function SocialProvider({ enabled, children }: { enabled: boolean; childr
 
   const load = useCallback(async () => {
     try {
-      const [me, friends, conversations, requests] = await Promise.all([
+      const [me, friends, conversations, requests, invites] = await Promise.all([
         social_api.me(), social_api.friends(), social_api.conversations(), social_api.requests('all'),
+        social_api.invites().catch(() => [] as MatchInvite[]),
       ]);
-      dispatch({ type: 'loaded', me, friends, conversations, requests });
+      dispatch({ type: 'loaded', me, friends, conversations, requests, invites });
     } catch (error) {
       dispatch({ type: 'error', error });
     }

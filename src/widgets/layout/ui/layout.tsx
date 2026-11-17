@@ -5,6 +5,7 @@ import { AnchorButton, Icon } from '@/shared/ui';
 import { t } from '@/shared/i18n';
 import { use_links } from '../model/links';
 import { Backdrop } from './backdrop';
+import { Notifications } from './notifications';
 import { Palette } from './palette';
 import { Brand, Mark, Sidebar } from './sidebar';
 
@@ -89,6 +90,7 @@ export function Layout() {
           <span>{t('Balatro is a game by LocalThunk, published by Playstack.')}</span>
         </footer>
       </div>
+      <Notifications />
       <Palette open={searching} onClose={() => setSearching(false)} groups={groups} />
       <ScrollRestoration />
     </div>
