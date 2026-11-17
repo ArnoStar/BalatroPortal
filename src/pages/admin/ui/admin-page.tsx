@@ -2,10 +2,11 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { describe, identity, ProblemError, type AccountSummary, type Role } from '@/shared/api';
 import { use_async } from '@/shared/lib';
 import { Alert, Avatar, Button, EmptyState, Icon, PageHeader, Panel, Spinner } from '@/shared/ui';
+import { fmt_date, t } from '@/shared/i18n';
 
 const ROLES: Role[] = ['admin', 'developer', 'tester'];
 const PAGE = 50;
-const when = new Intl.DateTimeFormat(undefined, { dateStyle: 'short' });
+const when = { format: (d: Date) => fmt_date(d) };
 
 /** Accounts and their roles (admins only: the identity service refuses everyone else). */
 export function AdminPage() {
@@ -23,7 +24,7 @@ export function AdminPage() {
   useEffect(() => setRows(data?.accounts ?? []), [data]);
 
   if (error instanceof ProblemError && error.code === 'forbidden') {
-    return <Alert>Accounts and roles are for the admins.</Alert>;
+    return <Alert>{t('Accounts and roles are for the admins.')}</Alert>;
   }
 
   function search(e: FormEvent) {
@@ -49,10 +50,10 @@ export function AdminPage() {
   return (
     <div className="stack">
       <PageHeader
-        eyebrow="Staff"
+        eyebrow={t('Staff')}
         icon="shield"
-        title="Accounts and roles"
-        lead="A change is in the account's access tokens from their next refresh (within 15 minutes). The last admin keeps the admin role."
+        title={t('Accounts and roles')}
+        lead={t('A change is in the account’s access tokens from their next refresh (within 15 minutes). The last admin keeps the admin role.')}
       />
       {roles.data ? (
         <dl className="roles-legend">
@@ -69,11 +70,11 @@ export function AdminPage() {
       <Panel>
         <form className="filters" onSubmit={search} role="search">
           <div className="field admin__search">
-            <label htmlFor="admin-query">Email or name</label>
+            <label htmlFor="admin-query">{t('Email or name')}</label>
             <input id="admin-query" value={query} onChange={(e) => setQuery(e.target.value)} maxLength={320} />
           </div>
           <label className="select">
-            <span>Role</span>
+            <span>{t('Role')}</span>
             <select
               value={filter.role}
               onChange={(e) => {
@@ -81,7 +82,7 @@ export function AdminPage() {
                 setFilter({ ...filter, role: e.target.value as Role | '' });
               }}
             >
-              <option value="">Any</option>
+              <option value="">{t('Any')}</option>
               {ROLES.map((r) => (
                 <option key={r} value={r}>
                   {r}
@@ -90,7 +91,7 @@ export function AdminPage() {
             </select>
           </label>
           <Button type="submit" icon={<Icon name="search" />}>
-            Search
+            {t('Search')}
           </Button>
         </form>
         {problem ? <Alert>{problem}</Alert> : null}
@@ -106,14 +107,14 @@ export function AdminPage() {
                 <table className="table">
                   <thead>
                     <tr>
-                      <th scope="col">Name</th>
-                      <th scope="col">Email</th>
+                      <th scope="col">{t('Name')}</th>
+                      <th scope="col">{t('Email')}</th>
                       {ROLES.map((r) => (
                         <th key={r} scope="col" className="admin__role">
                           {r}
                         </th>
                       ))}
-                      <th scope="col">Since</th>
+                      <th scope="col">{t('Since')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -121,13 +122,13 @@ export function AdminPage() {
                       <tr key={a.id}>
                         <th scope="row">
                           <span className="who">
-                            <Avatar name={a.display_name} size="sm" />
+                            <Avatar name={a.display_name} player={a.id} size="sm" />
                             {a.display_name}
                           </span>
                         </th>
                         <td className="admin__email">
                           {a.email}
-                          {a.email_verified ? null : <span className="tag tag--muted">unconfirmed</span>}
+                          {a.email_verified ? null : <span className="tag tag--muted">{t('unconfirmed')}</span>}
                         </td>
                         {ROLES.map((r) => (
                           <td key={r} className="admin__role">
@@ -151,12 +152,12 @@ export function AdminPage() {
                 </table>
               </div>
             ) : (
-              <EmptyState icon="users" title="No account matches" />
+              <EmptyState icon="users" title={t('No account matches')} />
             )}
             {data.total > rows.length ? (
               <p>
                 <Button tone="grey" onClick={() => setPages(pages + 1)} icon={<Icon name="chevron-down" />}>
-                  Show more
+                  {t('Show more')}
                 </Button>
               </p>
             ) : null}

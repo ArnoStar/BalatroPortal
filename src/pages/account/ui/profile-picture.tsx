@@ -6,6 +6,7 @@ import { useSession } from '@/entities/session';
 import { useSocial } from '@/entities/social';
 import { avatar_url, describe, social_api } from '@/shared/api';
 import { Alert, Avatar, Button, Icon } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 
 const SIZE = 256;
 
@@ -16,14 +17,14 @@ async function square(file: File): Promise<Blob> {
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = SIZE;
   const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('this browser can’t draw the picture');
+  if (!ctx) throw new Error(t('This browser can’t draw the picture.'));
   ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, SIZE, SIZE);
   bitmap.close();
   const as = (type: string, quality: number) => new Promise<Blob | null>((done) => canvas.toBlob(done, type, quality));
   const webp = await as('image/webp', 0.88);
   const blob = webp?.type === 'image/webp' ? webp : await as('image/jpeg', 0.9);
-  if (!blob) throw new Error('the picture couldn’t be made');
+  if (!blob) throw new Error(t('The picture couldn’t be made.'));
   return blob;
 }
 
@@ -46,7 +47,7 @@ export function ProfilePicture() {
     setDone(null);
     try {
       social.apply({ type: 'me', data: await social_api.set_avatar(await square(file)) });
-      setDone('Your new picture is on.');
+      setDone(t('Your new picture is on.'));
     } catch (err) {
       setError(err);
     } finally {
@@ -60,7 +61,7 @@ export function ProfilePicture() {
     setDone(null);
     try {
       social.apply({ type: 'me', data: await social_api.remove_avatar() });
-      setDone('Your initials are back.');
+      setDone(t('Your initials are back.'));
     } catch (err) {
       setError(err);
     } finally {
@@ -72,21 +73,21 @@ export function ProfilePicture() {
     <div className="picture-form">
       <Avatar name={account.display_name} src={src} size="xl" />
       <div className="stack stack--tight">
-        <p className="muted">Your friends see it next to your name, in their lists and in the chat. A photo or an image of yours: it is cut square.</p>
+        <p className="muted">{t('Your friends see it next to your name, in their lists and in the chat. A photo or an image of yours: it is cut square.')}</p>
         <div className="row">
           <input ref={input} type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="visually-hidden" onChange={chosen} id="picture-file" />
           <Button busy={busy === 'upload'} disabled={!social.me} onClick={() => input.current?.click()} icon={<Icon name="image" />}>
-            {src ? 'Change it' : 'Choose a picture'}
+            {src ? t('Change it') : t('Choose a picture')}
           </Button>
           {src ? (
             <Button tone="ghost" busy={busy === 'remove'} onClick={remove} icon={<Icon name="trash" />}>
-              Remove it
+              {t('Remove it')}
             </Button>
           ) : null}
         </div>
         {done ? <Alert tone="success">{done}</Alert> : null}
         {error ? <Alert>{describe(error)}</Alert> : null}
-        {!social.me && social.error ? <Alert tone="info">The friends service can&rsquo;t be reached right now.</Alert> : null}
+        {!social.me && social.error ? <Alert tone="info">{t('The friends service can’t be reached right now.')}</Alert> : null}
       </div>
     </div>
   );

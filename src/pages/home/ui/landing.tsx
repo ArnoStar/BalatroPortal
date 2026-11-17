@@ -3,31 +3,32 @@ import { game_api } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
 import { format_number, use_async } from '@/shared/lib';
 import { Alert, AnchorButton, CountUp, Icon, LinkButton, useTilt, type Accent, type IconName } from '@/shared/ui';
+import { N_, t } from '@/shared/i18n';
 
 const FEATURES: { icon: IconName; accent: Accent; title: string; text: string }[] = [
   {
     icon: 'target',
     accent: 'blue',
-    title: 'The real rules',
-    text: "Every shuffle, shop and boss blind follows the original game's rules, so a seed always plays the same run.",
+    title: N_('The real rules'),
+    text: N_('Every shuffle, shop and boss blind follows the original game’s rules, so a seed always plays the same run.'),
   },
   {
     icon: 'trophy',
     accent: 'gold',
-    title: 'Leaderboards',
-    text: 'Best hand, highest ante, most money, bosses in a row and wins, by deck and by stake.',
+    title: N_('Leaderboards'),
+    text: N_('Best hand, highest ante, most money, bosses in a row and wins, by deck and by stake.'),
   },
   {
     icon: 'cards',
     accent: 'violet',
-    title: 'Items to collect',
-    text: "Find the game's jokers and tags, some foil, holographic, polychrome or negative, and trade them.",
+    title: N_('Items to collect'),
+    text: N_('Find the game’s jokers and tags, some foil, holographic, polychrome or negative, and trade them.'),
   },
   {
     icon: 'eye',
     accent: 'green',
-    title: 'Watch any run',
-    text: "Play your runs back move by move, and other players' finished ones from their profiles.",
+    title: N_('Watch any run'),
+    text: N_('Play your runs back move by move, and other players’ finished ones from their profiles.'),
   },
 ];
 
@@ -38,8 +39,8 @@ function Feature({ icon, accent, title, text, i }: (typeof FEATURES)[number] & {
       <span className="feature__icon" aria-hidden>
         <Icon name={icon} />
       </span>
-      <h3>{title}</h3>
-      <p>{text}</p>
+      <h3>{t(title)}</h3>
+      <p>{t(text)}</p>
     </li>
   );
 }
@@ -52,15 +53,15 @@ export function Landing({ open }: { open: boolean }) {
   const play_next = new URLSearchParams({ next: `${GAME_URL}/` });
   return (
     <>
-      {open ? <Alert tone="info">This server runs without accounts: everyone plays as the same player.</Alert> : null}
+      {open ? <Alert tone="info">{t('This server runs without accounts: everyone plays as the same player.')}</Alert> : null}
       <section aria-labelledby="features-title">
         <div className="section-head">
           <div>
             <p className="eyebrow">
-              <Icon name="sparkles" /> What's here
+              <Icon name="sparkles" /> {t('What’s here')}
             </p>
             <h2 className="section-title" id="features-title">
-              A whole run, in a browser tab
+              {t('A whole run, in a browser tab')}
             </h2>
           </div>
         </div>
@@ -75,41 +76,41 @@ export function Landing({ open }: { open: boolean }) {
           <div className="section-head">
             <div>
               <p className="eyebrow">
-                <Icon name="pulse" /> Everyone's runs
+                <Icon name="pulse" /> {t('Everyone’s runs')}
               </p>
               <h2 className="section-title" id="numbers-title">
-                The table so far
+                {t('The table so far')}
               </h2>
             </div>
             <LinkButton to="/leaderboards" tone="grey" icon={<Icon name="trophy" />} viewTransition>
-              Leaderboards
+              {t('Leaderboards')}
             </LinkButton>
           </div>
           <dl className="numbers">
             <div>
-              <dt>Players</dt>
+              <dt>{t('Players')}</dt>
               <dd>
                 <CountUp value={g.players} />
               </dd>
             </div>
             <div>
-              <dt>Runs</dt>
+              <dt>{t('Runs')}</dt>
               <dd>
                 <CountUp value={g.runs} />
               </dd>
             </div>
             <div>
-              <dt>Hands played</dt>
+              <dt>{t('Hands played')}</dt>
               <dd>
                 <CountUp value={g.hands_played} />
               </dd>
             </div>
             <div>
-              <dt>Best hand</dt>
+              <dt>{t('Best hand')}</dt>
               <dd>{typeof g.best_hand === 'number' ? <CountUp value={g.best_hand} /> : format_number(g.best_hand)}</dd>
             </div>
             <div>
-              <dt>Highest ante</dt>
+              <dt>{t('Highest ante')}</dt>
               <dd>
                 <CountUp value={g.highest_ante} />
               </dd>
@@ -125,21 +126,21 @@ export function Landing({ open }: { open: boolean }) {
           <Icon name="diamond" />
         </div>
         <div>
-          <h2 id="cta-title">Your next run is one click away.</h2>
-          <p>Free, in the browser, and your runs, stats and items stay with your account.</p>
+          <h2 id="cta-title">{t('Your next run is one click away.')}</h2>
+          <p>{t('Free, in the browser, and your runs, stats and items stay with your account.')}</p>
         </div>
         <div className="row">
           {open ? (
             <AnchorButton size="lg" className="btn--play" href={`${GAME_URL}/`} icon={<Icon name="play" />}>
-              Play now
+              {t('Play now')}
             </AnchorButton>
           ) : (
             <>
               <LinkButton size="lg" className="btn--play" to={`/register?${play_next}`} icon={<Icon name="user-plus" />} viewTransition>
-                Create an account
+                {t('Create an account')}
               </LinkButton>
               <LinkButton size="lg" tone="grey" to={`/login?${play_next}`} viewTransition>
-                Sign in
+                {t('Sign in')}
               </LinkButton>
             </>
           )}

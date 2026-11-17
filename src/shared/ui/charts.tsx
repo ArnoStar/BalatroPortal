@@ -3,11 +3,12 @@
 // colours, tooltips on hover and keyboard focus, and a table view for every
 // chart. Numbers keep proportional figures, except in columns.
 import type { CSSProperties, ReactNode } from 'react';
+import { fmt_number, t, tp } from '@/shared/i18n';
 import { format_compact } from '@/shared/lib';
 import { Icon, type IconName } from './icons';
 
 /** "1 run", "3 runs" */
-export const plural = (n: number, one: string, many = `${one}s`) => `${n.toLocaleString('en-US')} ${n === 1 ? one : many}`;
+export const plural = (n: number, one: string, many = `${one}s`) => tp(n, `# ${one}`, `# ${many}`);
 
 export type Accent = 'blue' | 'red' | 'gold' | 'green' | 'violet' | 'orange';
 
@@ -42,8 +43,8 @@ export interface Bar {
 }
 
 /** horizontal bars, largest first as given: magnitude by length */
-export function BarList({ bars, empty = 'Nothing yet.' }: { bars: Bar[]; empty?: ReactNode }) {
-  if (!bars.length) return <p className="muted">{empty}</p>;
+export function BarList({ bars, empty }: { bars: Bar[]; empty?: ReactNode }) {
+  if (!bars.length) return <p className="muted">{empty ?? t('Nothing yet.')}</p>;
   const max = Math.max(...bars.map((b) => b.value), 1);
   return (
     <ul className="bar-list">
@@ -53,7 +54,7 @@ export function BarList({ bars, empty = 'Nothing yet.' }: { bars: Bar[]; empty?:
           <span className="bar-list__track">
             {/* (the bar shares its row with the value at its tip: 6rem kept for it) */}
             <span className="bar-list__bar" style={{ width: `calc((100% - 6rem) * ${Math.max(b.value / max, 0.005)})` }} />
-            <span className="bar-list__value">{b.text ?? b.value.toLocaleString('en-US')}</span>
+            <span className="bar-list__value">{b.text ?? fmt_number(b.value)}</span>
           </span>
           {b.detail ? <span className="bar-list__detail">{b.detail}</span> : null}
         </li>
@@ -98,15 +99,15 @@ export function ColumnChart({ columns, caption, unit }: { columns: Column[]; cap
       </div>
       <figcaption className="muted">{caption}</figcaption>
       <details className="columns__table">
-        <summary>Show as a table</summary>
+        <summary>{t('Show as a table')}</summary>
         <table className="table">
           <thead>
             <tr>
-              <th scope="col">Day</th>
+              <th scope="col">{t('Day')}</th>
               <th scope="col" className="num">
                 {unit[0]?.toUpperCase() + unit.slice(1)}
               </th>
-              <th scope="col">Detail</th>
+              <th scope="col">{t('Detail')}</th>
             </tr>
           </thead>
           <tbody>

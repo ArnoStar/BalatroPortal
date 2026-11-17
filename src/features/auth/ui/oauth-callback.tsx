@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { identity, describe } from '@/shared/api';
 import { safe_next } from '@/shared/lib';
 import { Alert, Spinner } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 import { take_oauth_next } from '../model/pending';
 import { useFinishSignIn } from '../model/use-finish';
 
@@ -21,7 +22,7 @@ export function OAuthCallback({ params }: { params: URLSearchParams }) {
     const next = safe_next(take_oauth_next());
     if (next.startsWith('/account')) setBack('/account'); // (linking from the account page)
     if (params.get('error') || !code || !state) {
-      setError(params.get('error') === 'access_denied' ? 'The sign-in was cancelled.' : 'Google didn\'t sign you in.');
+      setError(params.get('error') === 'access_denied' ? t('The sign-in was cancelled.') : t('Google didn’t sign you in.'));
       return;
     }
     identity
@@ -30,12 +31,12 @@ export function OAuthCallback({ params }: { params: URLSearchParams }) {
       .catch((err: unknown) => setError(describe(err)));
   }, [params, finish]);
 
-  if (!error) return <Spinner label="Signing you in" />;
+  if (!error) return <Spinner label={t('Signing you in')} />;
   return (
     <>
       <Alert>{error}</Alert>
       <p>
-        <Link to={back}>{back === '/account' ? 'Back to your account' : 'Back to the sign-in'}</Link>
+        <Link to={back}>{back === '/account' ? t('Back to your account') : t('Back to the sign-in')}</Link>
       </p>
     </>
   );

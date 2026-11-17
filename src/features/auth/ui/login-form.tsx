@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { identity, describe, ProblemError } from '@/shared/api';
 import { Alert, Button, Field } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 import { remember_credentials } from '../model/pending';
 import { useFinishSignIn } from '../model/use-finish';
 
@@ -33,14 +34,14 @@ export function LoginForm({ next, email: initial = '' }: { next: string; email?:
   return (
     <form className="form" onSubmit={submit}>
       {error ? <Alert>{error}</Alert> : null}
-      <Field label="Email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-      <Field label="Password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+      <Field label={t('Email')} type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+      <Field label={t('Password')} type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
       <Button type="submit" busy={busy} wide>
-        Sign in
+        {t('Sign in')}
       </Button>
       <p className="form__links">
-        <Link to={`/forgot?${new URLSearchParams({ email, next })}`}>Forgot your password?</Link>
-        <Link to={`/register?${new URLSearchParams({ next })}`}>Create an account</Link>
+        <Link to={`/forgot?${new URLSearchParams({ email, next })}`}>{t('Forgot your password?')}</Link>
+        <Link to={`/register?${new URLSearchParams({ next })}`}>{t('Create an account')}</Link>
       </p>
     </form>
   );

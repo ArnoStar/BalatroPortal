@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { identity, describe, ProblemError } from '@/shared/api';
 import { Alert, Button, Field } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 import { remember_credentials } from '../model/pending';
 
 export function RegisterForm({ next }: { next: string }) {
@@ -16,7 +17,7 @@ export function RegisterForm({ next }: { next: string }) {
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (password !== repeat) {
-      setError('The two passwords are different.');
+      setError(t('The two passwords are different.'));
       return;
     }
     setBusy(true);
@@ -40,8 +41,8 @@ export function RegisterForm({ next }: { next: string }) {
     <form className="form" onSubmit={submit}>
       {error ? <Alert>{error}</Alert> : null}
       <Field
-        label="Display name"
-        hint="What other players see. 3 to 24 letters, digits, spaces, . _ -"
+        label={t('Display name')}
+        hint={t('What other players see. 3 to 24 letters, digits, spaces, . _ -')}
         autoComplete="nickname"
         required
         minLength={3}
@@ -49,23 +50,23 @@ export function RegisterForm({ next }: { next: string }) {
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
-      <Field label="Email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+      <Field label={t('Email')} type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
       <Field
-        label="Password"
+        label={t('Password')}
         type="password"
         autoComplete="new-password"
-        hint="At least 8 characters."
+        hint={t('At least 8 characters.')}
         required
         minLength={8}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <Field label="Repeat the password" type="password" autoComplete="new-password" required value={repeat} onChange={(e) => setRepeat(e.target.value)} />
+      <Field label={t('Repeat the password')} type="password" autoComplete="new-password" required value={repeat} onChange={(e) => setRepeat(e.target.value)} />
       <Button type="submit" busy={busy} wide>
-        Create the account
+        {t('Create the account')}
       </Button>
       <p className="form__links">
-        <Link to={`/login?${new URLSearchParams({ next })}`}>I already have an account</Link>
+        <Link to={`/login?${new URLSearchParams({ next })}`}>{t('I already have an account')}</Link>
       </p>
     </form>
   );

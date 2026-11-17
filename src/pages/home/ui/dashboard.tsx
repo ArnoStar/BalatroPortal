@@ -3,6 +3,7 @@ import { game_api, items_api, type RunSummary } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
 import { format_number, format_percent, time_ago, time_left, use_async } from '@/shared/lib';
 import { AnchorButton, CountUp, Icon, LinkButton, Panel } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 import { RunsList } from './runs-list';
 
 /** For a signed-in player: the run to continue, their runs, their numbers, this week's items. */
@@ -32,7 +33,7 @@ function Continue({ run }: { run: RunSummary }) {
         <DeckGlyph deck={run.settings.deck} size="lg" />
         <div>
           <p className="eyebrow">
-            <span className="hero__dot" aria-hidden /> Your run is waiting
+            <span className="hero__dot" aria-hidden /> {t('Your run is waiting')}
           </p>
           <h2 id="continue-title" className="continue__title">
             {deck_name(run.settings.deck)}
@@ -46,26 +47,26 @@ function Continue({ run }: { run: RunSummary }) {
       </div>
       <dl className="continue__stats">
         <div>
-          <dt>Ante</dt>
+          <dt>{t('Ante')}</dt>
           <dd>{run.ante}</dd>
         </div>
         <div>
-          <dt>Round</dt>
+          <dt>{t('Round')}</dt>
           <dd>{run.round}</dd>
         </div>
         <div>
-          <dt>Money</dt>
+          <dt>{t('Money')}</dt>
           <dd className="money">${run.dollars}</dd>
         </div>
         {run.best_hand ? (
           <div>
-            <dt>Best hand</dt>
+            <dt>{t('Best hand')}</dt>
             <dd>{format_number(run.best_hand)}</dd>
           </div>
         ) : null}
       </dl>
       <AnchorButton size="lg" className="btn--play continue__go" href={`${GAME_URL}/`} icon={<Icon name="play" />}>
-        Continue
+        {t('Continue')}
       </AnchorButton>
     </section>
   );
@@ -78,31 +79,31 @@ function Numbers() {
   const h = data.high_scores;
   return (
     <Panel
-      title="Your numbers"
+      title={t('Your numbers')}
       icon="chart"
       actions={
         <LinkButton to="/stats" tone="ghost" size="sm" viewTransition>
-          All stats <Icon name="arrow-right" />
+          {t('All stats')} <Icon name="arrow-right" />
         </LinkButton>
       }
     >
       <dl className="mini-stats">
         <div>
-          <dt>Runs</dt>
+          <dt>{t('Runs')}</dt>
           <dd>
             <CountUp value={data.runs.counted} />
           </dd>
         </div>
         <div>
-          <dt>Win rate</dt>
+          <dt>{t('Win rate')}</dt>
           <dd>{format_percent(data.runs.won, finished)}</dd>
         </div>
         <div>
-          <dt>Best hand</dt>
+          <dt>{t('Best hand')}</dt>
           <dd>{typeof h.best_hand === 'number' ? <CountUp value={h.best_hand} /> : format_number(h.best_hand)}</dd>
         </div>
         <div>
-          <dt>Highest ante</dt>
+          <dt>{t('Highest ante')}</dt>
           <dd>
             <CountUp value={h.highest_ante} />
           </dd>
@@ -118,7 +119,7 @@ function ThisWeek() {
   const w = data.week;
   return (
     <Panel
-      title="This week's items"
+      title={t('This week’s items')}
       icon="gift"
       actions={
         <LinkButton to="/inventory" tone="ghost" size="sm" viewTransition>
@@ -130,20 +131,20 @@ function ThisWeek() {
         <li className={w.weekly_found ? 'is-done' : undefined}>
           <Icon name={w.weekly_found ? 'check-circle' : 'target'} />
           <span>
-            <strong>This week's item</strong>
-            <small>{w.weekly_found ? 'Found' : 'Finish a run at ante 3 or later'}</small>
+            <strong>{t('This week’s item')}</strong>
+            <small>{w.weekly_found ? t('Found') : t('Finish a run at ante 3 or later')}</small>
           </span>
         </li>
         <li className={w.weekly_win_found ? 'is-done' : undefined}>
           <Icon name={w.weekly_win_found ? 'check-circle' : 'trophy'} />
           <span>
-            <strong>This week's win</strong>
-            <small>{w.weekly_win_found ? 'Found' : 'Win a run'}</small>
+            <strong>{t('This week’s win')}</strong>
+            <small>{w.weekly_win_found ? t('Found') : t('Win a run')}</small>
           </span>
         </li>
       </ul>
       <p className="muted week-next">
-        <Icon name="clock" /> New week in {time_left(Date.parse(w.next_week_at) - Date.now())}
+        <Icon name="clock" /> {t('New week in {time}', { time: time_left(Date.parse(w.next_week_at) - Date.now()) })}
       </p>
     </Panel>
   );

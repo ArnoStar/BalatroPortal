@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { CardFan, Icon, useTilt, type IconName } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 
 /** The sign-in pages: the form on its card, beside a hand of cards and what an account keeps. */
 export function AuthShell({ title, lead, icon, children }: { title: string; lead?: ReactNode; icon: IconName; children: ReactNode }) {
@@ -9,16 +10,16 @@ export function AuthShell({ title, lead, icon, children }: { title: string; lead
       <div className="auth__art" ref={art}>
         <CardFan size="md" />
         <div className="auth__pitch">
-          <p className="auth__motto">Same seed, same run.</p>
+          <p className="auth__motto">{t('Same seed, same run.')}</p>
           <ul>
             <li>
-              <Icon name="history" /> Your runs, kept and watchable
+              <Icon name="history" /> {t('Your runs, kept and watchable')}
             </li>
             <li>
-              <Icon name="trophy" /> A place on the leaderboards
+              <Icon name="trophy" /> {t('A place on the leaderboards')}
             </li>
             <li>
-              <Icon name="cards" /> Items found by playing
+              <Icon name="cards" /> {t('Items found by playing')}
             </li>
           </ul>
         </div>

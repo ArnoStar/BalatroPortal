@@ -4,8 +4,9 @@ import { DeckGlyph, deck_name, phase_name, stake_name, useCatalogNames } from '@
 import { GAME_URL } from '@/shared/config';
 import { format_number, time_ago } from '@/shared/lib';
 import { CopyText, Icon } from '@/shared/ui';
+import { fmt_datetime, t } from '@/shared/i18n';
 
-const when = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+const when = { format: (d: Date) => fmt_datetime(d) };
 
 /** won, lost, or still being played */
 export const run_state = (run: RunSummary) => (run.phase === 'game_over' ? (run.won ? 'won' : 'lost') : 'live');
@@ -14,7 +15,7 @@ export const run_state = (run: RunSummary) => (run.phase === 'game_over' ? (run.
 export function RunCard({ run, actions, watch }: { run: RunSummary; actions?: ReactNode; watch?: boolean }) {
   const name = useCatalogNames();
   const state = run_state(run);
-  const status = state === 'won' ? 'Won' : state === 'lost' ? 'Lost' : phase_name(run.phase);
+  const status = state === 'won' ? t('Won') : state === 'lost' ? t('Lost') : phase_name(run.phase);
   return (
     <li className={`run-card run-card--${state}`}>
       <DeckGlyph deck={run.settings.deck} />
@@ -23,41 +24,41 @@ export function RunCard({ run, actions, watch }: { run: RunSummary; actions?: Re
           <strong>{deck_name(run.settings.deck)}</strong>
           <span className={`stake stake--${run.settings.stake}`}>{stake_name(run.settings.stake)}</span>
           {run.settings.challenge ? (
-            <span className="tag" title="Challenge">
+            <span className="tag" title={t('Challenge')}>
               <Icon name="flame" />
               {name(run.settings.challenge)}
             </span>
           ) : null}
-          {run.settings.seeded ? <span className="tag">Seeded</span> : null}
+          {run.settings.seeded ? <span className="tag">{t('Seeded')}</span> : null}
           {run.counted === false ? (
-            <span className="tag tag--muted" title="Runs with a chosen seed, challenges and runs with debug commands don't count for stats and leaderboards">
-              Not in stats
+            <span className="tag tag--muted" title={t('Runs with a chosen seed, challenges and runs with debug commands don’t count for stats and leaderboards')}>
+              {t('Not in stats')}
             </span>
           ) : null}
         </div>
         <dl className="run-card__stats">
           <div>
-            <dt>Ante</dt>
+            <dt>{t('Ante')}</dt>
             <dd>{run.ante}</dd>
           </div>
           <div>
-            <dt>Round</dt>
+            <dt>{t('Round')}</dt>
             <dd>{run.round}</dd>
           </div>
           <div>
-            <dt>Money</dt>
+            <dt>{t('Money')}</dt>
             <dd className="money">${run.dollars}</dd>
           </div>
           {run.best_hand ? (
             <div>
-              <dt>Best hand</dt>
+              <dt>{t('Best hand')}</dt>
               <dd>{format_number(run.best_hand)}</dd>
             </div>
           ) : null}
         </dl>
         <div className="run-card__meta">
-          <CopyText text={run.settings.seed} label="Seed">
-            Seed {run.settings.seed}
+          <CopyText text={run.settings.seed} label={t('Seed')}>
+            {t('Seed {seed}', { seed: run.settings.seed })}
           </CopyText>
           <time dateTime={run.updated_at} title={when.format(new Date(run.updated_at))}>
             {time_ago(run.updated_at)}
@@ -74,7 +75,7 @@ export function RunCard({ run, actions, watch }: { run: RunSummary; actions?: Re
             {watch ? (
               <a className="btn btn--grey btn--sm" href={`${GAME_URL}/?watch=${encodeURIComponent(run.id)}`}>
                 <Icon name="eye" />
-                Watch
+                {t('Watch')}
               </a>
             ) : null}
             {actions}

@@ -3,8 +3,10 @@
 import { useSession } from '@/entities/session';
 import { useSocial } from '@/entities/social';
 import { items_api, reports_api } from '@/shared/api';
+import { CASINO_URL } from '@/shared/config';
 import { use_async } from '@/shared/lib';
 import type { IconName } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 
 export interface SiteLink {
   to: string;
@@ -16,6 +18,8 @@ export interface SiteLink {
   badge?: number;
   /** active only on this exact path */
   end?: boolean;
+  /** another app of the site (the casino): a full page load */
+  external?: boolean;
 }
 
 export interface LinkGroup {
@@ -31,48 +35,48 @@ export function use_links(): LinkGroup[] {
   const reports = use_async(() => (status === 'loading' ? Promise.resolve(null) : reports_api.me().catch(() => null)), [status]);
   // offers made to the player that wait for an answer
   const offers = use_async(
-    () => (signed_in ? items_api.trades('incoming').then((t) => t.filter((x) => x.status === 'pending').length, () => 0) : Promise.resolve(0)),
+    () => (signed_in ? items_api.trades('incoming').then((list) => list.filter((x) => x.status === 'pending').length, () => 0) : Promise.resolve(0)),
     [signed_in],
   );
 
   const groups: LinkGroup[] = [
     {
-      label: 'Explore',
+      label: t('Explore'),
       links: [
-        { to: '/', label: 'Home', icon: 'home', hint: 'The front door, and your runs', end: true },
-        { to: '/leaderboards', label: 'Leaderboards', icon: 'trophy', hint: 'Best hands, highest antes, wins' },
+        { to: '/', label: t('Home'), icon: 'home', hint: t('The front door, and your runs'), end: true },
+        { to: '/leaderboards', label: t('Leaderboards'), icon: 'trophy', hint: t('Best hands, highest antes, wins') },
       ],
     },
   ];
   if (signed_in) {
     groups.push(
       {
-        label: 'You',
+        label: t('You'),
         links: [
-          { to: '/stats', label: 'Your stats', icon: 'chart', hint: 'Your runs in numbers' },
-          { to: '/players/me', label: 'Your profile', icon: 'user', hint: 'What other players see' },
+          { to: '/stats', label: t('Your stats'), icon: 'chart', hint: t('Your runs in numbers') },
+          { to: '/players/me', label: t('Your profile'), icon: 'user', hint: t('What other players see') },
         ],
       },
       {
-        label: 'Social',
+        label: t('Social'),
         links: [
-          { to: '/friends', label: 'Friends', icon: 'users', hint: 'Who is online, requests, invite links', badge: social.incoming.length || undefined },
-          { to: '/chat', label: 'Chat', icon: 'chat', hint: 'Your friends and groups; share runs and seeds', badge: social.unread || undefined },
+          { to: '/friends', label: t('Friends'), icon: 'users', hint: t('Who is online, requests, invite links'), badge: social.incoming.length || undefined },
+          { to: '/chat', label: t('Chat'), icon: 'chat', hint: t('Your friends and groups; share runs and seeds'), badge: social.unread || undefined },
         ],
       },
       {
-        label: 'Items',
+        label: t('Items'),
         links: [
-          { to: '/inventory', label: 'Your items', icon: 'cards', hint: 'Jokers and tags found by playing' },
-          { to: '/trades', label: 'Trades', icon: 'swap', hint: 'Offers to you, and yours', badge: offers.data || undefined },
-          { to: '/casino', label: 'Casino', icon: 'dice', hint: 'Coinflips and the jackpot' },
+          { to: '/inventory', label: t('Your items'), icon: 'cards', hint: t('Jokers and tags found by playing') },
+          { to: '/trades', label: t('Trades'), icon: 'swap', hint: t('Offers to you, and yours'), badge: offers.data || undefined },
+          { to: `${CASINO_URL}/`, label: t('Casino'), icon: 'dice', hint: t('Coinflips, dice and the jackpot, live'), external: true },
         ],
       },
     );
   }
   const staff: SiteLink[] = [];
-  if (reports.data?.admin) staff.push({ to: '/bugs', label: 'Bug reports', icon: 'bug', hint: 'What players sent from the game' });
-  if (account?.roles?.includes('admin')) staff.push({ to: '/admin', label: 'Accounts', icon: 'shield', hint: 'Accounts and their roles' });
-  if (staff.length) groups.push({ label: 'Staff', links: staff });
+  if (reports.data?.admin) staff.push({ to: '/bugs', label: t('Bug reports'), icon: 'bug', hint: t('What players sent from the game') });
+  if (account?.roles?.includes('admin')) staff.push({ to: '/admin', label: t('Accounts'), icon: 'shield', hint: t('Accounts and their roles') });
+  if (staff.length) groups.push({ label: t('Staff'), links: staff });
   return groups;
 }

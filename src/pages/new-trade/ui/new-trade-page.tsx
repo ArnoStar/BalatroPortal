@@ -4,6 +4,7 @@ import { ItemCard } from '@/entities/item';
 import { describe, items_api, type Item, type ItemsPlayer } from '@/shared/api';
 import { use_async } from '@/shared/lib';
 import { Alert, Avatar, Button, EmptyState, Field, Icon, PageHeader, Panel, Spinner } from '@/shared/ui';
+import { fmt_date, t, tp, tx } from '@/shared/i18n';
 
 const MAX_SIDE = 10;
 
@@ -34,26 +35,26 @@ function PickPlayer({ onPick }: { onPick: (id: string) => void }) {
   }
   return (
     <div className="stack">
-      <PageHeader eyebrow="Trades" icon="swap" title="Make an offer" lead="Who do you want to trade with? Find a player by name." />
+      <PageHeader eyebrow={t('Trades')} icon="swap" title={t('Make an offer')} lead={t('Who do you want to trade with? Find a player by name.')} />
       <Panel narrow>
         <form onSubmit={search} className="form form--inline">
-          <Field label="The player's name" value={q} onChange={(e) => setQ(e.target.value)} required maxLength={40} autoComplete="off" />
+          <Field label={t('The player’s name')} value={q} onChange={(e) => setQ(e.target.value)} required maxLength={40} autoComplete="off" />
           <Button type="submit" busy={busy} icon={<Icon name="search" />}>
-            Search
+            {t('Search')}
           </Button>
         </form>
         {error ? <Alert>{describe(error)}</Alert> : null}
-        {found?.length === 0 ? <EmptyState icon="users" title="No player by that name has items" /> : null}
+        {found?.length === 0 ? <EmptyState icon="users" title={t('No player by that name has items')} /> : null}
         {found?.length ? (
           <ul className="players">
             {found.map((p) => (
               <li key={p.id}>
                 <button type="button" className="players__pick" onClick={() => onPick(p.id)} disabled={!p.can_trade}>
-                  <Avatar name={p.name} />
+                  <Avatar name={p.name} player={p.id} />
                   <span className="players__text">
-                    <strong>{p.name ?? 'A player'}</strong>
+                    <strong>{p.name ?? t('A player')}</strong>
                     <small>
-                      {p.items} items{p.can_trade ? '' : ", can't trade yet"}
+                      {tp(p.items, '# item', '# items')}{p.can_trade ? '' : `, ${t('can’t trade yet')}`}
                     </small>
                   </span>
                   <Icon name="chevron-right" />
@@ -82,7 +83,7 @@ function Offer({ to, preset }: { to: string; preset: string[] }) {
   if (data.loading && !data.data) return <Spinner />;
   if (data.error) {
     return (
-      <Panel title="Make an offer" icon="swap">
+      <Panel title={t('Make an offer')} icon="swap">
         <Alert>{describe(data.error)}</Alert>
       </Panel>
     );
@@ -111,47 +112,47 @@ function Offer({ to, preset }: { to: string; preset: string[] }) {
         {items.map((i, n) => (
           <ItemCard key={i.id} item={i} index={n} selected={list.includes(i.id)} onSelect={i.tradable ? () => toggle(list, set, i.id) : undefined}>
             {i.tradable ? null : (
-              <span className="muted">{i.staked ? 'Staked in the casino' : `Tradable from ${new Date(i.tradable_at).toLocaleDateString()}`}</span>
+              <span className="muted">{i.staked ? t('Staked in the casino') : t('Tradable from {date}', { date: fmt_date(i.tradable_at) })}</span>
             )}
           </ItemCard>
         ))}
       </ul>
     ) : (
-      <EmptyState icon="cards" title="No item" />
+      <EmptyState icon="cards" title={t('No item')} />
     );
 
   const name = player.name ?? 'a player';
   return (
     <form className="stack" onSubmit={send}>
       <PageHeader
-        eyebrow="Trades"
+        eyebrow={t('Trades')}
         icon="swap"
         title={
           <>
             An offer to <span className="page-title__name">{name}</span>
           </>
         }
-        lead={`Pick your items and theirs: up to ${MAX_SIDE} on each side, and one side may be empty.`}
+        lead={t('Pick your items and theirs: up to {n} on each side, and one side may be empty.', { n: MAX_SIDE })}
       />
-      {!player.can_trade ? <Alert tone="info">This player can't trade yet: trading opens after a first win.</Alert> : null}
+      {!player.can_trade ? <Alert tone="info">{t('This player can’t trade yet: trading opens after a first win.')}</Alert> : null}
       <div className="grid-2 offer">
-        <Panel title={`You give (${give.length})`} icon="arrow-right">
+        <Panel title={`${t('You give')} (${give.length})`} icon="arrow-right">
           {pickable(mine, give, setGive)}
         </Panel>
-        <Panel title={`You ask for (${take.length})`} icon="gift">
+        <Panel title={`${t('You ask for')} (${take.length})`} icon="gift">
           {pickable(theirs, take, setTake)}
         </Panel>
       </div>
       <div className="offer-bar">
-        <Avatar name={player.name} />
+        <Avatar name={player.name} player={player.id} />
         <div className="offer-bar__field">
-          <Field label="A message (optional)" value={message} onChange={(e) => setMessage(e.target.value)} maxLength={280} placeholder={`Say something to ${name}`} />
+          <Field label={t('A message (optional)')} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={280} placeholder={t('Say something to {name}', { name })} />
         </div>
         <p className="offer-bar__sum" aria-live="polite">
-          <strong>{give.length}</strong> for <strong>{take.length}</strong>
+          {tx('{give} for {take}', { give: <strong>{give.length}</strong>, take: <strong>{take.length}</strong> })}
         </p>
         <Button type="submit" tone="orange" size="lg" busy={busy} disabled={!give.length && !take.length} icon={<Icon name="swap" />}>
-          Send the offer
+          {t('Send the offer')}
         </Button>
         {error ? <Alert>{describe(error)}</Alert> : null}
       </div>

@@ -1,3 +1,4 @@
+export { load_game_text, type GameText } from './game-text';
 export { identity, type Account, type AccountSummary, type Provider, type Role } from './identity';
 export {
   BOARDS,
@@ -22,20 +23,12 @@ export {
 } from './game';
 export {
   items_api,
-  type Bet,
-  type CasinoGame,
-  type CasinoRules,
   type Edition,
-  type GameEntry,
-  type GameMode,
-  type GameStatus,
   type Item,
   type ItemSprite,
   type ItemsMe,
   type ItemsPlayer,
-  type JackpotState,
   type Odds,
-  type Side,
   type Trade,
   type TradeBox,
   type TradeStatus,
@@ -45,6 +38,7 @@ export {
 export { ProblemError, describe, type Problem } from './problem';
 export {
   avatar_url,
+  avatar_versions,
   read_social_events,
   social_api,
   type Activity,

@@ -5,7 +5,8 @@ import { ItemArt, ItemCard, item_label } from '@/entities/item';
 import { RunCard } from '@/widgets/run-card';
 import { ProblemError, describe, game_api, items_api, type CollectionView, type Item, type ItemsPlayer, type PlayerProfile } from '@/shared/api';
 import { format_number, format_percent, use_async } from '@/shared/lib';
-import { Alert, Avatar, CountUp, EmptyState, Icon, LinkButton, Panel, Ring, Spinner, StatTile, hue_of, plural } from '@/shared/ui';
+import { Alert, Avatar, CountUp, EmptyState, Icon, LinkButton, Panel, Ring, Spinner, StatTile, hue_of } from '@/shared/ui';
+import { fmt_number, hand_name, N_, t, tp, tx } from '@/shared/i18n';
 
 /** /players/:id (``me``: your own): a player's stats, items, collection and recent runs */
 export function PlayerPage() {
@@ -17,7 +18,7 @@ export function PlayerPage() {
   if (loading && !data) return <Spinner />;
   if (error) {
     return (
-      <Panel title="Player" icon="user">
+      <Panel title={t('Player')} icon="user">
         <Alert>{describe(error)}</Alert>
       </Panel>
     );
@@ -41,52 +42,50 @@ function use_items(player: string) {
 
 function Profile({ p }: { p: PlayerProfile }) {
   const items = use_items(p.id);
-  const name = p.name ?? 'A player';
+  const name = p.name ?? t('A player');
   const s = p.stats;
   const finished = s ? s.runs.won + s.runs.lost : 0;
   return (
     <div className="stack">
       <section className="profile" style={{ '--h': hue_of(name) } as CSSProperties} aria-labelledby="profile-name">
         <div className="profile__banner" aria-hidden />
-        <Avatar name={name} size="xl" className="profile__avatar" />
+        <Avatar name={name} player={p.id} size="xl" className="profile__avatar" />
         <div className="profile__text">
           <p className="eyebrow">
-            <Icon name="user" /> {p.you ? 'Your profile' : 'Player'}
+            <Icon name="user" /> {p.you ? t('Your profile') : t('Player')}
           </p>
           <h1 className="profile__name" id="profile-name">
             {name}
-            {p.you ? <span className="tag tag--you">You</span> : null}
+            {p.you ? <span className="tag tag--you">{t('You')}</span> : null}
             {p.private ? (
               <span className="tag tag--muted">
-                <Icon name="lock" /> Private
+                <Icon name="lock" /> {t('Private')}
               </span>
             ) : null}
           </h1>
           {s ? (
             <ul className="profile__facts">
               <li>
-                <strong>{s.runs.counted.toLocaleString('en-US')}</strong> runs
+                {tx('{n} runs', { n: <strong>{fmt_number(s.runs.counted)}</strong> })}
               </li>
               <li>
-                <strong>{s.runs.won.toLocaleString('en-US')}</strong> won
+                {tx('{n} won', { n: <strong>{fmt_number(s.runs.won)}</strong> })}
               </li>
               <li>
-                <strong>{format_percent(s.runs.won, finished)}</strong> win rate
+                {tx('{n} win rate', { n: <strong>{format_percent(s.runs.won, finished)}</strong> })}
               </li>
               <li>
-                best hand <strong>{format_number(s.high_scores.best_hand)}</strong>
+                {tx('best hand {n}', { n: <strong>{format_number(s.high_scores.best_hand)}</strong> })}
               </li>
             </ul>
           ) : (
-            <p className="muted">This profile is private: only the name shows.</p>
+            <p className="muted">{t('This profile is private: only the name shows.')}</p>
           )}
           {p.you ? (
             <p className="muted profile__note">
-              This is how others see your profile{p.private ? ' (it is private: they see only your name)' : ''}.{' '}
-              <Link to="/account" viewTransition>
-                Change it in your account
-              </Link>
-              .
+              {p.private
+                ? tx('This is how others see your profile (it is private: they see only your name). {link}.', { link: <AccountLink /> })
+                : tx('This is how others see your profile. {link}.', { link: <AccountLink /> })}
             </p>
           ) : null}
         </div>
@@ -94,17 +93,17 @@ function Profile({ p }: { p: PlayerProfile }) {
       </section>
 
       {s ? (
-        <section className="tiles" aria-label="High scores">
-          <StatTile icon="zap" accent="gold" label="Best hand" value={typeof s.high_scores.best_hand === 'number' ? <CountUp value={s.high_scores.best_hand} /> : format_number(s.high_scores.best_hand)} />
-          <StatTile icon="target" accent="blue" label="Highest ante" value={<CountUp value={s.high_scores.highest_ante} />} />
-          <StatTile icon="flame" accent="red" label="Bosses in a row" value={<CountUp value={s.high_scores.boss_streak} />} />
-          <StatTile icon="zap" accent="orange" label="Best win streak" value={<CountUp value={s.high_scores.best_win_streak} />} />
+        <section className="tiles" aria-label={t('High scores')}>
+          <StatTile icon="zap" accent="gold" label={t('Best hand')} value={typeof s.high_scores.best_hand === 'number' ? <CountUp value={s.high_scores.best_hand} /> : format_number(s.high_scores.best_hand)} />
+          <StatTile icon="target" accent="blue" label={t('Highest ante')} value={<CountUp value={s.high_scores.highest_ante} />} />
+          <StatTile icon="flame" accent="red" label={t('Bosses in a row')} value={<CountUp value={s.high_scores.boss_streak} />} />
+          <StatTile icon="zap" accent="orange" label={t('Best win streak')} value={<CountUp value={s.high_scores.best_win_streak} />} />
           <StatTile
             icon="cards"
             accent="violet"
-            label="Most played hand"
-            value={s.high_scores.most_played_hand ? s.high_scores.most_played_hand.key : '–'}
-            hint={s.high_scores.most_played_hand ? plural(s.high_scores.most_played_hand.count, 'time') : undefined}
+            label={t('Most played hand')}
+            value={s.high_scores.most_played_hand ? hand_name(s.high_scores.most_played_hand.key) : '–'}
+            hint={s.high_scores.most_played_hand ? tp(s.high_scores.most_played_hand.count, '# time', '# times') : undefined}
           />
         </section>
       ) : null}
@@ -112,7 +111,7 @@ function Profile({ p }: { p: PlayerProfile }) {
       <Items player={p.id} you={p.you} state={items} />
       {p.collection ? <Collection c={p.collection} /> : null}
       {s ? (
-        <Panel title={p.you ? 'Your recent runs' : 'Recent runs'} icon="history">
+        <Panel title={p.you ? t('Your recent runs') : t('Recent runs')} icon="history">
           {p.runs.length ? (
             <ul className="runs">
               {p.runs.map((run) => (
@@ -120,7 +119,7 @@ function Profile({ p }: { p: PlayerProfile }) {
               ))}
             </ul>
           ) : (
-            <EmptyState icon="play" title={p.you ? 'No run yet' : 'No finished run yet'} />
+            <EmptyState icon="play" title={p.you ? t('No run yet') : t('No finished run yet')} />
           )}
         </Panel>
       ) : null}
@@ -136,31 +135,39 @@ function Showcase({ item, you }: { item: Item; you: boolean }) {
         <ItemArt item={item} scale={1.6} />
       </span>
       <span className="profile__showcase-label">
-        <Icon name="star" /> On {you ? 'your' : 'their'} title screen
+        <Icon name="star" /> {you ? t('On your title screen') : t('On their title screen')}
       </span>
     </Link>
   );
 }
 
 const COLLECTION: [string, keyof CollectionView][] = [
-  ['Jokers', 'jokers'], ['Decks unlocked', 'decks'], ['Tarot cards', 'tarots'], ['Planet cards', 'planets'],
-  ['Spectral cards', 'spectrals'], ['Vouchers', 'vouchers'], ['Booster packs', 'boosters'], ['Editions', 'editions'],
-  ['Blinds', 'blinds'], ['Tags', 'tags'], ['Challenges completed', 'challenges'],
+  [N_('Jokers'), 'jokers'], [N_('Decks unlocked'), 'decks'], [N_('Tarot cards'), 'tarots'], [N_('Planet cards'), 'planets'],
+  [N_('Spectral cards'), 'spectrals'], [N_('Vouchers'), 'vouchers'], [N_('Booster packs'), 'boosters'], [N_('Editions'), 'editions'],
+  [N_('Blinds'), 'blinds'], [N_('Tags'), 'tags'], [N_('Challenges completed'), 'challenges'],
 ];
+
+function AccountLink() {
+  return (
+    <Link to="/account" viewTransition>
+      {t('Change it in your account')}
+    </Link>
+  );
+}
 
 function Collection({ c }: { c: CollectionView }) {
   const name = useCatalogNames();
   const stakes = Object.entries(c.deck_stakes).sort((a, b) => b[1] - a[1]);
   return (
-    <Panel title="Collection" icon="layers">
+    <Panel title={t('Collection')} icon="layers">
       <ul className="collection">
         {COLLECTION.map(([label, key]) => {
           const n = c[key] as { found: number; total: number };
           return (
             <li key={key} className="collection__item">
-              <Ring value={n.found} max={n.total} label={`${label}: ${n.found} of ${n.total}`} />
+              <Ring value={n.found} max={n.total} label={`${t(label)}: ${t('{a} of {b}', { a: n.found, b: n.total })}`} />
               <span>
-                <strong>{label}</strong>
+                <strong>{t(label)}</strong>
                 <small>
                   {n.found} / {n.total}
                 </small>
@@ -169,7 +176,7 @@ function Collection({ c }: { c: CollectionView }) {
           );
         })}
       </ul>
-      <h3 className="subhead">Stakes won</h3>
+      <h3 className="subhead">{t('Stakes won')}</h3>
       {stakes.length ? (
         <ul className="stakes-won">
           {stakes.map(([deck, stake]) => (
@@ -181,7 +188,7 @@ function Collection({ c }: { c: CollectionView }) {
           ))}
         </ul>
       ) : (
-        <p className="muted">No win yet.</p>
+        <p className="muted">{t('No win yet.')}</p>
       )}
     </Panel>
   );
@@ -194,22 +201,22 @@ function Items({ player, you, state }: {
   if (loading && data === undefined) return null;
   return (
     <Panel
-      title={you ? 'Your items' : 'Items'}
+      title={you ? t('Your items') : t('Items')}
       icon="cards"
       actions={
         you ? (
           <LinkButton to="/inventory" tone="grey" size="sm" viewTransition>
-            All your items <Icon name="arrow-right" />
+            {t('All your items')} <Icon name="arrow-right" />
           </LinkButton>
         ) : data?.who.can_trade ? (
           <LinkButton to={`/trades/new?to=${encodeURIComponent(player)}`} tone="orange" size="sm" icon={<Icon name="swap" />} viewTransition>
-            Offer a trade
+            {t('Offer a trade')}
           </LinkButton>
         ) : null
       }
     >
       {error ? <Alert>{describe(error)}</Alert> : null}
-      {data === null || data?.items.length === 0 ? <EmptyState icon="cards" title="No item yet" /> : null}
+      {data === null || data?.items.length === 0 ? <EmptyState icon="cards" title={t('No item yet')} /> : null}
       {data?.items.length ? (
         <ul className="item-grid">
           {data.items.map((i, n) => (

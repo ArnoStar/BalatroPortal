@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useSession } from '@/entities/session';
 import { identity, describe, refresh_session, read_session } from '@/shared/api';
 import { Alert, Button, Field } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 
 export function DisplayNameForm() {
   const { account, set_account } = useSession();
@@ -20,7 +21,7 @@ export function DisplayNameForm() {
       // the access token carries the name (the game shows it): get one with the new name
       const s = read_session();
       if (s) await refresh_session(s.access_token);
-      setMessage({ tone: 'success', text: 'Saved.' });
+      setMessage({ tone: 'success', text: t('Saved.') });
     } catch (err) {
       setMessage({ tone: 'error', text: describe(err) });
     } finally {
@@ -30,9 +31,9 @@ export function DisplayNameForm() {
 
   return (
     <form className="form form--inline" onSubmit={submit}>
-      <Field label="Display name" hint="What other players see." required minLength={3} maxLength={24} value={name} onChange={(e) => setName(e.target.value)} />
+      <Field label={t('Display name')} hint={t('What other players see.')} required minLength={3} maxLength={24} value={name} onChange={(e) => setName(e.target.value)} />
       <Button type="submit" busy={busy} disabled={name.trim() === account?.display_name}>
-        Save
+        {t('Save')}
       </Button>
       {message ? <Alert tone={message.tone}>{message.text}</Alert> : null}
     </form>

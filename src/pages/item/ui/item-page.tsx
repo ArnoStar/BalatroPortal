@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { useSession } from '@/entities/session';
-import { EDITION_NAMES, ItemArt, RARITY_NAMES, odds_label, source_label, stake_label } from '@/entities/item';
+import { edition_name, ItemArt, item_name, odds_label, rarity_name, source_label, stake_label } from '@/entities/item';
 import { describe, items_api, type Item, type Transfer } from '@/shared/api';
-import { GAME_URL } from '@/shared/config';
+import { CASINO_URL, GAME_URL } from '@/shared/config';
 import { use_async } from '@/shared/lib';
 import { Alert, Avatar, Button, Icon, LinkButton, Panel, Spinner, useTilt } from '@/shared/ui';
+import { fmt_datetime, t, tx } from '@/shared/i18n';
 
-const when = (iso: string) => new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+const when = (iso: string) => fmt_datetime(iso);
 
 /** /item/:id: an item, where it came from, and who has had it */
 export function ItemPage() {
@@ -20,7 +21,7 @@ export function ItemPage() {
   if (detail.loading && !detail.data) return <Spinner />;
   if (detail.error) {
     return (
-      <Panel title="Item" icon="cards">
+      <Panel title={t('Item')} icon="cards">
         <Alert>{describe(detail.error)}</Alert>
       </Panel>
     );
@@ -48,65 +49,62 @@ export function ItemPage() {
         <Stage item={item} />
         <div className="item-detail__info">
           <p className="eyebrow">
-            <Icon name={item.kind === 'tag' ? 'hash' : 'cards'} /> {item.kind === 'tag' ? 'Tag' : 'Joker'} · #{item.serial} of the {item.minted} found
+            <Icon name={item.kind === 'tag' ? 'hash' : 'cards'} /> {item.kind === 'tag' ? t('Tag') : t('Joker')} · {t('#{serial} of the {minted} found', { serial: item.serial, minted: item.minted })}
           </p>
           <h1 className="page-title" id="item-title">
-            {item.name}
+            {item_name(item)}
           </h1>
           <p className="item-detail__chips">
-            <span className={`rarity rarity--${item.rarity}`}>{RARITY_NAMES[item.rarity]}</span>
-            {item.edition !== 'base' ? <span className={`edition edition--${item.edition}`}>{EDITION_NAMES[item.edition]}</span> : null}
-            {item.stake ? <span className={`stake stake--${item.stake}`}>Won at {stake_label(item.stake)}</span> : null}
+            <span className={`rarity rarity--${item.rarity}`}>{rarity_name(item.rarity)}</span>
+            {item.edition !== 'base' ? <span className={`edition edition--${item.edition}`}>{edition_name(item.edition)}</span> : null}
+            {item.stake ? <span className={`stake stake--${item.stake}`}>{t('Won at {stake}', { stake: stake_label(item.stake) })}</span> : null}
             {shown ? (
               <span className="tag tag--gold">
-                <Icon name="star" /> On your title screen
+                <Icon name="star" /> {t('On your title screen')}
               </span>
             ) : null}
           </p>
           <dl className="specs">
             <div>
-              <dt>Odds</dt>
-              <dd>{odds_label(item.odds)} drops</dd>
+              <dt>{t('Odds')}</dt>
+              <dd>{t('{odds} drops', { odds: odds_label(item.odds) })}</dd>
             </div>
             <div>
-              <dt>Found</dt>
+              <dt>{t('Found')}</dt>
               <dd>
                 {when(item.found_at)}, from {source_label(item.source)}
                 {item.source_run ? (
                   <>
                     {' '}
-                    (<a href={`${GAME_URL}/?watch=${encodeURIComponent(item.source_run)}`}>watch the run</a>)
+                    (<a href={`${GAME_URL}/?watch=${encodeURIComponent(item.source_run)}`}>{t('watch the run')}</a>)
                   </>
                 ) : null}
               </dd>
             </div>
             <div>
-              <dt>Owner</dt>
+              <dt>{t('Owner')}</dt>
               <dd>
                 {mine ? (
-                  'You'
+                  t('You')
                 ) : (
                   <span className="who">
-                    <Avatar name={item.owner_name} size="sm" />
+                    <Avatar name={item.owner_name} player={item.owner} size="sm" />
                     <Link to={`/players/${encodeURIComponent(item.owner)}`} viewTransition>
-                      {item.owner_name ?? 'A player'}
+                      {item.owner_name ?? t('A player')}
                     </Link>
                   </span>
                 )}
               </dd>
             </div>
             <div>
-              <dt>Tradable</dt>
+              <dt>{t('Tradable')}</dt>
               <dd>
                 {item.staked ? (
                   <>
-                    No: staked in a{' '}
-                    <Link to={`/casino/${encodeURIComponent(item.staked)}`} viewTransition>
-                      casino game
-                    </Link>
+                    {tx('No: staked in {game}', { game: <a href={`${CASINO_URL}/${encodeURIComponent(item.staked)}`}>{t('a casino game')}</a> })}
                   </>
                 ) : item.tradable ? (
-                  <span className="win">Yes</span>
+                  <span className="win">{t('Yes')}</span>
                 ) : (
                   `From ${when(item.tradable_at)}`
                 )}
@@ -117,11 +115,11 @@ export function ItemPage() {
             {mine ? (
               shown ? (
                 <Button tone="grey" busy={busy} onClick={() => showcase(false)} icon={<Icon name="close" />}>
-                  Take it off your title screen
+                  {t('Take it off your title screen')}
                 </Button>
               ) : (
                 <Button busy={busy} onClick={() => showcase(true)} icon={<Icon name="star" />}>
-                  Show it on your title screen
+                  {t('Show it on your title screen')}
                 </Button>
               )
             ) : (
@@ -131,14 +129,14 @@ export function ItemPage() {
                 icon={<Icon name="swap" />}
                 viewTransition
               >
-                Offer a trade for it
+                {t('Offer a trade for it')}
               </LinkButton>
             )}
           </div>
           {error ? <Alert>{describe(error)}</Alert> : null}
         </div>
       </section>
-      <Panel title="History" icon="history">
+      <Panel title={t('History')} icon="history">
         <ol className="timeline-v">
           {history.map((h, i) => (
             <Step key={i} h={h} />
@@ -175,18 +173,19 @@ function Step({ h }: { h: Transfer }) {
         <p className="timeline-v__what">
           {h.game ? (
             <>
-              Won by <strong>{h.to_name ?? 'a player'}</strong> from {h.from_name ?? 'a player'} in{' '}
-              <Link to={`/casino/${encodeURIComponent(h.game)}`} viewTransition>
-                a casino game
-              </Link>
+              {tx('Won by {to} from {from} in {game}', {
+                to: <strong>{h.to_name ?? t('a player')}</strong>,
+                from: h.from_name ?? t('a player'),
+                game: <a href={`${CASINO_URL}/${encodeURIComponent(h.game)}`}>{t('a casino game')}</a>,
+              })}
             </>
           ) : h.from_player ? (
             <>
-              Traded from {h.from_name ?? 'a player'} to <strong>{h.to_name ?? 'a player'}</strong>
+              {tx('Traded from {from} to {to}', { from: h.from_name ?? t('a player'), to: <strong>{h.to_name ?? t('a player')}</strong> })}
             </>
           ) : (
             <>
-              Found by <strong>{h.to_name ?? 'a player'}</strong>
+              {tx('Found by {to}', { to: <strong>{h.to_name ?? t('a player')}</strong> })}
             </>
           )}
         </p>

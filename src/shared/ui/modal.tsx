@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
+import { t } from '@/shared/i18n';
 import { Icon } from './icons';
 
 /** a dialog over the page, open while it is shown; Escape, the close button or `onClose` closes it */
@@ -14,7 +15,7 @@ export function Modal({ title, onClose, children, wide = false }: {
     <dialog ref={ref} className={`modal${wide ? ' modal--wide' : ''}`} onClose={onClose}>
       <header className="modal__head">
         <h2 className="modal__title">{title}</h2>
-        <button type="button" className="icon-button" aria-label="Close" onClick={() => ref.current?.close()}>
+        <button type="button" className="icon-button" aria-label={t('Close')} onClick={() => ref.current?.close()}>
           <Icon name="close" />
         </button>
       </header>

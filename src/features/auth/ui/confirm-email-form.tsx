@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
 import { identity, describe, ProblemError } from '@/shared/api';
 import { Alert, Button, Field } from '@/shared/ui';
+import { t, tx } from '@/shared/i18n';
 import { take_credentials } from '../model/pending';
 import { useFinishSignIn } from '../model/use-finish';
 import { ResendButton } from './resend';
@@ -22,7 +23,7 @@ export function ConfirmEmailForm({ email, next, resend }: { email: string; next:
     if (!resend || sent_on_open.current) return;
     sent_on_open.current = true;
     identity.resend_confirmation(email).then(
-      () => { setInfo(`We sent a new code to ${email}.`); setWait(60); },
+      () => { setInfo(t('We sent a new code to {email}.', { email })); setWait(60); },
       (err: unknown) => {
         if (err instanceof ProblemError && err.problem.retry_after) setWait(err.problem.retry_after);
         else setError(describe(err));
@@ -49,10 +50,10 @@ export function ConfirmEmailForm({ email, next, resend }: { email: string; next:
 
   return (
     <form className="form" onSubmit={submit}>
-      {info ? <Alert tone="info">{info}</Alert> : <p>We sent a 6-digit code to <strong>{email}</strong>. It works for 10 minutes.</p>}
+      {info ? <Alert tone="info">{info}</Alert> : <p>{tx('We sent a 6-digit code to {email}. It works for 10 minutes.', { email: <strong>{email}</strong> })}</p>}
       {error ? <Alert>{error}</Alert> : null}
       <Field
-        label="Code"
+        label={t('Code')}
         inputMode="numeric"
         autoComplete="one-time-code"
         pattern="[0-9]{6}"
@@ -63,7 +64,7 @@ export function ConfirmEmailForm({ email, next, resend }: { email: string; next:
         onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
       />
       <Button type="submit" busy={busy} wide>
-        Confirm
+        {t('Confirm')}
       </Button>
       <ResendButton key={wait} initial_wait={wait} send={() => identity.resend_confirmation(email)} onError={setError} />
     </form>

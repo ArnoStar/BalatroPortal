@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { describe, game_api, type MeView } from '@/shared/api';
 import { use_async } from '@/shared/lib';
 import { Alert, Icon, Spinner } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 
 /** The game's side of the account: profile privacy, and "unlock everything" for testers. */
 export function GameSettings() {
@@ -34,18 +35,17 @@ export function GameSettings() {
       <label className="check">
         <input type="checkbox" role="switch" checked={me.private} disabled={busy} onChange={(e) => change({ private: e.target.checked })} />
         <span className="check__text">
-          <strong>Private profile</strong>
-          <span>Others see only your name, and can't watch your runs.</span>
+          <strong>{t('Private profile')}</strong>
+          <span>{t('Others see only your name, and can’t watch your runs.')}</span>
         </span>
       </label>
       {p.can_unlock_all ? (
         <label className="check">
           <input type="checkbox" role="switch" checked={p.all_unlocked} disabled={busy} onChange={(e) => change({ all_unlocked: e.target.checked })} />
           <span className="check__text">
-            <strong>Unlock everything (for tests)</strong>
+            <strong>{t('Unlock everything (for tests)')}</strong>
             <span>
-              Your new runs start with every deck, stake, challenge and card open. They add nothing to your progress, which
-              stays as it is: switch this off to get it back.
+              {t('Your new runs start with every deck, stake, challenge and card open. They add nothing to your progress, which stays as it is: switch this off to get it back.')}
             </span>
           </span>
         </label>
@@ -53,10 +53,10 @@ export function GameSettings() {
       <p className="muted settings-note">
         <Icon name="info" />
         {p.all_unlocked
-          ? 'Everything is unlocked for your new runs.'
-          : `Progress: ${p.unlocked.length} cards and decks unlocked beyond a new save, ${p.challenges_unlocked} challenges open.`}{' '}
+          ? t('Everything is unlocked for your new runs.')
+          : t('Progress: {cards} cards and decks unlocked beyond a new save, {challenges} challenges open.', { cards: p.unlocked.length, challenges: p.challenges_unlocked })}{' '}
         <Link to="/players/me" viewTransition>
-          See your profile
+          {t('See your profile')}
         </Link>
         .
       </p>

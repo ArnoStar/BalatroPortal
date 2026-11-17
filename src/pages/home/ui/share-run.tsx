@@ -4,8 +4,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { PresenceDot, conversation_title, useSocial } from '@/entities/social';
-import { avatar_url, describe, social_api, type RunSummary } from '@/shared/api';
+import { describe, social_api, type RunSummary } from '@/shared/api';
 import { Alert, Avatar, Icon, Modal } from '@/shared/ui';
+import { t, tp } from '@/shared/i18n';
 
 type Target = { kind: 'friend'; id: string } | { kind: 'conversation'; id: string };
 
@@ -32,33 +33,33 @@ export function ShareRunModal({ run, onClose }: { run: RunSummary; onClose: () =
   }
 
   return (
-    <Modal title="Share this run" onClose={onClose}>
+    <Modal title={t('Share this run')} onClose={onClose}>
       {sent ? (
         <Alert tone="success">
-          Shared with {sent.to}. <Link to={`/chat/${sent.conversation}`}>Open the conversation</Link>
+          Shared with {sent.to}. <Link to={`/chat/${sent.conversation}`}>{t('Open the conversation')}</Link>
         </Alert>
       ) : null}
       {error ? <Alert>{describe(error)}</Alert> : null}
       {!social.friends.length ? (
         <p className="muted">
-          Add friends to share your runs with them: <Link to="/friends">Friends</Link>.
+          Add friends to share your runs with them: <Link to="/friends">{t('Friends')}</Link>.
         </p>
       ) : (
         <>
           <div className="field">
-            <label htmlFor="share-run-note">A note (optional)</label>
-            <input id="share-run-note" value={note} maxLength={500} onChange={(e) => setNote(e.target.value)} placeholder="Look at this one" />
+            <label htmlFor="share-run-note">{t('A note (optional)')}</label>
+            <input id="share-run-note" value={note} maxLength={500} onChange={(e) => setNote(e.target.value)} placeholder={t('Look at this one')} />
           </div>
           <ul className="pick-list">
             {social.friends.map((f) => (
               <li key={f.id}>
                 <button type="button" className="pick" disabled={!!busy} onClick={() => share({ kind: 'friend', id: f.id }, f.name ?? 'your friend')}>
                   <span className="person__avatar">
-                    <Avatar name={f.name} seed={f.id} src={avatar_url(f.id, f.avatar)} size="sm" />
+                    <Avatar name={f.name} player={f.id} size="sm" />
                     <PresenceDot presence={f.presence} />
                   </span>
                   <span className="pick__text">
-                    <strong>{f.name ?? 'A player'}</strong>
+                    <strong>{f.name ?? t('A player')}</strong>
                   </span>
                   {busy === f.id ? <span className="spinner" aria-hidden /> : <Icon name="send" />}
                 </button>
@@ -72,7 +73,7 @@ export function ShareRunModal({ run, onClose }: { run: RunSummary; onClose: () =
                   </span>
                   <span className="pick__text">
                     <strong>{conversation_title(c, social.me?.id)}</strong>
-                    <span className="muted">{c.members.length} players</span>
+                    <span className="muted">{tp(c.members.length, '# player', '# players')}</span>
                   </span>
                   {busy === c.id ? <span className="spinner" aria-hidden /> : <Icon name="send" />}
                 </button>

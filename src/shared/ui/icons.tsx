@@ -134,6 +134,7 @@ const STROKED = {
     </>
   ),
   pulse: <path d="M3 12h4l2.5-6 5 12 2.5-6h4" />,
+  globe: <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM3.5 9h17M3.5 15h17M12 3c2.5 2.6 3.6 5.6 3.6 9s-1.1 6.4-3.6 9c-2.5-2.6-3.6-5.6-3.6-9s1.1-6.4 3.6-9z" />,
 } satisfies Record<string, ReactNode>;
 
 const FILLED = {

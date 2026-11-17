@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { useSession } from '@/entities/session';
 import { identity, describe } from '@/shared/api';
 import { Alert, Button, Field, Icon } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 
 const CONFIRM = 'DELETE';
 
@@ -30,14 +31,13 @@ export function DeleteAccount() {
   return (
     <form className="form" onSubmit={submit}>
       <p>
-        This deletes the account and its sign-in methods for good. Your runs stay on the game server but nobody can open them
-        any more.
+        {t('This deletes the account and its sign-in methods for good. Your runs stay on the game server but nobody can open them any more.')}
       </p>
       {error ? <Alert>{error}</Alert> : null}
       <Field label={`Type ${CONFIRM} to confirm`} autoComplete="off" value={typed} onChange={(e) => setTyped(e.target.value)} />
       <div>
         <Button type="submit" tone="red" busy={busy} disabled={typed !== CONFIRM} icon={<Icon name="trash" />}>
-          Delete my account
+          {t('Delete my account')}
         </Button>
       </div>
     </form>

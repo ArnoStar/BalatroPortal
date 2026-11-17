@@ -31,6 +31,17 @@ at `/play/` on the same origin.
    guard in `OAuthCallback`).
 6. **Errors are the services' problem details.** Show `describe(error)`, and
    switch on `error.code` (stable), never on the message.
+7. **Every text in the player's language.** Write it in English through
+   `t()`, `tp()`, `tx()` (or `N_()` in a table) from `@/shared/i18n`, with
+   plain string keys (no template literals: values go in `{placeholders}`),
+   and add its translation to every dictionary of `shared/i18n/messages`:
+   `npm run i18n` fails otherwise. A player's name never takes a gendered
+   verb in a translation (Russian marks it): "Ann wins", "Ann: ...". Numbers
+   and dates go through the formats (`fmt_number`, `fmt_date` ...); the game's
+   names through `deck_name`, `stake_name`, `item_name`, `hand_name`.
+   `shared/i18n/language.ts` is the same file as BalatroCasino's.
+8. **A player's name shows their picture.** Pass `player={id}` to `Avatar`;
+   never look pictures up one by one.
 
 ## Architecture (Feature-Sliced Design)
 
@@ -74,7 +85,7 @@ needs it; until then the code stays in the page that uses it (Steiger's
 npm install
 npm run dev         # (make run) :5174, with the game on :5173, the API on :8000, the identity service on :8001
                     # (BalatroFrontEnd's `make dev` runs them all)
-npm run check       # (make check) typecheck + lint
+npm run check       # (make check) typecheck + lint + i18n
 npm run typecheck
 npm run lint
 npm run build

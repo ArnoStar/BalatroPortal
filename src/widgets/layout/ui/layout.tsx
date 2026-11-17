@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Outlet, ScrollRestoration, useLocation } from 'react-router';
 import { GAME_URL } from '@/shared/config';
 import { AnchorButton, Icon } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 import { use_links } from '../model/links';
 import { Backdrop } from './backdrop';
 import { Palette } from './palette';
@@ -39,34 +40,34 @@ export function Layout() {
   return (
     <div className="shell">
       <a className="skip-link" href="#main">
-        Skip to the content
+        {t('Skip to the content')}
       </a>
       <Backdrop />
-      <aside className="sidebar" aria-label="Site">
+      <aside className="sidebar" aria-label={t('Site')}>
         <Sidebar groups={groups} onSearch={() => setSearching(true)} />
       </aside>
       <header className="topbar">
-        <button type="button" className="icon-button" aria-label="Open the menu" onClick={() => drawer.current?.showModal()}>
+        <button type="button" className="icon-button" aria-label={t('Open the menu')} onClick={() => drawer.current?.showModal()}>
           <Icon name="menu" />
         </button>
         <Brand />
-        <button type="button" className="icon-button" aria-label="Search" onClick={() => setSearching(true)}>
+        <button type="button" className="icon-button" aria-label={t('Search')} onClick={() => setSearching(true)}>
           <Icon name="search" />
         </button>
         <AnchorButton size="sm" href={`${GAME_URL}/`} icon={<Icon name="play" />}>
-          Play
+          {t('Play')}
         </AnchorButton>
       </header>
       <dialog
         ref={drawer}
         className="drawer"
-        aria-label="Menu"
+        aria-label={t('Menu')}
         onClick={(e) => {
           if (e.target === e.currentTarget) e.currentTarget.close();
         }}
       >
         <aside className="sidebar">
-          <button type="button" className="icon-button drawer__close" aria-label="Close the menu" onClick={() => drawer.current?.close()}>
+          <button type="button" className="icon-button drawer__close" aria-label={t('Close the menu')} onClick={() => drawer.current?.close()}>
             <Icon name="close" />
           </button>
           <Sidebar
@@ -84,8 +85,8 @@ export function Layout() {
         </main>
         <footer className="site-footer">
           <Mark />
-          <span>A fan-made browser version of Balatro, played with the original game's rules.</span>
-          <span>Balatro is a game by LocalThunk, published by Playstack.</span>
+          <span>{t('A fan-made browser version of Balatro, played with the original game’s rules.')}</span>
+          <span>{t('Balatro is a game by LocalThunk, published by Playstack.')}</span>
         </footer>
       </div>
       <Palette open={searching} onClose={() => setSearching(false)} groups={groups} />

@@ -13,6 +13,7 @@ the portal and the game share the player's session:
 |---|---|---|
 | `/` | the portal (this app) | |
 | `/play/` | the game | BalatroFrontEnd |
+| `/casino/` | the casino: players stake their items, live | BalatroCasino |
 | `/api/` | the game API | BalatroWebAPI |
 | `/identity/` | accounts and tokens | BalatroIndentityService |
 
@@ -74,6 +75,7 @@ BalatroFrontEnd, then open http://localhost:8087.
 | `/leaderboards` | best hand, highest ante and round, most money, bosses in a row and wins, by deck and stake; then everyone's runs together |
 | `/admin` | accounts and their roles (admins only): find accounts, tick roles (`admin`, `developer`, `tester`); the identity service checks and records it |
 | `/bugs`, `/bugs/:id` | the bug reports players sent from the game (developers only: the developer or admin role): the player's words, the screenshot, where they were, the errors, the game's recording as a timeline (API calls with their request ids, actions, states, inputs), notes, close/reopen, download, and *Replay it in the game* (`/play/?report=<id>`) |
+| `/casino/` | not a page here: the casino is its own app (BalatroCasino); the sidebar, the inventory and the items' histories link to it, and its old address (`/casino?tab=`) lands there |
 | `/inventory`, `/item/:id` | the player's items (BalatroItemService, `/items/`): the game's jokers and tags with an edition, drawn with the game's sprites; this week's drops, *Look for new items*, how items are found (the odds); an item's number, odds, where it came from (with a *Watch* link to the run), its history, and *Show it on your title screen* |
 | `/trades`, `/trades/new` | offers made to the player and theirs: accept, decline, cancel; a new offer to a player (found by name, or from their profile or an item), their items for yours |
 | `/friends`, `/friends/add/:code` | friends (BalatroSocial, `/social/`): who is online and what they play, *Message*, remove, block; requests waiting (accept, decline, take back); finding players by name or friend code; the player's friend code and invite link (`/friends/add/<code>` shows the inviting player, with *Add friend*), who may send them requests and whether friends see them online; blocked players; *Among friends*: the bests of the player and their friends (their public profiles) |
@@ -87,6 +89,34 @@ challenges don't count. The charts are plain HTML and CSS
 (`shared/ui/charts.tsx`): one hue each, values at the bar tips, tooltips on
 hover and keyboard focus, and a table view; shares (the collection, win rates)
 are meters and rings.
+
+## Languages
+
+English and Russian. The language is the site's: the game's settings keep it
+(`localStorage['balatro-fe.settings'].language`, `shared/i18n/language.ts`,
+the same file as BalatroCasino's), so the portal, the casino and the game speak
+the same one; the first time, the browser's. The globe next to *Search*
+changes it.
+
+Text is written in English where it is shown, through `shared/i18n`:
+`t('Your runs')`, `t('Hello, {name}', { name })`, `tp(n, '# run', '# runs')`
+(a number and its word), `tx('Read {link}', { link: <a/> })` (elements in a
+sentence), and `N_('...')` for a text kept in a table and translated later.
+`src/shared/i18n/messages/ru.ts` maps each English text to its Russian (plural
+forms as `Intl.PluralRules` names them); `npm run i18n` lists what a language
+lacks and fails the checks then. Numbers and dates follow the language
+(`fmt_number`, `fmt_date`, `time_ago` ...). The names of decks, stakes, cards,
+hands and challenges are the game's own translations
+(`/play/localization/<language>.json`, `game_name`), and the services' errors
+are translated by their code (`describe`). A new language: its file in
+`messages/`, a line in `LANGUAGES`, and the game's key for it.
+
+## Profile pictures
+
+Every name of a player comes with their picture (`<Avatar player={id}>`):
+the pictures a page needs are looked up together (one request to the social
+service's public `GET /social/v1/avatars?ids=`), and the social provider keeps
+yours and your friends' up to date, so a new picture shows everywhere at once.
 
 ## The session
 
@@ -108,7 +138,7 @@ src/
   app/        entry point, the router (with the sign-in guard), the styles (app/styles, below)
   pages/      home (the hero; a visitor's landing or a player's dashboard and runs, each with
               Share), stats, leaderboards (and everyone's stats), players, inventory, item, trades,
-              new-trade, casino (coinflips, the jackpot, a game and the check of its draw), friends,
+              new-trade, friends,
               chat, bugs, bug, admin, account, not-found; auth/ (a group: login, register,
               confirm-email, forgot-password, reset-password, auth-callback)
   widgets/    layout (the sidebar, a drawer on narrow screens, the search palette, the WebGL
@@ -119,8 +149,9 @@ src/
               glyph; item: an item drawn with the game's sprites, and its card; social:
               friends, conversations and requests kept live by the social service's event
               stream (SocialProvider, mounted by the app for a signed-in player)
-  shared/     api (identity, game API, items, reports, social, session, problem details),
-              config (URLs), lib (number and time formats), ui (icons, buttons, panels,
+  shared/     api (identity, game API, items, reports, social, the game's text, session, problem details),
+              config (URLs), i18n (languages, the dictionaries, formats), lib (number and time formats),
+              ui (icons, buttons, panels,
               page headers, fields, the segmented control, avatars, charts, counting
               numbers, the pointer tilt, the hand of cards)
 ```
@@ -136,13 +167,13 @@ The portal has its own look, a night-time card room: deep violet ink, glass
 panels, and the game's two forces as the brand, Chips (blue) times Mult (red).
 Gold is money and first place, green a win. The game's own art appears only
 where it is the subject (the items, drawn with the game's sprites); the hand of
-cards, the deck glyphs, the poker-chip coin and the backdrop are the portal's.
+cards, the deck glyphs and the backdrop are the portal's.
 
 - **Styles** live in `src/app/styles/`, imported in order by `index.css`:
   `tokens.css` (colours, type, shape, motion: change the look there first),
   `base.css`, `layout.css` (the shell), `components.css` (the shared pieces),
   `cards.css`, one file per part of the site (`home`, `auth`, `play`, `items`,
-  `casino`, `staff`, `social`), and `motion.css` last.
+  `staff`, `social`), and `motion.css` last.
 - **Type** is self-hosted (Fontsource, no request to a font service): Inter for
   text and numbers, Unbounded for titles, JetBrains Mono for seeds and hashes.
 - **The backdrop** is a small WebGL shader (`widgets/layout/ui/backdrop.tsx`):
@@ -151,22 +182,20 @@ cards, the deck glyphs, the poker-chip coin and the backdrop are the portal's.
   without WebGL.
 - **Movement** follows the player: pages cross-fade (React Router's view
   transitions), panels rise as they scroll into view, numbers count up, cards
-  tilt toward the pointer, items found are dealt face down and turned over, a
-  coinflip's chip is tossed, and a drawn jackpot runs as a reel that stops on
-  the roll. With `prefers-reduced-motion` all of it stands still
+  tilt toward the pointer, and items found are dealt face down and turned
+  over. With `prefers-reduced-motion` all of it stands still
   (`motion.css`), and results show at once.
 - **Search**: Ctrl K (⌘ K) or `/` opens a palette of every page the player can
   open.
 - **Charts** follow the dataviz rules: one hue per chart, thin marks, values in
-  the text colours, a table view. The casino's player colours are the dataviz
-  palette's eight categorical slots, validated on the panels' surface (a ninth
-  player and after share a neutral grey; the entries list names them all).
+  the text colours, a table view.
 
 ## Checks
 
 ```
 npm run typecheck
 npm run lint        # Steiger (FSD rules)
+npm run i18n        # every text translated
 npm run build
 ```
 

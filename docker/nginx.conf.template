@@ -2,6 +2,7 @@
 # origin, so that they share the player's session (localStorage) and need no
 # CORS:
 #   /play/      the game (BalatroFrontEnd's container)        GAME_UPSTREAM
+#   /casino/    the casino (BalatroCasino's container)         CASINO_UPSTREAM
 #   /api/       the game API (BalatroWebAPI)                  API_UPSTREAM
 #   /identity/  the identity service, without the /identity   IDENTITY_UPSTREAM
 #   /reports/   the bug report service, without the /reports  REPORTS_UPSTREAM
@@ -29,6 +30,16 @@ server {
         proxy_pass $game_upstream;
     }
 
+    # the casino: its own app (its old address here, /casino?tab=..., lands there too)
+    location /casino/ {
+        set $casino_upstream ${CASINO_UPSTREAM};
+        proxy_pass $casino_upstream;
+    }
+
+    location = /casino {
+        return 301 /casino/$is_args$args;
+    }
+
     location /api/ {
         set $api_upstream ${API_UPSTREAM};
         proxy_pass $api_upstream;
@@ -48,10 +59,21 @@ server {
         proxy_pass $reports_upstream;
     }
 
-    # the item service (BalatroItemService): the players' items and trades
+    # the item service (BalatroItemService): the players' items, trades and casino
     location /items/ {
         set $items_upstream ${ITEMS_UPSTREAM};
         rewrite ^/items/(.*)$ /$1 break;
+        proxy_pass $items_upstream;
+    }
+
+    # the casino's live stream (server-sent events): passed on as it comes, as the social service's
+    location /items/v1/casino/live {
+        set $items_upstream ${ITEMS_UPSTREAM};
+        rewrite ^/items/(.*)$ /$1 break;
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 1h;
+        proxy_pass_header X-Accel-Buffering;
         proxy_pass $items_upstream;
     }
 
