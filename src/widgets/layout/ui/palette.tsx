@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router';
 import { useSession } from '@/entities/session';
 import { GAME_URL } from '@/shared/config';
 import { Icon, type IconName } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 import type { LinkGroup } from '../model/links';
 
 interface Entry {
@@ -38,19 +39,21 @@ export function Palette({ open, onClose, groups }: { open: boolean; onClose: () 
   const entries = useMemo(() => {
     const go = (to: string) => () => navigate(to, { viewTransition: true });
     const all: Entry[] = [
-      { key: 'play', label: 'Play', hint: 'Open the game', icon: 'play', run: () => window.location.assign(`${GAME_URL}/`) },
-      ...groups.flatMap((g) => g.links.map((l): Entry => ({ key: l.to, label: l.label, hint: l.hint, icon: l.icon, run: go(l.to) }))),
+      { key: 'play', label: t('Play'), hint: t('Open the game'), icon: 'play', run: () => window.location.assign(`${GAME_URL}/`) },
+      ...groups.flatMap((g) =>
+        g.links.map((l): Entry => ({ key: l.to, label: l.label, hint: l.hint, icon: l.icon, run: l.external ? () => window.location.assign(l.to) : go(l.to) })),
+      ),
     ];
     if (status === 'signed-in') {
       all.push(
-        { key: 'account', label: 'Your account', hint: 'Name, sign-in methods, sessions', icon: 'settings', run: go('/account') },
-        { key: 'new-trade', label: 'Make an offer', hint: 'Trade items with a player', icon: 'swap', run: go('/trades/new') },
-        { key: 'logout', label: 'Log out', hint: 'On this device', icon: 'logout', run: () => void sign_out().then(() => navigate('/')) },
+        { key: 'account', label: t('Your account'), hint: t('Name, sign-in methods, sessions'), icon: 'settings', run: go('/account') },
+        { key: 'new-trade', label: t('Make an offer'), hint: t('Trade items with a player'), icon: 'swap', run: go('/trades/new') },
+        { key: 'logout', label: t('Log out'), hint: t('On this device'), icon: 'logout', run: () => void sign_out().then(() => navigate('/')) },
       );
     } else if (status === 'signed-out') {
       all.push(
-        { key: 'login', label: 'Sign in', hint: 'With your email or Google', icon: 'login', run: go('/login') },
-        { key: 'register', label: 'Create an account', hint: 'Free, and your runs are kept', icon: 'user-plus', run: go('/register') },
+        { key: 'login', label: t('Sign in'), hint: t('With your email or Google'), icon: 'login', run: go('/login') },
+        { key: 'register', label: t('Create an account'), hint: t('Free, and your runs are kept'), icon: 'user-plus', run: go('/register') },
       );
     }
     const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -86,7 +89,7 @@ export function Palette({ open, onClose, groups }: { open: boolean; onClose: () 
     <dialog
       ref={ref}
       className="palette"
-      aria-label="Go to a page"
+      aria-label={t('Go to a page')}
       onClose={onClose}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -101,8 +104,8 @@ export function Palette({ open, onClose, groups }: { open: boolean; onClose: () 
             setActive(0);
           }}
           onKeyDown={on_key}
-          placeholder="Where to?"
-          aria-label="Search the site"
+          placeholder={t('Where to?')}
+          aria-label={t('Search the site')}
           role="combobox"
           aria-expanded="true"
           aria-controls={list}
@@ -112,7 +115,7 @@ export function Palette({ open, onClose, groups }: { open: boolean; onClose: () 
         />
         <kbd>Esc</kbd>
       </div>
-      <ul className="palette__list" id={list} role="listbox" aria-label="Pages">
+      <ul className="palette__list" id={list} role="listbox" aria-label={t('Pages')}>
         {entries.map((entry, i) => (
           <li
             key={entry.key}
@@ -135,19 +138,19 @@ export function Palette({ open, onClose, groups }: { open: boolean; onClose: () 
         ))}
         {entries.length ? null : (
           <li className="palette__none" role="presentation">
-            Nothing matches “{query}”.
+            {t('Nothing matches “{query}”.', { query })}
           </li>
         )}
       </ul>
       <footer className="palette__foot" aria-hidden>
         <span>
-          <kbd>↑</kbd> <kbd>↓</kbd> move
+          <kbd>↑</kbd> <kbd>↓</kbd> {t('move')}
         </span>
         <span>
-          <kbd>Enter</kbd> open
+          <kbd>Enter</kbd> {t('open')}
         </span>
         <span>
-          <kbd>Esc</kbd> close
+          <kbd>Esc</kbd> {t('close')}
         </span>
       </footer>
     </dialog>

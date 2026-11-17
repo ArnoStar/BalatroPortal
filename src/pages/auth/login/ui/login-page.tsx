@@ -5,6 +5,7 @@ import { AuthShell } from '@/widgets/auth-shell';
 import { GAME_URL } from '@/shared/config';
 import { safe_next } from '@/shared/lib';
 import { Alert, Spinner } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 
 export function LoginPage() {
   const [params] = useSearchParams();
@@ -15,12 +16,12 @@ export function LoginPage() {
   if (status === 'signed-in') {
     if (next !== GAME_URL && !next.startsWith(`${GAME_URL}/`)) return <Navigate to={next} replace />;
     window.location.replace(next); // the game is another app
-    return <Spinner label="Opening the game" />;
+    return <Spinner label={t('Opening the game')} />;
   }
   return (
-    <AuthShell title="Sign in" icon="login" lead="Welcome back: your runs are waiting.">
-      {offline ? <Alert>The sign-in service can't be reached right now.</Alert> : null}
-      {params.get('confirmed') ? <Alert tone="success">Your email is confirmed. Sign in to continue.</Alert> : null}
+    <AuthShell title={t('Sign in')} icon="login" lead={t('Welcome back: your runs are waiting.')}>
+      {offline ? <Alert>{t('The sign-in service can’t be reached right now.')}</Alert> : null}
+      {params.get('confirmed') ? <Alert tone="success">{t('Your email is confirmed. Sign in to continue.')}</Alert> : null}
       <LoginForm next={next} email={params.get('email') ?? ''} />
       <ProviderButtons next={next} />
     </AuthShell>

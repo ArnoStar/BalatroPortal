@@ -6,7 +6,6 @@ import { AdminPage } from '@/pages/admin';
 import { AuthCallbackPage } from '@/pages/auth/auth-callback';
 import { BugPage } from '@/pages/bug';
 import { BugsPage } from '@/pages/bugs';
-import { CasinoGamePage, CasinoPage } from '@/pages/casino';
 import { ChatPage } from '@/pages/chat';
 import { ConfirmEmailPage } from '@/pages/auth/confirm-email';
 import { ForgotPasswordPage } from '@/pages/auth/forgot-password';
@@ -83,15 +82,14 @@ export const router = createBrowserRouter([
           { path: 'item/:id', element: <ItemPage /> },
           { path: 'trades', element: <TradesPage /> },
           { path: 'trades/new', element: <NewTradePage /> },
-          { path: 'casino', element: <CasinoPage /> },
-          { path: 'casino/:id', element: <CasinoGamePage /> },
           // the developers' (the report service refuses everyone else)
           { path: 'bugs', element: <BugsPage /> },
           { path: 'bugs/:id', element: <BugPage /> },
         ],
       },
-      // (the game is at /play/: a link there leaves the portal)
+      // (the game is at /play/ and the casino at /casino/: a link there leaves the portal)
       { path: 'play/*', element: <Navigate to="/" replace /> },
+      { path: 'casino/*', element: <Navigate to="/" replace /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

@@ -4,6 +4,7 @@ import { useSocial } from '@/entities/social';
 import { describe, game_api, type RunSummary } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
 import { Alert, AnchorButton, Button, EmptyState, Icon, Panel, Spinner } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 import { ShareRunModal } from './share-run';
 
 interface Runs {
@@ -22,7 +23,7 @@ export function RunsList({ runs }: { runs: Runs }) {
   const social = useSocial();
 
   async function remove(id: string) {
-    if (!window.confirm('Delete this run for good?')) return;
+    if (!window.confirm(t('Delete this run for good?'))) return;
     setDeleting(id);
     setActionError(null);
     try {
@@ -36,21 +37,21 @@ export function RunsList({ runs }: { runs: Runs }) {
   }
 
   return (
-    <Panel title="Your runs" icon="history" actions={data?.length ? <span className="muted">{data.length} most recent</span> : null}>
+    <Panel title={t('Your runs')} icon="history" actions={data?.length ? <span className="muted">{data.length} most recent</span> : null}>
       {loading && !data ? <Spinner /> : null}
       {error ? <Alert>{describe(error)}</Alert> : null}
       {action_error ? <Alert>{action_error}</Alert> : null}
       {data && !data.length ? (
         <EmptyState
           icon="play"
-          title="No run yet"
+          title={t('No run yet')}
           action={
             <AnchorButton href={`${GAME_URL}/`} icon={<Icon name="play" />}>
-              Start one
+              {t('Start one')}
             </AnchorButton>
           }
         >
-          Your runs show up here, with their seed, to watch them again.
+          {t('Your runs show up here, with their seed, to watch them again.')}
         </EmptyState>
       ) : null}
       {data?.length ? (
@@ -63,8 +64,8 @@ export function RunsList({ runs }: { runs: Runs }) {
               actions={
                 <>
                 {social.enabled ? (
-                  <Button tone="ghost" size="sm" onClick={() => setSharing(run)} aria-label="Share this run with friends" icon={<Icon name="share" />}>
-                    Share
+                  <Button tone="ghost" size="sm" onClick={() => setSharing(run)} aria-label={t('Share this run with friends')} icon={<Icon name="share" />}>
+                    {t('Share')}
                   </Button>
                 ) : null}
                 <Button
@@ -72,10 +73,10 @@ export function RunsList({ runs }: { runs: Runs }) {
                   size="sm"
                   busy={deleting === run.id}
                   onClick={() => remove(run.id)}
-                  aria-label="Delete this run"
+                  aria-label={t('Delete this run')}
                   icon={<Icon name="trash" />}
                 >
-                  Delete
+                  {t('Delete')}
                 </Button>
                 </>
               }

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { identity, describe } from '@/shared/api';
 import { Alert, Button, Field } from '@/shared/ui';
+import { t, tx } from '@/shared/i18n';
 import { useFinishSignIn } from '../model/use-finish';
 import { ResendButton } from './resend';
 
@@ -15,7 +16,7 @@ export function ResetPasswordForm({ email, next }: { email: string; next: string
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (password !== repeat) {
-      setError('The two passwords are different.');
+      setError(t('The two passwords are different.'));
       return;
     }
     setBusy(true);
@@ -32,11 +33,11 @@ export function ResetPasswordForm({ email, next }: { email: string; next: string
   return (
     <form className="form" onSubmit={submit}>
       <p>
-        If <strong>{email}</strong> has an account, we sent it a 6-digit code. Changing the password signs you out everywhere.
+        {tx('If {email} has an account, we sent it a 6-digit code. Changing the password signs you out everywhere.', { email: <strong>{email}</strong> })}
       </p>
       {error ? <Alert>{error}</Alert> : null}
       <Field
-        label="Code"
+        label={t('Code')}
         inputMode="numeric"
         autoComplete="one-time-code"
         pattern="[0-9]{6}"
@@ -46,10 +47,10 @@ export function ResetPasswordForm({ email, next }: { email: string; next: string
         value={code}
         onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
       />
-      <Field label="New password" type="password" autoComplete="new-password" hint="At least 8 characters." required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
-      <Field label="Repeat the password" type="password" autoComplete="new-password" required value={repeat} onChange={(e) => setRepeat(e.target.value)} />
+      <Field label={t('New password')} type="password" autoComplete="new-password" hint={t('At least 8 characters.')} required minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} />
+      <Field label={t('Repeat the password')} type="password" autoComplete="new-password" required value={repeat} onChange={(e) => setRepeat(e.target.value)} />
       <Button type="submit" busy={busy} wide>
-        Change the password
+        {t('Change the password')}
       </Button>
       <ResendButton initial_wait={60} send={() => identity.forgot_password(email)} onError={setError} />
     </form>

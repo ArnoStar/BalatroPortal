@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { useSession } from '@/entities/session';
 import { identity, describe } from '@/shared/api';
 import { Alert, Button, Icon } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 
 export function SignOutButtons() {
   const { sign_out } = useSession();
@@ -28,13 +29,13 @@ export function SignOutButtons() {
       {error ? <Alert>{error}</Alert> : null}
       <div className="row">
         <Button tone="orange" busy={busy === 'one'} onClick={() => out(false)} icon={<Icon name="logout" />}>
-          Log out
+          {t('Log out')}
         </Button>
         <Button tone="grey" busy={busy === 'all'} onClick={() => out(true)} icon={<Icon name="shield" />}>
-          Log out everywhere
+          {t('Log out everywhere')}
         </Button>
       </div>
-      <p className="muted">"Everywhere" ends every session of this account, on every device, within a few minutes.</p>
+      <p className="muted">{t('"Everywhere" ends every session of this account, on every device, within a few minutes.')}</p>
     </>
   );
 }

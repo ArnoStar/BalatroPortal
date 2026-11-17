@@ -4,10 +4,11 @@ import { ItemCard } from '@/entities/item';
 import { describe, items_api, type Trade, type TradeBox } from '@/shared/api';
 import { time_ago, use_async } from '@/shared/lib';
 import { Alert, Avatar, Button, EmptyState, Icon, LinkButton, PageHeader, Segmented, Spinner } from '@/shared/ui';
+import { fmt_date, fmt_datetime, N_, t } from '@/shared/i18n';
 
-const BOXES: [TradeBox, string][] = [['incoming', 'Offers to you'], ['outgoing', 'Your offers'], ['all', 'All']];
+const BOXES: [TradeBox, string][] = [['incoming', N_('Offers to you')], ['outgoing', N_('Your offers')], ['all', N_('All')]];
 const STATUS: Record<Trade['status'], string> = {
-  pending: 'Open', accepted: 'Accepted', declined: 'Declined', cancelled: 'Cancelled', expired: 'Expired',
+  pending: N_('Open'), accepted: N_('Accepted'), declined: N_('Declined'), cancelled: N_('Cancelled'), expired: N_('Expired'),
 };
 
 /** /trades: offers made to you and yours */
@@ -19,25 +20,25 @@ export function TradesPage() {
   return (
     <div className="stack">
       <PageHeader
-        eyebrow="Items"
+        eyebrow={t('Items')}
         icon="swap"
-        title="Trades"
-        lead="Offer some of your items for some of another player's. They accept (every item changes hands at once), decline, or let it expire. Both players need a first win, and an item that changes hands can't be traded again for a week."
+        title={t('Trades')}
+        lead={t('Offer some of your items for some of another player’s. They accept (every item changes hands at once), decline, or let it expire. Both players need a first win, and an item that changes hands can’t be traded again for a week.')}
         actions={
           <>
             <LinkButton to="/trades/new" tone="orange" icon={<Icon name="swap" />} viewTransition>
-              Make an offer
+              {t('Make an offer')}
             </LinkButton>
             <LinkButton to="/inventory" tone="grey" icon={<Icon name="cards" />} viewTransition>
-              Your items
+              {t('Your items')}
             </LinkButton>
           </>
         }
       />
-      {params.get('sent') ? <Alert tone="success">Your offer is sent.</Alert> : null}
-      {me.data && !me.data.can_trade ? <Alert tone="info">Trading opens after your first win (a counted run).</Alert> : null}
+      {params.get('sent') ? <Alert tone="success">{t('Your offer is sent.')}</Alert> : null}
+      {me.data && !me.data.can_trade ? <Alert tone="info">{t('Trading opens after your first win (a counted run).')}</Alert> : null}
       <div>
-        <Segmented label="Trades" value={box} onChange={setBox} options={BOXES} />
+        <Segmented label={t('Trades')} value={box} onChange={setBox} options={BOXES.map(([k, label]) => [k, t(label)] as const)} />
       </div>
       {trades.loading && !trades.data ? <Spinner /> : null}
       {trades.error ? <Alert>{describe(trades.error)}</Alert> : null}
@@ -45,20 +46,20 @@ export function TradesPage() {
         <div className="panel">
           <EmptyState
             icon="swap"
-            title="No trade here"
+            title={t('No trade here')}
             action={
               <LinkButton to="/trades/new" tone="orange" icon={<Icon name="swap" />} viewTransition>
-                Make an offer
+                {t('Make an offer')}
               </LinkButton>
             }
           >
-            Find a player whose items you like, from the leaderboards or by name.
+            {t('Find a player whose items you like, from the leaderboards or by name.')}
           </EmptyState>
         </div>
       ) : null}
       <div className={`stack${trades.loading ? ' refreshing' : ''}`}>
-        {trades.data?.map((t) => (
-          <TradeView key={t.id} trade={t} me={me.data?.id} onChange={trades.reload} />
+        {trades.data?.map((trade) => (
+          <TradeView key={trade.id} trade={trade} me={me.data?.id} onChange={trades.reload} />
         ))}
       </div>
     </div>
@@ -86,18 +87,18 @@ function TradeView({ trade, me, onChange }: { trade: Trade; me?: string; onChang
 
   const who = (id: string, name: string | null) => (
     <span className="who">
-      <Avatar name={id === me ? 'You' : name} seed={name} size="sm" />
+      <Avatar name={name} player={id} size="sm" />
       {id === me ? (
-        'You'
+        t('You')
       ) : (
         <Link to={`/players/${encodeURIComponent(id)}`} viewTransition>
-          {name ?? 'A player'}
+          {name ?? t('A player')}
         </Link>
       )}
     </span>
   );
   return (
-    <article className={`trade trade--${trade.status}`} aria-label={`Trade with ${yours ? trade.recipient_name : trade.sender_name}`}>
+    <article className={`trade trade--${trade.status}`} aria-label={t('Trade with {name}', { name: (yours ? trade.recipient_name : trade.sender_name) ?? t('a player') })}>
       <header className="trade__head">
         <span className="trade__people">
           {who(trade.sender, trade.sender_name)}
@@ -106,14 +107,14 @@ function TradeView({ trade, me, onChange }: { trade: Trade; me?: string; onChang
         </span>
         <span className={`status status--${open ? 'live' : trade.status === 'accepted' ? 'won' : 'lost'}`}>
           <Icon name={open ? 'dot' : trade.status === 'accepted' ? 'check-circle' : 'x-circle'} />
-          {STATUS[trade.status]}
+          {t(STATUS[trade.status])}
         </span>
         {open && !trade.available ? (
           <span className="tag tag--warn">
-            <Icon name="alert" /> An item has moved: it can't be accepted
+            <Icon name="alert" /> {t('An item has moved: it can’t be accepted')}
           </span>
         ) : null}
-        <time className="muted trade__when" dateTime={trade.created_at} title={new Date(trade.created_at).toLocaleString()}>
+        <time className="muted trade__when" dateTime={trade.created_at} title={fmt_datetime(trade.created_at)}>
           {time_ago(trade.created_at)}
         </time>
       </header>
@@ -124,30 +125,30 @@ function TradeView({ trade, me, onChange }: { trade: Trade; me?: string; onChang
         </blockquote>
       ) : null}
       <div className="trade__sides">
-        <Side title={trade.sender === me ? 'You give' : `${trade.sender_name ?? 'They'} gives`} items={trade.give} />
+        <Side title={trade.sender === me ? t('You give') : t('{name} gives', { name: trade.sender_name ?? t('A player') })} items={trade.give} />
         <span className="trade__swap" aria-hidden>
           <Icon name="swap" />
         </span>
-        <Side title={trade.recipient === me ? 'You give' : `${trade.recipient_name ?? 'They'} gives`} items={trade.take} />
+        <Side title={trade.recipient === me ? t('You give') : t('{name} gives', { name: trade.recipient_name ?? t('A player') })} items={trade.take} />
       </div>
       {open ? (
         <div className="trade__actions">
           {yours ? (
             <Button tone="grey" busy={busy === 'cancel'} onClick={() => answer('cancel')} icon={<Icon name="close" />}>
-              Cancel the offer
+              {t('Cancel the offer')}
             </Button>
           ) : (
             <>
               <Button tone="green" busy={busy === 'accept'} disabled={!trade.available} onClick={() => answer('accept')} icon={<Icon name="check" />}>
-                Accept
+                {t('Accept')}
               </Button>
               <Button tone="red" busy={busy === 'decline'} onClick={() => answer('decline')} icon={<Icon name="close" />}>
-                Decline
+                {t('Decline')}
               </Button>
             </>
           )}
           <span className="muted">
-            <Icon name="clock" /> Open until {new Date(trade.expires_at).toLocaleDateString()}
+            <Icon name="clock" /> {t('Open until {date}', { date: fmt_date(trade.expires_at) })}
           </span>
         </div>
       ) : null}
@@ -167,7 +168,7 @@ function Side({ title, items }: { title: string; items: Trade['give'] }) {
           ))}
         </ul>
       ) : (
-        <p className="muted">Nothing</p>
+        <p className="muted">{t('Nothing')}</p>
       )}
     </section>
   );

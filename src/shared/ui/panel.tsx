@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { t } from '@/shared/i18n';
 import { Icon, type IconName } from './icons';
 
 /** a block of the page: a title (with an icon and actions on its right), then its content */
@@ -71,7 +72,7 @@ export function Alert({ tone = 'error', children }: { tone?: 'error' | 'info' | 
 }
 
 /** waiting for a service: three cards shuffling */
-export function Spinner({ label = 'Loading' }: { label?: string }) {
+export function Spinner({ label }: { label?: string }) {
   return (
     <div className="loading" role="status">
       <span className="loading__cards" aria-hidden>
@@ -79,7 +80,7 @@ export function Spinner({ label = 'Loading' }: { label?: string }) {
         <i />
         <i />
       </span>
-      <span>{label}…</span>
+      <span>{label ?? t('Loading')}…</span>
     </div>
   );
 }

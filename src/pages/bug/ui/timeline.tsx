@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import type { RecordedEvent } from '@/shared/api';
+import { N_, t } from '@/shared/i18n';
 
 const KINDS = [
-  ['action', 'Actions'], ['api', 'API calls'], ['state', 'States'], ['run', 'Runs opened'], ['log', 'Logs'], ['input', 'Inputs'],
+  ['action', N_('Actions')], ['api', N_('API calls')], ['state', N_('States')], ['run', N_('Runs opened')], ['log', N_('Logs')], ['input', N_('Inputs')],
 ] as const;
 
 /** one line for an event of the game's recording */
@@ -42,17 +43,17 @@ export function Timeline({ events, end }: { events: RecordedEvent[]; end: number
   };
   return (
     <div className="stack">
-      <div className="filters" role="group" aria-label="Kinds of events">
+      <div className="filters" role="group" aria-label={t('Kinds of events')}>
         {KINDS.map(([k, label]) => (
           <button key={k} type="button" className={`chip-toggle chip-toggle--${k}`} aria-pressed={shown.has(k)} onClick={() => toggle(k)}>
             <span className="chip-toggle__dot" aria-hidden />
-            {label} <span className="muted">{events.filter((e) => e.k === k).length}</span>
+            {t(label)} <span className="muted">{events.filter((e) => e.k === k).length}</span>
           </button>
         ))}
       </div>
       {kept.length > visible.length ? (
         <button type="button" className="btn btn--grey btn--small" onClick={() => setLimit(limit + 500)}>
-          Show {Math.min(500, kept.length - visible.length)} earlier events
+          {t('Show {n} earlier events', { n: Math.min(500, kept.length - visible.length) })}
         </button>
       ) : null}
       <ol className="timeline">

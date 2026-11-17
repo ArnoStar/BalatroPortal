@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import { useSession } from '@/entities/session';
 import { GAME_URL } from '@/shared/config';
 import { AnchorButton, Avatar, CardFan, Icon, LinkButton, useTilt } from '@/shared/ui';
+import { t, tx } from '@/shared/i18n';
 
 const WORD = [...'BALATRO'];
 
@@ -16,16 +17,16 @@ export function Hero({ open }: { open: boolean }) {
       <div className="hero__text">
         {signed_in && account ? (
           <p className="hero__badge">
-            <Avatar name={account.display_name} size="sm" />
-            Welcome back, <strong>{account.display_name}</strong>
+            <Avatar name={account.display_name} player={account.id} size="sm" />
+            {tx('Welcome back, {name}', { name: <strong>{account.display_name}</strong> })}
           </p>
         ) : (
           <p className="hero__badge">
             <span className="hero__dot" aria-hidden />
-            The poker roguelike, in your browser
+            {t('The poker roguelike, in your browser')}
           </p>
         )}
-        <h1 className="wordmark" id="hero-title" aria-label="Balatro">
+        <h1 className="wordmark" id="hero-title" aria-label={t('Balatro')}>
           {WORD.map((letter, i) => (
             <span key={i} style={{ '--i': i } as CSSProperties} aria-hidden>
               {letter}
@@ -33,38 +34,38 @@ export function Hero({ open }: { open: boolean }) {
           ))}
         </h1>
         <p className="hero__lead">
-          The poker roguelike, in your browser, with the original game's rules: <strong>same seed, same run.</strong>
+          {tx('The poker roguelike, in your browser, with the original game’s rules: {same}', { same: <strong>{t('same seed, same run.')}</strong> })}
         </p>
         <div className="hero__actions">
           {signed_in || open ? (
             <>
               <AnchorButton size="lg" className="btn--play" href={`${GAME_URL}/`} icon={<Icon name="play" />}>
-                Play now
+                {t('Play now')}
               </AnchorButton>
               <LinkButton size="lg" tone="grey" to={signed_in ? '/stats' : '/leaderboards'} icon={<Icon name={signed_in ? 'chart' : 'trophy'} />} viewTransition>
-                {signed_in ? 'Your stats' : 'Leaderboards'}
+                {signed_in ? t('Your stats') : t('Leaderboards')}
               </LinkButton>
             </>
           ) : (
             <>
               <LinkButton size="lg" className="btn--play" to={`/login?${play_next}`} icon={<Icon name="play" />} viewTransition>
-                Sign in to play
+                {t('Sign in to play')}
               </LinkButton>
               <LinkButton size="lg" tone="grey" to={`/register?${play_next}`} icon={<Icon name="user-plus" />} viewTransition>
-                Create an account
+                {t('Create an account')}
               </LinkButton>
             </>
           )}
         </div>
         <ul className="hero__proof">
           <li>
-            <Icon name="target" /> Seed-exact rules
+            <Icon name="target" /> {t('Seed-exact rules')}
           </li>
           <li>
-            <Icon name="eye" /> Watch any run again
+            <Icon name="eye" /> {t('Watch any run again')}
           </li>
           <li>
-            <Icon name="cards" /> Items to find and trade
+            <Icon name="cards" /> {t('Items to find and trade')}
           </li>
         </ul>
       </div>

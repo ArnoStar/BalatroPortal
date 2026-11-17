@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import { GAME_URL } from '@/shared/config';
 import { AnchorButton, Icon, LinkButton } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 
 export function NotFoundPage() {
   return (
@@ -16,14 +17,14 @@ export function NotFoundPage() {
           4
         </span>
       </div>
-      <h1 className="page-title">Nothing here</h1>
-      <p>This page doesn't exist: it isn't in the deck.</p>
+      <h1 className="page-title">{t('Nothing here')}</h1>
+      <p>{t('This page doesn’t exist: it isn’t in the deck.')}</p>
       <div className="row">
         <LinkButton to="/" icon={<Icon name="home" />} viewTransition>
-          Home
+          {t('Home')}
         </LinkButton>
         <AnchorButton tone="grey" href={`${GAME_URL}/`} icon={<Icon name="play" />}>
-          Play
+          {t('Play')}
         </AnchorButton>
       </div>
     </div>

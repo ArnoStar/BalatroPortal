@@ -1,3 +1,4 @@
+import { t } from '@/shared/i18n';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Icon } from './icons';
 
@@ -20,10 +21,10 @@ export function CopyText({ text, label, children }: { text: string; label: strin
   }
 
   return (
-    <button type="button" className={`copy${copied ? ' copy--done' : ''}`} onClick={copy} aria-label={`${label}: ${text}. Copy`}>
+    <button type="button" className={`copy${copied ? ' copy--done' : ''}`} onClick={copy} aria-label={`${label}: ${text}. ${t('Copy')}`}>
       <span className="copy__text">{children ?? text}</span>
       <Icon name={copied ? 'check' : 'copy'} />
-      <span className="visually-hidden" aria-live="polite">{copied ? 'Copied' : ''}</span>
+      <span className="visually-hidden" aria-live="polite">{copied ? t('Copied') : ''}</span>
     </button>
   );
 }

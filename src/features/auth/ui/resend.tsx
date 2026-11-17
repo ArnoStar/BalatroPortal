@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { describe, ProblemError } from '@/shared/api';
 import { Button } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 
 /** "Send a new code", with the minute the service makes the player wait */
 export function ResendButton({ send, initial_wait = 0, onError }: { send: () => Promise<void>; initial_wait?: number; onError: (message: string | null) => void }) {
@@ -31,7 +32,7 @@ export function ResendButton({ send, initial_wait = 0, onError }: { send: () => 
 
   return (
     <Button type="button" tone="grey" busy={busy} disabled={wait > 0} onClick={click}>
-      {wait > 0 ? `New code in ${wait} s` : sent ? 'Send another code' : 'Send a new code'}
+      {wait > 0 ? t('New code in {s} s', { s: wait }) : sent ? t('Send another code') : t('Send a new code')}
     </Button>
   );
 }

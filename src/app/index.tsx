@@ -9,6 +9,7 @@ import { RouterProvider } from 'react-router';
 import type { ReactNode } from 'react';
 import { SessionProvider, useSession } from '@/entities/session';
 import { SocialProvider } from '@/entities/social';
+import { I18nProvider } from '@/shared/i18n';
 import { router } from './router';
 import './styles/index.css';
 
@@ -22,7 +23,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <SessionProvider>
       <Social>
-        <RouterProvider router={router} />
+        <I18nProvider>
+          <RouterProvider router={router} />
+        </I18nProvider>
       </Social>
     </SessionProvider>
   </StrictMode>,

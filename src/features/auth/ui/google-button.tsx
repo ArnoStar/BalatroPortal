@@ -3,6 +3,7 @@ import { identity, describe, type Provider } from '@/shared/api';
 import { oauth_redirect_uri } from '@/shared/config';
 import { use_async } from '@/shared/lib';
 import { Alert, Button, Divider } from '@/shared/ui';
+import { t } from '@/shared/i18n';
 import { remember_oauth_next } from '../model/pending';
 
 const NAMES: Record<Provider, string> = { google: 'Google' };
@@ -36,11 +37,11 @@ export function ProviderButtons({ next }: { next: string }) {
 
   return (
     <>
-      <Divider>or</Divider>
+      <Divider>{t('or')}</Divider>
       {error ? <Alert>{error}</Alert> : null}
       {providers.includes('google') ? (
         <Button type="button" tone="grey" wide busy={busy} onClick={() => start('google')}>
-          <GoogleLogo /> Continue with Google
+          <GoogleLogo /> {t('Continue with Google')}
         </Button>
       ) : null}
     </>

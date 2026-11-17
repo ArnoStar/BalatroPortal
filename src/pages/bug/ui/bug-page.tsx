@@ -5,15 +5,15 @@ import { describe, reports_api, ProblemError, type Report } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
 import { use_async } from '@/shared/lib';
 import { Alert, AnchorButton, Avatar, Button, EmptyState, Icon, PageHeader, Panel, Spinner } from '@/shared/ui';
+import { fmt_datetime, t } from '@/shared/i18n';
 
-const when = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'medium' });
 
 /** One bug report: what the player said and what the game recorded, and the way to see it again. */
 export function BugPage() {
   const { id = '' } = useParams();
   const { data, error, loading } = use_async(() => reports_api.get(id), [id]);
   if (loading && !data) return <Spinner />;
-  if (error instanceof ProblemError && error.code === 'not_admin') return <Alert>Bug reports are for the developers.</Alert>;
+  if (error instanceof ProblemError && error.code === 'not_admin') return <Alert>{t('Bug reports are for the developers.')}</Alert>;
   if (error) return <Alert>{describe(error)}</Alert>;
   if (!data) return null;
   return <Bug report={data} />;
@@ -76,12 +76,12 @@ function Bug({ report: initial }: { report: Report }) {
       <PageHeader
         eyebrow={
           <Link to="/bugs" className="back" viewTransition>
-            <Icon name="chevron-left" /> Bug reports
+            <Icon name="chevron-left" /> {t('Bug reports')}
           </Link>
         }
         title={
           <>
-            Bug report{' '}
+            {t('Bug report')}{' '}
             <span className={`status status--${open ? 'lost' : 'won'}`}>
               <Icon name={open ? 'dot' : 'check-circle'} />
               {report.status}
@@ -90,7 +90,7 @@ function Bug({ report: initial }: { report: Report }) {
         }
         actions={
           <Button tone={open ? 'green' : 'orange'} busy={busy} onClick={() => triage({ status: open ? 'closed' : 'open' })} icon={<Icon name={open ? 'check' : 'refresh'} />}>
-            {open ? 'Close' : 'Reopen'}
+            {open ? t('Close') : t('Reopen')}
           </Button>
         }
       />
@@ -101,60 +101,59 @@ function Bug({ report: initial }: { report: Report }) {
         </blockquote>
         <p className="bug__by">
           <span className="who">
-            <Avatar name={report.reporter_name ?? report.reporter} size="sm" />
+            <Avatar name={report.reporter_name ?? report.reporter} player={report.reporter} size="sm" />
             {report.reporter_name ?? report.reporter}
           </span>
-          <time dateTime={report.created_at}>{when.format(new Date(report.created_at))}</time>
-          {c.build ? <span className="mono">build {String(c.build)}</span> : null}
+          <time dateTime={report.created_at}>{fmt_datetime(report.created_at, 'medium')}</time>
+          {c.build ? <span className="mono">{t('build {build}', { build: String(c.build) })}</span> : null}
         </p>
         <div className="row">
           {history ? (
             <>
               <AnchorButton href={`${GAME_URL}/?report=${report.id}`} icon={<Icon name="play" />}>
-                Replay it in the game
+                {t('Replay it in the game')}
               </AnchorButton>
               <AnchorButton tone="grey" href={`${GAME_URL}/?report=${report.id}&at=${report.game_version ?? history.commands.length}`} icon={<Icon name="target" />}>
-                Open the run where it was reported
+                {t('Open the run where it was reported')}
               </AnchorButton>
             </>
           ) : null}
           <Button tone="grey" onClick={() => download(report)} icon={<Icon name="download" />}>
-            Download (JSON)
+            {t('Download (JSON)')}
           </Button>
         </div>
         {history ? (
           <p className="muted">
-            The replay rebuilds the run from its {history.commands.length} moves (engine {history.engine_version}) where the recording starts, then
-            plays the player's inputs again. The API rebuilds runs for the accounts in ADMINS.
+            {t('The replay rebuilds the run from its {n} moves (engine {engine}) where the recording starts, then plays the player’s inputs again. The API rebuilds runs for the accounts in ADMINS.', { n: history.commands.length, engine: history.engine_version })}
           </p>
         ) : (
-          <p className="muted">No run history{c.history_error ? ` (${String(c.history_error)})` : report.game_id ? '' : ': the player was not in a run'}.</p>
+          <p className="muted">{c.history_error ? t('No run history ({error}).', { error: String(c.history_error) }) : report.game_id ? t('No run history.') : t('No run history: the player was not in a run.')}</p>
         )}
         {problem ? <Alert>{problem}</Alert> : null}
       </Panel>
 
       <div className="grid-2">
-        <Panel title="Screen" icon="image">
+        <Panel title={t('Screen')} icon="image">
           {report.screenshot_url ? (
             shot ? (
-              <img className="bug__shot" src={shot} alt="the game when the player reported" />
+              <img className="bug__shot" src={shot} alt={t('the game when the player reported')} />
             ) : (
               <Spinner />
             )
           ) : (
-            <EmptyState icon="image" title="No screenshot" />
+            <EmptyState icon="image" title={t('No screenshot')} />
           )}
         </Panel>
-        <Panel title="Where" icon="target">
+        <Panel title={t('Where')} icon="target">
           <dl className="facts facts--single">
-            <Fact label="Run" value={report.game_id ? `${report.game_id.slice(0, 8)}, version ${report.game_version}` : '–'} />
-            <Fact label="Moves in its history" value={history ? String(history.commands.length) : '–'} />
-            <Fact label="Seed, deck, stake" value={history ? `${String(history.settings.seed)}, ${String(history.settings.deck)}, ${String(history.settings.stake)}` : '–'} />
-            <Fact label="Screen" value={c.state ? `${String(c.stage)} · ${String(c.state)}${c.busy ? ' (an action was playing)' : ''}` : '–'} />
-            <Fact label="Recording" value={`${events.length} events over ${Math.round(span)} s${rec.dropped ? ` (${rec.dropped} older dropped)` : ''}`} />
-            <Fact label="Browser" value={String(c.user_agent ?? '–')} />
-            <Fact label="Window" value={c.screen ? JSON.stringify(c.screen) : '–'} />
-            <Fact label="Settings" value={c.settings ? JSON.stringify(c.settings) : '–'} />
+            <Fact label={t('Run')} value={report.game_id ? t('{id}, version {version}', { id: report.game_id.slice(0, 8), version: String(report.game_version) }) : '–'} />
+            <Fact label={t('Moves in its history')} value={history ? String(history.commands.length) : '–'} />
+            <Fact label={t('Seed, deck, stake')} value={history ? `${String(history.settings.seed)}, ${String(history.settings.deck)}, ${String(history.settings.stake)}` : '–'} />
+            <Fact label={t('Screen')} value={c.state ? `${String(c.stage)} · ${String(c.state)}${c.busy ? ` ${t('(an action was playing)')}` : ''}` : '–'} />
+            <Fact label={t('Recording')} value={`${t('{n} events over {s} s', { n: events.length, s: Math.round(span) })}${rec.dropped ? ` ${t('({n} older dropped)', { n: rec.dropped })}` : ''}`} />
+            <Fact label={t('Browser')} value={String(c.user_agent ?? '–')} />
+            <Fact label={t('Window')} value={c.screen ? JSON.stringify(c.screen) : '–'} />
+            <Fact label={t('Settings')} value={c.settings ? JSON.stringify(c.settings) : '–'} />
           </dl>
         </Panel>
       </div>
@@ -174,23 +173,23 @@ function Bug({ report: initial }: { report: Report }) {
             ))}
           </ul>
         ) : (
-          <EmptyState icon="check-circle" title="The game recorded no error" />
+          <EmptyState icon="check-circle" title={t('The game recorded no error')} />
         )}
       </Panel>
 
-      <Panel title="What happened before" icon="history">
+      <Panel title={t('What happened before')} icon="history">
         <Timeline events={events} end={end} />
       </Panel>
 
-      <Panel title="Notes" icon="note">
+      <Panel title={t('Notes')} icon="note">
         <div className="form">
           <div className="field">
-            <label htmlFor="bug-notes">For the developers (the player doesn't see them)</label>
+            <label htmlFor="bug-notes">{t('For the developers (the player doesn’t see them)')}</label>
             <textarea id="bug-notes" rows={4} value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
           <p>
             <Button busy={busy} disabled={notes === report.notes} onClick={() => triage({ notes })} icon={<Icon name="check" />}>
-              Save the notes
+              {t('Save the notes')}
             </Button>
           </p>
         </div>

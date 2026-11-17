@@ -6,7 +6,8 @@ import type { CSSProperties, ReactNode } from 'react';
 import type { Item } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
 import { Icon, useTilt } from '@/shared/ui';
-import { EDITION_NAMES, RARITY_NAMES, item_label, odds_label } from '../lib/text';
+import { t } from '@/shared/i18n';
+import { edition_name, item_label, item_name, odds_label, rarity_name } from '../lib/text';
 
 const TEXTURES = `${GAME_URL}/resources/textures/2x`;
 // the sheets at 1x: cell size and how many cells across and down
@@ -44,7 +45,7 @@ function cell(atlas: Atlas, x: number, y: number, scale: number, picture = true)
 export function ItemArt({ item, scale = 1.5 }: { item: Item; scale?: number }) {
   const atlas = item.sprite ? ATLASES[item.sprite.atlas] : undefined;
   if (!atlas || !item.sprite) {
-    return <div className="item-art item-art--missing" style={{ width: 71 * scale, height: 95 * scale }}>{item.name}</div>;
+    return <div className="item-art item-art--missing" style={{ width: 71 * scale, height: 95 * scale }}>{item_name(item)}</div>;
   }
   const { x, y } = item.sprite.pos;
   const soul = item.sprite.soul_pos;
@@ -77,13 +78,13 @@ export function ItemCard({ item, to, selected, onSelect, index = 0, children }: 
       <span className="item-card__stage">
         <ItemArt item={item} />
       </span>
-      <span className="item-card__name">{item.name}</span>
+      <span className="item-card__name">{item_name(item)}</span>
       <span className="item-card__meta">
-        <span className={`rarity rarity--${item.rarity}`}>{RARITY_NAMES[item.rarity]}</span>
-        {item.edition !== 'base' ? <span className={`edition edition--${item.edition}`}>{EDITION_NAMES[item.edition]}</span> : null}
+        <span className={`rarity rarity--${item.rarity}`}>{rarity_name(item.rarity)}</span>
+        {item.edition !== 'base' ? <span className={`edition edition--${item.edition}`}>{edition_name(item.edition)}</span> : null}
       </span>
       <span className="item-card__numbers">
-        #{item.serial} of {item.minted} · {odds_label(item.odds)}
+        {t('#{serial} of {minted}', { serial: item.serial, minted: item.minted })} · {odds_label(item.odds)}
       </span>
     </>
   );

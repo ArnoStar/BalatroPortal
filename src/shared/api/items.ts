@@ -1,5 +1,6 @@
 // The item service (BalatroItemService): the players' collectible items
-// (jokers and tags with the game's editions), their trades and the casino.
+// (jokers and tags with the game's editions) and their trades. (Its casino is
+// BalatroCasino's, at /casino/.)
 import { ITEMS_BASE } from '@/shared/config';
 import { read_json } from './problem';
 import { authorized_fetch } from './session';
@@ -7,9 +8,6 @@ import { authorized_fetch } from './session';
 export type Edition = 'base' | 'foil' | 'holographic' | 'polychrome' | 'negative';
 export type TradeBox = 'all' | 'incoming' | 'outgoing';
 export type TradeStatus = 'pending' | 'accepted' | 'declined' | 'cancelled' | 'expired';
-export type GameMode = 'coinflip' | 'jackpot';
-export type GameStatus = 'open' | 'done' | 'cancelled';
-export type Side = 'chips' | 'mult';
 
 export interface ItemSprite { atlas: string; pos: { x: number; y: number }; soul_pos?: { x: number; y: number } | null }
 
@@ -90,67 +88,6 @@ export interface Odds {
   offer_days: number;
 }
 
-export interface GameEntry {
-  player: string;
-  player_name: string | null;
-  items: Item[];
-  /** the items' value (their odds) when they were staked */
-  value: number;
-  /** percent of the pot */
-  chance: number;
-  /** its part of the pot: from low (included) to high (excluded) */
-  low: number;
-  high: number;
-  seed: string;
-  at: string;
-}
-
-export interface CasinoGame {
-  id: string;
-  mode: GameMode;
-  status: GameStatus;
-  /** a coinflip's first player's side (the second has the other) */
-  side: Side | null;
-  entries: GameEntry[];
-  value: number;
-  /** SHA-256 of the server seed, shown from the start */
-  seed_hash: string;
-  /** shown once the game is over */
-  server_seed: string | null;
-  /** the point of the pot that won */
-  roll: number | null;
-  winner: string | null;
-  winner_name: string | null;
-  /** an open coinflip: what the other player's items must be worth together */
-  join_min: number | null;
-  join_max: number | null;
-  created_at: string;
-  updated_at: string;
-  /** when a jackpot is drawn (once two players are in) */
-  closes_at: string | null;
-}
-
-export interface JackpotState {
-  /** the pot taking items (null: the next item opens one) */
-  round: CasinoGame | null;
-  last: CasinoGame | null;
-  /** the service's time */
-  now: string;
-}
-
-export interface CasinoRules {
-  open: boolean;
-  max_items: number;
-  coinflip_margin: number;
-  max_open_coinflips: number;
-  jackpot_seconds: number;
-  jackpot_max_players: number;
-  jackpot_max_items: number;
-  trade_hold_days: number;
-}
-
-export interface Bet { items: string[]; seed?: string }
-
 const url = (path: string) => `${ITEMS_BASE}${path}`;
 const json = { 'content-type': 'application/json' };
 const id = encodeURIComponent;
@@ -174,16 +111,4 @@ export const items_api = {
   trade: (trade: string) => get<Trade>(`/v1/trades/${id(trade)}`),
   offer: (offer: { to: string; give: string[]; take: string[]; message: string }) => send<Trade>('POST', '/v1/trades', offer),
   answer: (trade: string, answer: 'accept' | 'decline' | 'cancel') => send<Trade>('POST', `/v1/trades/${id(trade)}/${answer}`),
-  casino_rules: () => fetch(url('/v1/casino/rules')).then((r) => read_json<CasinoRules>(r)),
-  coinflips: () => get<CasinoGame[]>('/v1/casino/coinflips'),
-  create_coinflip: (bet: Bet & { side: Side }) => send<CasinoGame>('POST', '/v1/casino/coinflips', bet),
-  join_coinflip: (game: string, bet: Bet) => send<CasinoGame>('POST', `/v1/casino/coinflips/${id(game)}/join`, bet),
-  cancel_coinflip: (game: string) => send<CasinoGame>('POST', `/v1/casino/coinflips/${id(game)}/cancel`),
-  jackpot: () => get<JackpotState>('/v1/casino/jackpot'),
-  join_jackpot: (bet: Bet) => send<CasinoGame>('POST', '/v1/casino/jackpot', bet),
-  leave_jackpot: () => send<CasinoGame>('POST', '/v1/casino/jackpot/leave'),
-  /** games that are over, the last first (`player`: only theirs) */
-  casino_games: (player?: string, limit = 20) =>
-    get<CasinoGame[]>(`/v1/casino/games?limit=${limit}${player ? `&player=${id(player)}` : ''}`),
-  casino_game: (game: string) => get<CasinoGame>(`/v1/casino/games/${id(game)}`),
 };

@@ -2,6 +2,7 @@
 // catalog (loaded once per page load, and only when a page needs it).
 import { useEffect, useState } from 'react';
 import { game_api, type Catalog } from '@/shared/api';
+import { challenge_name, game_name } from '@/shared/i18n';
 
 let loading: Promise<Map<string, string>> | null = null;
 
@@ -19,7 +20,8 @@ function load_names(): Promise<Map<string, string>> {
   return loading;
 }
 
-/** `name(key)`: the game's name for a card or deck key (the key itself until the catalog is there) */
+/** `name(key)`: the game's name for a card, deck or challenge key, in the player's language (the key itself until
+ *  the catalog is there) */
 export function useCatalogNames(): (key: string) => string {
   const [names, setNames] = useState<Map<string, string> | null>(null);
   useEffect(() => {
@@ -32,5 +34,5 @@ export function useCatalogNames(): (key: string) => string {
       live = false;
     };
   }, []);
-  return (key: string) => names?.get(key) ?? key;
+  return (key: string) => (key.startsWith('c_') ? challenge_name(key, names?.get(key) ?? key) : game_name(key, names?.get(key) ?? key));
 }

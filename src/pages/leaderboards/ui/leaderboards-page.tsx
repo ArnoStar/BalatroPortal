@@ -5,15 +5,16 @@ import { DECK_KEYS, DeckGlyph, STAKES, deck_name, stake_name } from '@/entities/
 import { BOARDS, describe, game_api, type BoardName, type LeaderboardEntry } from '@/shared/api';
 import { format_number, time_ago, use_async } from '@/shared/lib';
 import { Alert, Avatar, EmptyState, Icon, PageHeader, Panel, Segmented, Spinner, type IconName } from '@/shared/ui';
+import { fmt_date, N_, t, tp } from '@/shared/i18n';
 
 const TITLES: Record<BoardName, string> = {
-  best_hand: 'Best hand', highest_ante: 'Highest ante', highest_round: 'Highest round', most_money: 'Most money',
-  boss_streak: 'Bosses in a row', wins: 'Wins',
+  best_hand: N_('Best hand'), highest_ante: N_('Highest ante'), highest_round: N_('Highest round'), most_money: N_('Most money'),
+  boss_streak: N_('Bosses in a row'), wins: N_('Wins'),
 };
 const ICONS: Record<BoardName, IconName> = {
   best_hand: 'zap', highest_ante: 'target', highest_round: 'layers', most_money: 'coins', boss_streak: 'flame', wins: 'trophy',
 };
-const when = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' });
+
 
 const value_of = (board: BoardName, e: LeaderboardEntry) => (board === 'most_money' ? `$${format_number(e.value)}` : format_number(e.value));
 
@@ -31,24 +32,24 @@ export function LeaderboardsPage() {
   return (
     <div className="stack">
       <PageHeader
-        eyebrow="Compete"
+        eyebrow={t('Compete')}
         icon="trophy"
-        title="Leaderboards"
-        lead={board === 'wins' ? "Each player's won runs, counted." : "Each player's best run on every board."}
+        title={t('Leaderboards')}
+        lead={board === 'wins' ? t('Each player’s won runs, counted.') : t('Each player’s best run on every board.')}
       />
       <Panel>
         <div className="filters">
           <Segmented
-            label="Leaderboard"
+            label={t('Leaderboard')}
             value={board}
             onChange={setBoard}
-            options={BOARDS.map((b) => [b, <><Icon name={ICONS[b]} /> {TITLES[b]}</>] as const)}
+            options={BOARDS.map((b) => [b, <><Icon name={ICONS[b]} /> {t(TITLES[b])}</>] as const)}
           />
           <div className="filters__selects">
             <label className="select">
-              <span>Deck</span>
+              <span>{t('Deck')}</span>
               <select value={deck} onChange={(e) => setDeck(e.target.value)}>
-                <option value="">All decks</option>
+                <option value="">{t('All decks')}</option>
                 {DECK_KEYS.map((k) => (
                   <option key={k} value={k}>
                     {deck_name(k)}
@@ -57,9 +58,9 @@ export function LeaderboardsPage() {
               </select>
             </label>
             <label className="select">
-              <span>Stake</span>
+              <span>{t('Stake')}</span>
               <select value={stake} onChange={(e) => setStake(Number(e.target.value))}>
-                <option value={0}>All stakes</option>
+                <option value={0}>{t('All stakes')}</option>
                 {STAKES.map((s, i) => (
                   <option key={s} value={i + 1}>
                     {stake_name(i + 1)}
@@ -81,14 +82,15 @@ export function LeaderboardsPage() {
                 ) : null}
               </>
             ) : (
-              <EmptyState icon="trophy" title="Nobody is on this board yet">
-                Win a run with this deck and stake to be the first.
+              <EmptyState icon="trophy" title={t('Nobody is on this board yet')}>
+                {t('Win a run with this deck and stake to be the first.')}
               </EmptyState>
             )}
             <p className="muted footnote">
-              <Icon name="info" /> {data.players.toLocaleString('en-US')} {data.players === 1 ? 'player' : 'players'}.{' '}
-              {board === 'wins' ? "Each player's won runs are counted" : "Each player's best run is shown"}; runs with a chosen seed, challenges and
-              runs with debug commands don't count.
+              <Icon name="info" /> {tp(data.players, '# player', '# players')}.{' '}
+              {board === 'wins'
+                ? t('Each player’s won runs are counted; runs with a chosen seed, challenges and runs with debug commands don’t count.')
+                : t('Each player’s best run is shown; runs with a chosen seed, challenges and runs with debug commands don’t count.')}
             </p>
           </div>
         ) : null}
@@ -99,7 +101,7 @@ export function LeaderboardsPage() {
 }
 
 function Who({ e }: { e: LeaderboardEntry }) {
-  const name = e.player ?? 'Anonymous';
+  const name = e.player ?? t('Anonymous');
   return e.player_id ? (
     <Link to={`/players/${encodeURIComponent(e.player_id)}`} viewTransition>
       {name}
@@ -112,24 +114,24 @@ function Who({ e }: { e: LeaderboardEntry }) {
 /** the first three, on their steps (second, first, third) */
 function Podium({ board, top }: { board: BoardName; top: LeaderboardEntry[] }) {
   return (
-    <ol className="podium" aria-label="The first three">
+    <ol className="podium" aria-label={t('The first three')}>
       {top.map((e, i) => (
         <li key={e.rank} className={`podium__place podium__place--${e.rank}${e.you ? ' is-you' : ''}`} style={{ '--i': i } as CSSProperties}>
           <div className="podium__who">
             {e.rank === 1 ? <Icon name="crown" className="podium__crown" /> : null}
-            <Avatar name={e.player} size="lg" />
+            <Avatar name={e.player} player={e.player_id} size="lg" />
             <span className="podium__name">
               <Who e={e} />
-              {e.you ? <span className="tag tag--you">You</span> : null}
+              {e.you ? <span className="tag tag--you">{t('You')}</span> : null}
             </span>
           </div>
           <div className="podium__step">
-            <span className="podium__rank" aria-label={`Rank ${e.rank}`}>
+            <span className="podium__rank" aria-label={t('Rank {n}', { n: e.rank })}>
               {e.rank}
             </span>
             <strong className="podium__value">{value_of(board, e)}</strong>
             {board === 'wins' ? (
-              <span className="podium__meta">last win {time_ago(e.achieved_at)}</span>
+              <span className="podium__meta">{t('last win {when}', { when: time_ago(e.achieved_at) })}</span>
             ) : (
               <span className="podium__meta">
                 {e.deck ? (
@@ -155,15 +157,15 @@ function Board({ board, entries, you }: { board: BoardName; entries: Leaderboard
         <thead>
           <tr>
             <th scope="col" className="num">#</th>
-            <th scope="col">Player</th>
-            <th scope="col" className="num">{TITLES[board]}</th>
+            <th scope="col">{t('Player')}</th>
+            <th scope="col" className="num">{t(TITLES[board])}</th>
             {board === 'wins' ? null : (
               <>
-                <th scope="col">Deck</th>
-                <th scope="col">Stake</th>
+                <th scope="col">{t('Deck')}</th>
+                <th scope="col">{t('Stake')}</th>
               </>
             )}
-            <th scope="col">{board === 'wins' ? 'Last win' : 'When'}</th>
+            <th scope="col">{board === 'wins' ? t('Last win') : t('When')}</th>
           </tr>
         </thead>
         <tbody>
@@ -194,9 +196,9 @@ function Row({ board, e }: { board: BoardName; e: LeaderboardEntry }) {
       </td>
       <th scope="row">
         <span className="who">
-          <Avatar name={e.player} size="sm" />
+          <Avatar name={e.player} player={e.player_id} size="sm" />
           <Who e={e} />
-          {e.you ? <span className="tag tag--you">You</span> : null}
+          {e.you ? <span className="tag tag--you">{t('You')}</span> : null}
         </span>
       </th>
       <td className="num board__value">{value_of(board, e)}</td>
@@ -214,7 +216,7 @@ function Row({ board, e }: { board: BoardName; e: LeaderboardEntry }) {
             {e.won ? (
               <span className="tag tag--win">
                 <Icon name="check" />
-                Won
+                {t('Won')}
               </span>
             ) : null}
           </td>
@@ -222,7 +224,7 @@ function Row({ board, e }: { board: BoardName; e: LeaderboardEntry }) {
         </>
       )}
       <td>
-        <time dateTime={e.achieved_at} title={when.format(new Date(e.achieved_at))}>
+        <time dateTime={e.achieved_at} title={fmt_date(e.achieved_at)}>
           {time_ago(e.achieved_at)}
         </time>
       </td>

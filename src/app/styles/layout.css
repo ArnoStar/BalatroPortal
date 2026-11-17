@@ -568,3 +568,56 @@
 .palette__foot kbd {
   margin-right: 0.15rem;
 }
+
+/* search, and the site's language (a globe and its code; the select is over it, invisible) */
+.sidebar__tools {
+  display: flex;
+  gap: 0.45rem;
+}
+
+.lang {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2.6rem;
+  padding: 0 0.65rem;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-size: 0.78rem;
+  font-weight: 700;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.lang:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+}
+
+.lang:focus-within {
+  box-shadow: inset 0 0 0 1px rgba(150, 128, 255, 0.7), 0 0 0 3px rgba(122, 92, 255, 0.25);
+}
+
+.lang select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.lang option {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.nav__out {
+  width: 0.85rem !important;
+  height: 0.85rem !important;
+  margin-left: auto;
+  opacity: 0.55;
+}

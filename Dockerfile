@@ -27,6 +27,7 @@ ENV GAME_UPSTREAM=http://web:80 \
     REPORTS_UPSTREAM=http://reports:8000 \
     ITEMS_UPSTREAM=http://items:8000 \
     SOCIAL_UPSTREAM=http://social:8000 \
+    CASINO_UPSTREAM=http://casino:80 \
     RESOLVER=127.0.0.11
 COPY docker/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /app/dist /usr/share/nginx/html

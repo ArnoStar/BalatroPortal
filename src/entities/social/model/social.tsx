@@ -6,6 +6,7 @@
 // stream reloads everything (events aren't kept while it is closed).
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, type ReactNode } from 'react';
 import {
+  avatar_versions,
   read_social_events,
   social_api,
   type Conversation,
@@ -196,6 +197,15 @@ export function SocialProvider({ enabled, children }: { enabled: boolean; childr
     })();
     return () => abort.abort();
   }, [enabled, load, emit]);
+
+  // the pictures this service's views name (yours, your friends', the chats' and requests'): every page shows the
+  // new one at once (shared/ui Avatar looks the others up)
+  useEffect(() => {
+    if (state.me) avatar_versions.set(state.me.id, state.me.avatar);
+    for (const f of state.friends) avatar_versions.set(f.id, f.avatar);
+    for (const c of state.conversations) for (const m of c.members) avatar_versions.set(m.id, m.avatar);
+    for (const r of state.requests) for (const p of [r.sender, r.recipient]) avatar_versions.set(p.id, p.avatar);
+  }, [state.me, state.friends, state.conversations, state.requests]);
 
   const subscribe = useCallback((handler: (e: SocialEvent) => void) => {
     handlers.current.add(handler);
