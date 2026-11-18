@@ -39,6 +39,13 @@ export interface Drawable {
   sprite: ItemSprite | null;
   /** the stake of the win it came from (1 White ... 8 Gold) */
   stake?: number | null;
+  /** how well kept its card is: 0 (ruined) ... 1 (pristine); null: not known yet (a pack of before conditions) */
+  condition?: number | null;
+  /** its condition's name: ruined, battered, worn, played, fine, excellent, mint, pristine */
+  grade?: string | null;
+  /** coins: its value in perfect condition, and its value (times its condition) */
+  mint_value?: number;
+  value?: number;
 }
 
 export interface Item extends Drawable {
@@ -50,8 +57,13 @@ export interface Item extends Drawable {
   variant: string;
   serial: number;
   minted: number;
-  /** one in this many cards of its kind's standard table: higher is rarer (its value in coins) */
+  /** one in this many cards of its kind's standard table: how rare it is to find */
   odds: number;
+  condition: number;
+  grade: string;
+  mint_value: number;
+  /** coins: its mint value times its condition (what the casino stakes it at) */
+  value: number;
   owner: string;
   owner_name: string | null;
   source: string;

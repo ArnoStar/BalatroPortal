@@ -534,3 +534,96 @@
     translate: 0 -4%;
   }
 }
+
+/* ---------------------------------------------------------------- an item's condition */
+/* the card's layers fade and yellow with its wear (--wear: 1 - its condition) */
+.item-art__card {
+  position: absolute;
+  inset: 0;
+  filter: sepia(calc(var(--wear, 0) * 0.5)) saturate(calc(1 - var(--wear, 0) * 0.45)) brightness(calc(1 - var(--wear, 0) * 0.1))
+    contrast(calc(1 - var(--wear, 0) * 0.12));
+}
+
+/* grime, specks, scratches, frayed edges, a crease: the item's own (lib/wear.ts), clipped to the card */
+.item-art__wear {
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
+/* a card in excellent condition shines; a mint one sparkles */
+.item-art--crisp .item-art__gloss {
+  background: linear-gradient(125deg, transparent 35%, rgba(255, 255, 255, 0.45) 48%, transparent 60%) 0 0 / 250% 100% no-repeat;
+  mix-blend-mode: soft-light;
+  animation: item-sheen 7s linear infinite;
+}
+
+.item-art--mint .item-art__gloss {
+  background:
+    radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.95) 0 1px, transparent 2.5px),
+    radial-gradient(circle at 78% 34%, rgba(255, 255, 255, 0.9) 0 1px, transparent 2.5px),
+    radial-gradient(circle at 40% 82%, rgba(255, 255, 255, 0.9) 0 1px, transparent 2.5px),
+    linear-gradient(125deg, transparent 30%, rgba(255, 255, 255, 0.55) 48%, transparent 62%) 0 0 / 250% 100% no-repeat;
+  mix-blend-mode: screen;
+  animation: item-sheen 5s linear infinite, mint-twinkle 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes mint-twinkle {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* its grade, percentage and bar: red (ruined) ... gold (pristine) */
+.condition {
+  --c: #c2364b;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-2);
+  font-size: 0.74rem;
+  white-space: nowrap;
+}
+
+.condition b {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.condition__bar {
+  position: relative;
+  width: 2.8rem;
+  height: 0.32rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.condition__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--c);
+  box-shadow: 0 0 6px var(--c);
+}
+
+.condition--wide .condition__bar {
+  width: 9rem;
+  height: 0.45rem;
+}
+
+.condition--wide {
+  font-size: 0.9rem;
+}
+
+.condition--ruined { --c: #c2364b; }
+.condition--battered { --c: #e0613a; }
+.condition--worn { --c: #e8a33c; }
+.condition--played { --c: #d8c95a; }
+.condition--fine { --c: #4fcf8a; }
+.condition--excellent { --c: #3fb8ff; }
+.condition--mint { --c: #b97bff; }
+.condition--pristine { --c: #ffd24d; }

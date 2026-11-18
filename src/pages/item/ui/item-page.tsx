@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { useSession } from '@/entities/session';
 import {
-  edition_name, enhancement_name, ItemArt, item_name, kind_name, odds_label, rarity_name, seal_name, source_label, stake_label,
+  Condition, edition_name, enhancement_name, ItemArt, item_name, kind_name, odds_label, rarity_name, seal_name, source_label,
+  stake_label,
 } from '@/entities/item';
 import { SellForm } from '@/features/sell-item';
 import { describe, items_api, type Item, type Transfer } from '@/shared/api';
@@ -85,12 +86,22 @@ export function ItemPage() {
           </p>
           <dl className="specs">
             <div>
-              <dt>{t('Odds')}</dt>
-              <dd>{t('{odds} cards', { odds: odds_label(item.odds) })}</dd>
+              <dt>{t('Condition')}</dt>
+              <dd>
+                <Condition condition={item.condition} grade={item.grade} wide />{' '}
+                <span className="muted mono">{item.condition.toFixed(6)}</span>
+              </dd>
             </div>
             <div>
               <dt>{t('Value')}</dt>
-              <dd>{item.odds > 0 ? <Coins value={item.odds} size="sm" /> : '—'}</dd>
+              <dd>
+                <Coins value={item.value} size="sm" />{' '}
+                <span className="muted">{t('({mint} in perfect condition)', { mint: fmt_number(item.mint_value) })}</span>
+              </dd>
+            </div>
+            <div>
+              <dt>{t('Odds')}</dt>
+              <dd>{t('{odds} cards', { odds: odds_label(item.odds) })}</dd>
             </div>
             <div>
               <dt>{t('Made')}</dt>
@@ -206,7 +217,7 @@ function Stage({ item }: { item: Item }) {
     <div className="item-detail__stage" ref={ref}>
       <div className="item-detail__halo" aria-hidden />
       <div className="item-detail__art">
-        <ItemArt item={item} scale={3.2} />
+        <ItemArt item={item} scale={3.2} seed={item.id} />
         <span className="item-detail__glare" aria-hidden />
       </div>
       <div className="item-detail__floor" aria-hidden />

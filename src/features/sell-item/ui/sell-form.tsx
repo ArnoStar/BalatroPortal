@@ -10,7 +10,7 @@ const MAX_PRICE = 1_000_000_000;
 
 export function SellForm({ item, onSold }: { item: Item; onSold: (listing: Listing) => void }) {
   const sales = use_async(() => items_api.sales(item.variant, item.edition, 5), [item.variant, item.edition]);
-  const [price, setPrice] = useState(String(Math.max(1, item.odds || 1)));
+  const [price, setPrice] = useState(String(Math.max(1, item.value || 1)));
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const n = Number(price);
@@ -45,14 +45,12 @@ export function SellForm({ item, onSold }: { item: Item; onSold: (listing: Listi
         hint={t('Another player buys it at once, at this price. Until then you may take it off the market.')}
       />
       <dl className="sell-form__facts">
-        {item.odds > 0 ? (
-          <div>
-            <dt>{t('Its value (its odds)')}</dt>
-            <dd>
-              <Coins value={item.odds} size="sm" />
-            </dd>
-          </div>
-        ) : null}
+        <div>
+          <dt>{t('Its value (its card, upgrades and condition)')}</dt>
+          <dd>
+            <Coins value={item.value} size="sm" />
+          </dd>
+        </div>
         <div>
           <dt>{t('Sold lately (the same card and edition)')}</dt>
           <dd>

@@ -13,6 +13,10 @@ const KINDS: Record<ItemKind, string> = {
 const KINDS_PLURAL: Record<ItemKind, string> = {
   joker: N_('Jokers'), tarot: N_('Tarot cards'), planet: N_('Planet cards'), spectral: N_('Spectral cards'), card: N_('Playing cards'),
 };
+const GRADES: Record<string, string> = {
+  ruined: N_('Ruined'), battered: N_('Battered'), worn: N_('Worn'), played: N_('Played'), fine: N_('Fine'),
+  excellent: N_('Excellent'), mint: N_('Mint'), pristine: N_('Pristine'),
+};
 const TIERS: Record<Tier, string> = { standard: N_('Standard'), boosted: N_('Boosted'), premium: N_('Premium') };
 const SIZES: Record<BoosterSize, string> = { normal: N_('Normal'), jumbo: N_('Jumbo'), mega: N_('Mega') };
 const STAKE_NAMES = ['', 'White', 'Red', 'Green', 'Black', 'Blue', 'Purple', 'Orange', 'Gold'];
@@ -77,6 +81,11 @@ export const stake_label = (stake: number) => {
 };
 export const source_label = (source: string) => (SOURCES[source] ? t(SOURCES[source]) : source);
 
+/** a condition's grade (worn ...) in the player's language */
+export const grade_name = (grade: string | null | undefined) => (grade && GRADES[grade] ? t(GRADES[grade]) : grade ?? '');
+/** a condition as a percentage: 31.4% (0.0% ... 100.0%) */
+export const condition_label = (condition: number) => `${fmt_number(Math.floor(condition * 1000) / 10, 1)}%`;
+
 /** "1 in 4,520" */
 export const odds_label = (odds: number) => (odds > 0 ? t('1 in {n}', { n: fmt_number(odds) }) : t('unknown odds'));
 
@@ -87,6 +96,7 @@ export function item_label(item: Item): string {
   if (upgrades) parts.push(upgrades);
   parts.push(rarity_name(item.rarity));
   if (item.edition !== 'base') parts.push(edition_name(item.edition));
+  parts.push(`${grade_name(item.grade)} ${condition_label(item.condition)}`);
   parts.push(t('#{serial} of {minted}', { serial: item.serial, minted: item.minted }));
   return parts.join(', ');
 }

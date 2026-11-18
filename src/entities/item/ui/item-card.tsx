@@ -7,9 +7,12 @@ import { Link } from 'react-router';
 import type { CSSProperties, ReactNode } from 'react';
 import type { Booster, Drawable, Item, SpriteCell } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
-import { Icon, useTilt } from '@/shared/ui';
+import { Coins, Icon, useTilt } from '@/shared/ui';
 import { t } from '@/shared/i18n';
-import { booster_name, edition_name, item_label, item_name, odds_label, rarity_name, upgrades_label } from '../lib/text';
+import {
+  booster_name, condition_label, edition_name, grade_name, item_label, item_name, rarity_name, upgrades_label,
+} from '../lib/text';
+import { wear_image } from '../lib/wear';
 
 const TEXTURES = `${GAME_URL}/resources/textures/2x`;
 type Atlas = { file: string; px: number; py: number; cols: number; rows: number };
@@ -62,8 +65,9 @@ function Layer({ sprite, scale, className }: { sprite: SpriteCell | null | undef
   return <div className={`item-art__layer ${className}`} style={cell(atlas, sprite.pos.x, sprite.pos.y, scale)} />;
 }
 
-/** the card's picture: `scale` 1 is the game's 1x size (71 x 95) */
-export function ItemArt({ item, scale = 1.5 }: { item: Drawable; scale?: number }) {
+/** the card's picture: `scale` 1 is the game's 1x size (71 x 95); its wear (from its condition) drawn over it, each
+ *  item its own (`seed`: its id) */
+export function ItemArt({ item, scale = 1.5, seed }: { item: Drawable; scale?: number; seed?: string }) {
   const sprite = item.sprite;
   const atlas = sprite ? ATLASES[sprite.atlas] : undefined;
   if (!atlas || !sprite) {
@@ -72,14 +76,25 @@ export function ItemArt({ item, scale = 1.5 }: { item: Drawable; scale?: number 
   const { x, y } = sprite.pos;
   const soul = sprite.soul_pos;
   const sticker = item.stake && item.kind === 'joker' ? STAKE_STICKERS[item.stake] : undefined;
+  const condition = item.condition ?? null;
+  const wear = condition === null ? 0 : 1 - condition;
+  const grime = condition === null ? '' : wear_image(seed ?? `${item.key}:${item.edition}:${condition}`, wear);
+  const crisp = condition !== null && condition >= 0.8 ? (condition >= 0.95 ? ' item-art--mint' : ' item-art--crisp') : '';
   return (
-    <div className={`item-art item-art--${item.edition} item-art--${item.kind}`} style={{ width: atlas.px * scale, height: atlas.py * scale }}>
-      <div className="item-art__layer item-art__base" style={cell(atlas, x, y, scale)} />
-      <Layer sprite={sprite.front} scale={scale} className="item-art__front" />
-      {item.edition !== 'base' ? <div className="item-art__layer item-art__edition" style={cell(atlas, x, y, scale, false)} /> : null}
-      <Layer sprite={sprite.seal} scale={scale} className="item-art__seal" />
-      {soul ? <div className="item-art__layer item-art__soul" style={cell(atlas, soul.x, soul.y, scale)} /> : null}
-      <Layer sprite={sprite.overlay} scale={scale} className="item-art__soul" />
+    <div
+      className={`item-art item-art--${item.edition} item-art--${item.kind}${crisp}`}
+      style={{ width: atlas.px * scale, height: atlas.py * scale, '--wear': wear } as CSSProperties}
+    >
+      <div className="item-art__card">
+        <div className="item-art__layer item-art__base" style={cell(atlas, x, y, scale)} />
+        <Layer sprite={sprite.front} scale={scale} className="item-art__front" />
+        {item.edition !== 'base' ? <div className="item-art__layer item-art__edition" style={cell(atlas, x, y, scale, false)} /> : null}
+        <Layer sprite={sprite.seal} scale={scale} className="item-art__seal" />
+        {soul ? <div className="item-art__layer item-art__soul" style={cell(atlas, soul.x, soul.y, scale)} /> : null}
+        <Layer sprite={sprite.overlay} scale={scale} className="item-art__soul" />
+      </div>
+      {grime ? <div className="item-art__layer item-art__wear" style={{ ...cell(atlas, x, y, scale, false), backgroundImage: grime }} /> : null}
+      {crisp ? <div className="item-art__layer item-art__gloss" style={cell(atlas, x, y, scale, false)} /> : null}
       {sticker ? <div className="item-art__layer item-art__sticker" style={cell(STICKERS, sticker[0], sticker[1], scale)} /> : null}
     </div>
   );
@@ -120,7 +135,7 @@ export function ItemCard({ item, to, selected, onSelect, index = 0, children }: 
         </span>
       ) : null}
       <span className="item-card__stage">
-        <ItemArt item={item} />
+        <ItemArt item={item} seed={item.id} />
       </span>
       <span className="item-card__name">{item_name(item)}</span>
       {upgrades ? <span className="item-card__upgrades">{upgrades}</span> : null}
@@ -128,8 +143,9 @@ export function ItemCard({ item, to, selected, onSelect, index = 0, children }: 
         <span className={`rarity rarity--${item.rarity}`}>{rarity_name(item.rarity)}</span>
         {item.edition !== 'base' ? <span className={`edition edition--${item.edition}`}>{edition_name(item.edition)}</span> : null}
       </span>
+      <Condition condition={item.condition} grade={item.grade} />
       <span className="item-card__numbers">
-        {t('#{serial} of {minted}', { serial: item.serial, minted: item.minted })} · {odds_label(item.odds)}
+        {t('#{serial} of {minted}', { serial: item.serial, minted: item.minted })} · <Coins value={item.value} size="sm" />
       </span>
     </>
   );
@@ -153,5 +169,20 @@ export function ItemCard({ item, to, selected, onSelect, index = 0, children }: 
       )}
       {children}
     </li>
+  );
+}
+
+/** a condition: its grade, its percentage and a bar, coloured from ruined (red) to pristine (gold) */
+export function Condition({ condition, grade, wide = false }: { condition: number | null | undefined; grade?: string | null; wide?: boolean }) {
+  if (condition === null || condition === undefined) return null;
+  return (
+    <span className={`condition condition--${grade ?? ''}${wide ? ' condition--wide' : ''}`} title={t('Condition')}>
+      <span className="condition__bar" aria-hidden>
+        <span style={{ width: `${Math.max(2, condition * 100)}%` }} />
+      </span>
+      <span className="condition__text">
+        {grade_name(grade)} <b>{condition_label(condition)}</b>
+      </span>
+    </span>
   );
 }

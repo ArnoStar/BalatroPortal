@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import {
-  BoosterArt, booster_name, edition_name, ItemArt, item_name, kind_name, odds_label, rarity_name, size_name, tier_name, upgrades_label,
+  BoosterArt, booster_name, Condition, edition_name, ItemArt, item_name, kind_name, odds_label, rarity_name, size_name, tier_name,
+  upgrades_label,
 } from '@/entities/item';
 import { describe, items_api, type Booster, type CoinMove, type ItemKind, type Odds, type Pack, type Tier } from '@/shared/api';
 import { use_async } from '@/shared/lib';
@@ -301,15 +302,16 @@ function PackOpening({ pack: first, fresh, onClose, onChosen }: {
               const item = item_of(c.index);
               const front = (
                 <>
-                  <ItemArt item={c} scale={scale} />
+                  <ItemArt item={c} scale={scale} seed={`${pack.id}:${c.index}`} />
                   <strong>{item_name(c)}</strong>
                   {upgrades_label(c) ? <small className="pack-card__upgrades">{upgrades_label(c)}</small> : null}
                   <span className="item-card__meta">
                     <span className={`rarity rarity--${c.rarity}`}>{rarity_name(c.rarity)}</span>
                     {c.edition !== 'base' ? <span className={`edition edition--${c.edition}`}>{edition_name(c.edition)}</span> : null}
                   </span>
-                  <small className="muted">
-                    {odds_label(c.odds)} · {tp(c.minted, '# made', '# made')}
+                  <Condition condition={c.condition} grade={c.grade} />
+                  <small className="muted pack-card__numbers">
+                    {c.value ? <Coins value={c.value} size="sm" /> : null} · {odds_label(c.odds)}
                   </small>
                 </>
               );
