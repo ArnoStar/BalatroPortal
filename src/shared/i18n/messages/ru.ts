@@ -510,7 +510,6 @@ export const ru: Dictionary = {
   "No player by that name has items": "Ни у кого с таким именем нет предметов",
   "can’t trade yet": "пока не может обмениваться",
   "Staked in the casino": "Поставлен в казино",
-  "Tradable from {date}": "Можно обменять с {date}",
   "No item": "Нет предметов",
   "Pick your items and theirs: up to {n} on each side, and one side may be empty.": "Выберите свои предметы и предметы игрока: до {n} с каждой стороны, одна сторона может быть пустой.",
   "This player can’t trade yet: trading opens after a first win.": "Этот игрок пока не может обмениваться: обмен открывается после первой победы.",
@@ -773,4 +772,6 @@ export const ru: Dictionary = {
   "# wins in a row now": { one: "сейчас # победа подряд", few: "сейчас # победы подряд", many: "сейчас # побед подряд", other: "сейчас # победы подряд" },
   "# won": { one: "# выигран", few: "# выиграно", many: "# выиграно", other: "# выиграно" },
   "# matches": { one: "# матч", few: "# матча", many: "# матчей", other: "# матча" },
+  "Tradable {when}": "Можно обменять {when}",
+  "{when} ({date})": "{when} ({date})",
 };

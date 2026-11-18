@@ -6,7 +6,7 @@ import { describe, items_api, type Item, type Transfer } from '@/shared/api';
 import { CASINO_URL, GAME_URL } from '@/shared/config';
 import { use_async } from '@/shared/lib';
 import { Alert, Avatar, Button, Icon, LinkButton, Panel, Spinner, useTilt } from '@/shared/ui';
-import { fmt_datetime, t, tx } from '@/shared/i18n';
+import { fmt_ago, fmt_datetime, t, tx } from '@/shared/i18n';
 
 const when = (iso: string) => fmt_datetime(iso);
 
@@ -106,7 +106,7 @@ export function ItemPage() {
                 ) : item.tradable ? (
                   <span className="win">{t('Yes')}</span>
                 ) : (
-                  `From ${when(item.tradable_at)}`
+                  t('{when} ({date})', { when: fmt_ago(item.tradable_at), date: when(item.tradable_at) })
                 )}
               </dd>
             </div>
