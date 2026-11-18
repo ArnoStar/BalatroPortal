@@ -405,8 +405,25 @@
   height: 1rem;
 }
 
-.item-card--held .item-card__body {
-  opacity: 0.78;
+/* in its trade hold (or staked, or for sale): a clock in the corner, the card stays as bright */
+.item-card__hold {
+  position: absolute;
+  top: 0.55rem;
+  left: 0.55rem;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 50%;
+  color: var(--text-2);
+  background: rgba(10, 8, 20, 0.75);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+}
+
+.item-card__hold .icon {
+  width: 0.9rem;
+  height: 0.9rem;
 }
 
 .item-card > .tag,
@@ -439,21 +456,29 @@
   background: var(--surface-3);
 }
 
-.item-art--foil .item-art__base,
-.item-art--foil .item-art__front {
-  filter: saturate(0.55) brightness(1.05) hue-rotate(-10deg);
-}
-
+/* editions, as the game draws them: a shimmering layer over the card, whose colours stay whole */
 .item-art--foil .item-art__edition {
-  background: linear-gradient(115deg, transparent 25%, rgba(140, 200, 255, 0.75) 42%, rgba(255, 255, 255, 0.9) 50%, rgba(140, 200, 255, 0.75) 58%, transparent 75%) 0 0 / 300% 100% no-repeat;
-  mix-blend-mode: screen;
+  background:
+    linear-gradient(115deg, rgba(40, 90, 255, 0.4) 0%, rgba(120, 180, 255, 0) 32%, rgba(225, 242, 255, 0.95) 47%, rgba(140, 200, 255, 0.6) 52%, rgba(120, 180, 255, 0) 66%, rgba(40, 90, 255, 0.4) 100%) 0 0 / 300% 100% no-repeat;
+  mix-blend-mode: overlay;
   animation: item-sheen 3.2s linear infinite;
 }
 
+.item-art--foil .item-art__layer.item-art__edition::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 30% 20%, rgba(90, 150, 255, 0.35), transparent 60%);
+  mix-blend-mode: soft-light;
+}
+
 .item-art--holographic .item-art__edition {
-  background: repeating-linear-gradient(125deg, #ff5f6d 0%, #ffc371 8%, #6bffb0 16%, #5fb8ff 24%, #c86bff 32%, #ff5f6d 40%) 0 0 / 300% 300%;
-  mix-blend-mode: color-dodge;
-  opacity: 0.55;
+  background:
+    repeating-linear-gradient(60deg, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(-60deg, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px 5px),
+    linear-gradient(125deg, #ff4f7a, #ffb84f, #63ff9f, #4fb4ff, #b25cff, #ff4f7a, #ffb84f) 0 0 / 300% 300%;
+  mix-blend-mode: overlay;
+  opacity: 0.75;
   animation: item-sheen 5s linear infinite;
 }
 
@@ -461,24 +486,24 @@
 .item-art--polychrome .item-art__base,
 .item-art--polychrome .item-art__front,
 .item-art--polychrome .item-art__soul {
-  filter: saturate(1.35);
+  filter: saturate(1.6) contrast(1.05);
 }
 
 .item-art--polychrome .item-art__edition {
-  background: linear-gradient(120deg, #ff4f6d, #ffd84f, #4fff9a, #4fc3ff, #b44fff, #ff4f6d, #ffd84f) 0 0 / 300% 300%;
+  background: linear-gradient(120deg, #ff3b5f, #ffd43b, #3bff8a, #3bbdff, #a93bff, #ff3b5f, #ffd43b) 0 0 / 300% 300%;
   mix-blend-mode: hue;
-  opacity: 0.7;
+  opacity: 0.85;
   animation: item-sheen 6s linear infinite;
 }
 
 .item-art--negative .item-art__base,
 .item-art--negative .item-art__front,
 .item-art--negative .item-art__soul {
-  filter: invert(1) hue-rotate(180deg) saturate(1.3) brightness(0.9);
+  filter: invert(1) hue-rotate(180deg) saturate(1.4) contrast(1.05);
 }
 
 .item-art--negative .item-art__edition {
-  background: rgba(70, 20, 110, 0.45);
+  background: rgba(70, 20, 110, 0.35);
   mix-blend-mode: multiply;
 }
 

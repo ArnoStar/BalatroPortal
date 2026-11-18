@@ -866,4 +866,5 @@ export const ru: Dictionary = {
   "These cards are yours now.": { one: "Эта карта теперь ваша.", few: "Эти карты теперь ваши.", many: "Эти карты теперь ваши.", other: "Эти карты теперь ваши." },
   "# made": { one: "всего #", few: "всего #", many: "всего #", other: "всего #" },
   "Take these # cards": { one: "Взять эту карту", few: "Взять эти # карты", many: "Взять эти # карт", other: "Взять эти # карты" },
+  "Can’t change hands now": "Сейчас не может сменить владельца",
 };

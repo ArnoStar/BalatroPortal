@@ -114,6 +114,11 @@ export function ItemCard({ item, to, selected, onSelect, index = 0, children }: 
           <Icon name="check" />
         </span>
       ) : null}
+      {!item.tradable ? (
+        <span className="item-card__hold" title={t('Can’t change hands now')}>
+          <Icon name="clock" />
+        </span>
+      ) : null}
       <span className="item-card__stage">
         <ItemArt item={item} />
       </span>
