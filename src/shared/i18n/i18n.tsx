@@ -106,6 +106,10 @@ export function game_name(key: string, fallback: string): string {
 
 /** a poker hand's name ("Flush") in the player's language */
 export const hand_name = (hand: string) => game_text?.hands[hand] ?? hand;
+
+/** a playing card's rank and suit in the game's words (their English names: Ace, Spades) */
+export const rank_name = (rank: string) => game_text?.ranks[rank] ?? rank;
+export const suit_name = (suit: string) => game_text?.suits[suit] ?? suit;
 /** a challenge's name in the player's language */
 export const challenge_name = (id: string, fallback: string) => game_text?.challenges[id] ?? fallback;
 

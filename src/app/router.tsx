@@ -15,11 +15,13 @@ import { InventoryPage } from '@/pages/inventory';
 import { ItemPage } from '@/pages/item';
 import { LeaderboardsPage } from '@/pages/leaderboards';
 import { LoginPage } from '@/pages/auth/login';
+import { MarketPage } from '@/pages/market';
 import { NewTradePage } from '@/pages/new-trade';
 import { NotFoundPage } from '@/pages/not-found';
 import { PlayerPage } from '@/pages/player';
 import { RegisterPage } from '@/pages/auth/register';
 import { ResetPasswordPage } from '@/pages/auth/reset-password';
+import { ShopPage } from '@/pages/shop';
 import { StatsPage } from '@/pages/stats';
 import { TradesPage } from '@/pages/trades';
 import { game_api } from '@/shared/api';
@@ -82,6 +84,8 @@ export const router = createBrowserRouter([
           { path: 'item/:id', element: <ItemPage /> },
           { path: 'trades', element: <TradesPage /> },
           { path: 'trades/new', element: <NewTradePage /> },
+          { path: 'shop', element: <ShopPage /> },
+          { path: 'market', element: <MarketPage /> },
           // the developers' (the report service refuses everyone else)
           { path: 'bugs', element: <BugsPage /> },
           { path: 'bugs/:id', element: <BugPage /> },

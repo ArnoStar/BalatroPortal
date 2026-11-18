@@ -19,7 +19,7 @@ export function AuthShell({ title, lead, icon, children }: { title: string; lead
               <Icon name="trophy" /> {t('A place on the leaderboards')}
             </li>
             <li>
-              <Icon name="cards" /> {t('Items found by playing')}
+              <Icon name="cards" /> {t('Coins for your runs, and cards to collect')}
             </li>
           </ul>
         </div>

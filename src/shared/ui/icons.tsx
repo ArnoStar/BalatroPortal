@@ -57,6 +57,7 @@ const STROKED = {
   'chevron-left': <path d="m14.5 6-6 6 6 6" />,
   'chevron-down': <path d="m6 9.5 6 6 6-6" />,
   'arrow-right': <path d="M4.5 12h15M13.5 6l6 6-6 6" />,
+  'arrow-left': <path d="M19.5 12h-15M10.5 6l-6 6 6 6" />,
   check: <path d="m5 12.5 4.5 4.5L19 7.5" />,
   'check-circle': <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM8.5 12.5l2.5 2.5 4.5-5" />,
   'x-circle': <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM9 9l6 6M15 9l-6 6" />,
