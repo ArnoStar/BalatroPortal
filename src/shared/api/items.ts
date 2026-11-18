@@ -80,6 +80,9 @@ export interface Item extends Drawable {
   /** its open listing on the market, and its price */
   listed: string | null;
   price: number | null;
+  /** put in an upgrade (the casino's, against the house): gone, its history kept */
+  destroyed_at?: string | null;
+  destroyed_in?: string | null;
 }
 
 export interface Week {

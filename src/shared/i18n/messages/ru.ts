@@ -877,4 +877,8 @@ export const ru: Dictionary = {
   "Its value (its card, upgrades and condition)": "Его ценность (карта, улучшения и состояние)",
   "Best condition first": "Сначала в лучшем состоянии",
   "({mint} in perfect condition)": "({mint} в идеальном состоянии)",
+  "No: gone in {upgrade}": "Нет: пропал в {upgrade}",
+  "an upgrade": "апгрейде",
+  "Put in {upgrade} by {owner}: gone": "{owner}: поставлен в {upgrade} и пропал",
+  "Won by {to} in {upgrade}": "{to}: выигран в {upgrade}",
 };
