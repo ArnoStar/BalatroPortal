@@ -33,6 +33,7 @@ export function ItemPage() {
   const { item, history } = detail.data!;
   const mine = me.data?.id === item.owner || account?.id === item.owner;
   const shown = me.data?.showcase?.id === item.id;
+  const gone = !!item.destroyed_at;
 
   async function act(run: () => Promise<unknown>) {
     setBusy(true);
@@ -133,7 +134,9 @@ export function ItemPage() {
             <div>
               <dt>{t('Tradable')}</dt>
               <dd>
-                {item.staked ? (
+                {item.destroyed_at ? (
+                  <span className="loss">{tx('No: gone in {upgrade}', { upgrade: <a href={`${CASINO_URL}/upgrade`}>{t('an upgrade')}</a> })}</span>
+                ) : item.staked ? (
                   <>
                     {tx('No: staked in {game}', { game: <a href={`${CASINO_URL}/${encodeURIComponent(item.staked)}`}>{t('a casino game')}</a> })}
                   </>
@@ -170,7 +173,7 @@ export function ItemPage() {
             </div>
           ) : null}
           <div className="row">
-            {mine ? (
+            {gone ? null : mine ? (
               shown ? (
                 <Button tone="grey" busy={busy} onClick={() => showcase(false)} icon={<Icon name="close" />}>
                   {t('Take it off your title screen')}
@@ -194,7 +197,7 @@ export function ItemPage() {
           {error ? <Alert>{describe(error)}</Alert> : null}
         </div>
       </section>
-      {mine && item.tradable && me.data?.can_trade ? (
+      {mine && !gone && item.tradable && me.data?.can_trade ? (
         <Panel title={t('Sell it on the market')} icon="scale">
           <SellForm item={item} onSold={() => detail.reload()} />
         </Panel>
@@ -204,6 +207,19 @@ export function ItemPage() {
           {history.map((h, i) => (
             <Step key={i} h={h} />
           ))}
+          {item.destroyed_at ? (
+            <li className="timeline-v__step timeline-v__step--casino">
+              <span className="timeline-v__dot" aria-hidden>
+                <Icon name="flame" />
+              </span>
+              <div>
+                <p className="timeline-v__what">{tx('Put in {upgrade} by {owner}: gone', { upgrade: <a href={`${CASINO_URL}/upgrade`}>{t('an upgrade')}</a>, owner: <strong>{item.owner_name ?? t('a player')}</strong> })}</p>
+                <time className="muted" dateTime={item.destroyed_at}>
+                  {when(item.destroyed_at)}
+                </time>
+              </div>
+            </li>
+          ) : null}
         </ol>
       </Panel>
     </div>
@@ -234,7 +250,11 @@ function Step({ h }: { h: Transfer }) {
       </span>
       <div>
         <p className="timeline-v__what">
-          {h.game ? (
+          {h.game && !h.from_player ? (
+            <>
+              {tx('Won by {to} in {upgrade}', { to: <strong>{h.to_name ?? t('a player')}</strong>, upgrade: <a href={`${CASINO_URL}/upgrade`}>{t('an upgrade')}</a> })}
+            </>
+          ) : h.game ? (
             <>
               {tx('Won by {to} from {from} in {game}', {
                 to: <strong>{h.to_name ?? t('a player')}</strong>,
