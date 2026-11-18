@@ -232,7 +232,7 @@ function BuyDialog({ listing, coins, onClose, onBought }: { listing: Listing; co
   return (
     <Modal title={done ? t('It is yours') : t('Buy it?')} onClose={done ? onBought : onClose}>
       <div className="buy-dialog">
-        <ItemArt item={item} scale={2.2} />
+        <ItemArt item={item} scale={2.2} seed={item.id} />
         <div className="stack stack--tight">
           <strong>{item_name(item)}</strong>
           {upgrades_label(item) ? <span className="muted">{upgrades_label(item)}</span> : null}
@@ -333,7 +333,7 @@ function Mine({ box, onChange }: { box: ListingBox; onChange: () => void }) {
               <li key={l.id} style={{ '--i': n } as CSSProperties}>
                 {l.item ? (
                   <Link to={`/item/${l.item.id}`} className="market-history__art" viewTransition>
-                    <ItemArt item={l.item} scale={0.7} />
+                    <ItemArt item={l.item} scale={0.7} seed={l.item.id} />
                   </Link>
                 ) : null}
                 <span className="market-history__what">
@@ -376,7 +376,7 @@ function SellDialog({ onClose, onSold }: { onClose: () => void; onSold: () => vo
       {item ? (
         <div className="sell-dialog">
           <div className="sell-dialog__item">
-            <ItemArt item={item} scale={2.2} />
+            <ItemArt item={item} scale={2.2} seed={item.id} />
             <Button size="sm" tone="ghost" onClick={() => setItem(null)} icon={<Icon name="arrow-left" />}>
               {t('Another item')}
             </Button>

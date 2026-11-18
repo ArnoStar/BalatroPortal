@@ -273,20 +273,51 @@
   color: var(--text-2);
 }
 
+/* a pack: one row of cards, sized to the window (pack_scale), its button always in sight */
+.modal.modal--pack {
+  width: min(1180px, calc(100vw - 2rem));
+}
+
+.modal.modal--pack .modal__body {
+  padding-bottom: 0;
+}
+
 .pack-cards {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem;
+  gap: 1.25rem;
   margin: 0;
-  padding: 0.5rem 0;
+  padding: 0.25rem 0 0.5rem;
   list-style: none;
 }
 
 .pack-card {
-  width: 12.5rem;
-  min-height: 21rem;
+  width: var(--card-w, 12.5rem);
+  min-height: 0;
   animation-delay: calc(var(--i) * 0.1s);
+}
+
+.pack-card .flip-card__inner {
+  height: auto;
+  min-height: 0;
+}
+
+.pack-card .flip-card__front {
+  position: relative;
+  gap: 0.35rem;
+  padding: 0.85rem 0.5rem;
+}
+
+.pack-card .flip-card__back {
+  position: absolute;
+}
+
+.pack-open__actions {
+  position: sticky;
+  bottom: 0;
+  padding: 0.75rem 0 1.1rem;
+  background: linear-gradient(transparent, rgba(16, 13, 28, 0.97) 35%);
 }
 
 .pack-card .flip-card__inner {

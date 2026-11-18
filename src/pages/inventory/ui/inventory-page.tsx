@@ -10,7 +10,7 @@ import { current_lang, N_, t, tp } from '@/shared/i18n';
 const date = (iso: string) => new Date(iso).toLocaleDateString(current_lang(), { weekday: 'long', month: 'short', day: 'numeric' });
 
 type Kind = 'all' | ItemKind;
-type Order = 'newest' | 'rarest' | 'rarity';
+type Order = 'newest' | 'value' | 'condition' | 'rarity';
 const KINDS: ItemKind[] = ['joker', 'tarot', 'planet', 'spectral', 'card'];
 const GRANTS: Record<string, string> = {
   weekly: N_('This week’s run'), weekly_win: N_('This week’s win'), first_deck_win: N_('A first win with a deck'),
@@ -19,8 +19,9 @@ const GRANTS: Record<string, string> = {
 
 const ORDERS: Record<Order, (a: Item, b: Item) => number> = {
   newest: (a, b) => Date.parse(b.acquired_at) - Date.parse(a.acquired_at),
-  rarest: (a, b) => b.odds - a.odds,
-  rarity: (a, b) => b.rarity - a.rarity || b.odds - a.odds,
+  value: (a, b) => b.value - a.value,
+  condition: (a, b) => b.condition - a.condition,
+  rarity: (a, b) => b.rarity - a.rarity || b.value - a.value,
 };
 
 /** /inventory: your items, your coins and this week's, the packs waiting */
@@ -119,7 +120,8 @@ export function InventoryPage() {
                 <span>{t('Order')}</span>
                 <select value={order} onChange={(e) => setOrder(e.target.value as Order)}>
                   <option value="newest">{t('Newest first')}</option>
-                  <option value="rarest">{t('Most valuable first')}</option>
+                  <option value="value">{t('Most valuable first')}</option>
+                  <option value="condition">{t('Best condition first')}</option>
                   <option value="rarity">{t('By rarity')}</option>
                 </select>
               </label>

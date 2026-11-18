@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import {
-  BoosterArt, booster_name, edition_name, ItemArt, item_name, kind_name, odds_label, rarity_name, size_name, tier_name, upgrades_label,
+  BoosterArt, booster_name, Condition, edition_name, ItemArt, item_name, kind_name, odds_label, rarity_name, size_name, tier_name,
+  upgrades_label,
 } from '@/entities/item';
 import { describe, items_api, type Booster, type CoinMove, type ItemKind, type Odds, type Pack, type Tier } from '@/shared/api';
 import { use_async } from '@/shared/lib';
@@ -36,6 +37,28 @@ const RULES: Record<string, string> = {
 
 /** with reduced motion, timed reveals don't wait */
 const still = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** a pack's cards, as big as the window lets all of them, their words and the button be seen at once (as the
+ *  game shows a pack: one row, nothing to scroll) */
+function pack_scale(cards: number): number {
+  if (typeof window === 'undefined') return 1.6;
+  const width = Math.min(1180, window.innerWidth - 32) - 48;
+  const per_card = width / Math.min(cards, window.innerWidth < 640 ? 2 : cards) - 20;
+  const by_width = (per_card - 24) / 71;
+  const by_height = (window.innerHeight - 400) / 95;
+  return Math.max(0.8, Math.min(2.2, by_width, by_height));
+}
+
+function usePackScale(cards: number): number {
+  const [scale, setScale] = useState(() => pack_scale(cards));
+  useEffect(() => {
+    const resize = () => setScale(pack_scale(cards));
+    resize();
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, [cards]);
+  return scale;
+}
 
 /** /shop: the boosters coins buy, the packs waiting to be opened, and where coins come from */
 export function ShopPage() {
@@ -229,6 +252,7 @@ function PackOpening({ pack: first, fresh, onClose, onChosen }: {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const opened = pack.status === 'opened';
+  const scale = usePackScale(pack.choices.length);
 
   useEffect(() => {
     if (torn) return;
@@ -259,7 +283,7 @@ function PackOpening({ pack: first, fresh, onClose, onChosen }: {
     return n >= 0 ? pack.items[n] : undefined;
   };
   return (
-    <Modal title={booster_name(pack.booster)} onClose={onClose} wide>
+    <Modal title={booster_name(pack.booster)} onClose={onClose} className="modal--pack">
       {!torn ? (
         <div className={`pack-tear pack-tear--${pack.booster.tier}`} aria-live="polite">
           <BoosterArt booster={pack.booster} scale={2.6} />
@@ -272,21 +296,22 @@ function PackOpening({ pack: first, fresh, onClose, onChosen }: {
               ? tp(pack.chosen.length, 'This card is yours now.', 'These cards are yours now.')
               : t('Choose {picks} of these {choices} cards: the others are gone once you take them.', { picks: pack.picks, choices: pack.choices.length })}
           </p>
-          <ul className={`pack-cards pack-cards--${pack.choices.length}`}>
+          <ul className={`pack-cards pack-cards--${pack.choices.length}`} style={{ '--card-w': `${Math.round(71 * scale + 28)}px` } as CSSProperties}>
             {pack.choices.map((c, n) => {
               const on = picked.includes(c.index);
               const item = item_of(c.index);
               const front = (
                 <>
-                  <ItemArt item={c} scale={1.9} />
+                  <ItemArt item={c} scale={scale} seed={`${pack.id}:${c.index}`} />
                   <strong>{item_name(c)}</strong>
                   {upgrades_label(c) ? <small className="pack-card__upgrades">{upgrades_label(c)}</small> : null}
                   <span className="item-card__meta">
                     <span className={`rarity rarity--${c.rarity}`}>{rarity_name(c.rarity)}</span>
                     {c.edition !== 'base' ? <span className={`edition edition--${c.edition}`}>{edition_name(c.edition)}</span> : null}
                   </span>
-                  <small className="muted">
-                    {odds_label(c.odds)} · {tp(c.minted, '# made', '# made')}
+                  <Condition condition={c.condition} grade={c.grade} />
+                  <small className="muted pack-card__numbers">
+                    {c.value ? <Coins value={c.value} size="sm" /> : null} · {odds_label(c.odds)}
                   </small>
                 </>
               );
@@ -318,7 +343,7 @@ function PackOpening({ pack: first, fresh, onClose, onChosen }: {
             })}
           </ul>
           {error ? <Alert>{describe(error)}</Alert> : null}
-          <div className="row row--center">
+          <div className="row row--center pack-open__actions">
             {opened ? (
               <>
                 <LinkButton to="/inventory" icon={<Icon name="cards" />} viewTransition>

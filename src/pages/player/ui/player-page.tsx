@@ -134,7 +134,7 @@ function Showcase({ item, you }: { item: Item; you: boolean }) {
   return (
     <Link to={`/item/${item.id}`} className="profile__showcase" title={item_label(item)} viewTransition>
       <span className="profile__showcase-art">
-        <ItemArt item={item} scale={1.6} />
+        <ItemArt item={item} scale={1.6} seed={item.id} />
       </span>
       <span className="profile__showcase-label">
         <Icon name="star" /> {you ? t('On your title screen') : t('On their title screen')}
