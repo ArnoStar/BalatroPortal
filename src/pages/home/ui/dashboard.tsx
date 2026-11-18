@@ -2,7 +2,7 @@ import { DeckGlyph, deck_name, phase_name, stake_name } from '@/entities/catalog
 import { game_api, items_api, type RunSummary } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
 import { format_number, format_percent, time_ago, time_left, use_async } from '@/shared/lib';
-import { AnchorButton, CountUp, Icon, LinkButton, Panel } from '@/shared/ui';
+import { AnchorButton, Coins, CountUp, Icon, LinkButton, Panel } from '@/shared/ui';
 import { t } from '@/shared/i18n';
 import { RunsList } from './runs-list';
 
@@ -119,27 +119,31 @@ function ThisWeek() {
   const w = data.week;
   return (
     <Panel
-      title={t('This week’s items')}
-      icon="gift"
+      title={t('This week’s coins')}
+      icon="coins"
       actions={
-        <LinkButton to="/inventory" tone="ghost" size="sm" viewTransition>
-          {data.items} items <Icon name="arrow-right" />
+        <LinkButton to="/shop" tone="ghost" size="sm" viewTransition>
+          <Coins value={data.coins} size="sm" /> <Icon name="arrow-right" />
         </LinkButton>
       }
     >
       <ul className="week-list">
-        <li className={w.weekly_found ? 'is-done' : undefined}>
-          <Icon name={w.weekly_found ? 'check-circle' : 'target'} />
+        <li className={w.weekly_earned ? 'is-done' : undefined}>
+          <Icon name={w.weekly_earned ? 'check-circle' : 'target'} />
           <span>
-            <strong>{t('This week’s item')}</strong>
-            <small>{w.weekly_found ? t('Found') : t('Finish a run at ante 3 or later')}</small>
+            <strong>
+              {t('This week’s run')} <Coins value={w.weekly_coins} size="sm" />
+            </strong>
+            <small>{w.weekly_earned ? t('Earned') : t('Finish a run at ante 3 or later')}</small>
           </span>
         </li>
-        <li className={w.weekly_win_found ? 'is-done' : undefined}>
-          <Icon name={w.weekly_win_found ? 'check-circle' : 'trophy'} />
+        <li className={w.weekly_win_earned ? 'is-done' : undefined}>
+          <Icon name={w.weekly_win_earned ? 'check-circle' : 'trophy'} />
           <span>
-            <strong>{t('This week’s win')}</strong>
-            <small>{w.weekly_win_found ? t('Found') : t('Win a run')}</small>
+            <strong>
+              {t('This week’s win')} <Coins value={w.weekly_win_coins} size="sm" />
+            </strong>
+            <small>{w.weekly_win_earned ? t('Earned') : t('Win a run')}</small>
           </span>
         </li>
       </ul>

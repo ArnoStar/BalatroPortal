@@ -7,6 +7,8 @@ export {
   current_lang,
   game_name,
   hand_name,
+  rank_name,
+  suit_name,
   t,
   tp,
   tx,

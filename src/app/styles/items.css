@@ -30,7 +30,7 @@
   background: var(--glass);
 }
 
-.week-cards span:last-child {
+.week-cards li > span:last-child {
   display: grid;
   line-height: 1.3;
 }

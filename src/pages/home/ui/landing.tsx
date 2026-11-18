@@ -22,7 +22,7 @@ const FEATURES: { icon: IconName; accent: Accent; title: string; text: string }[
     icon: 'cards',
     accent: 'violet',
     title: N_('Items to collect'),
-    text: N_('Find the game’s jokers and tags, some foil, holographic, polychrome or negative, and trade them.'),
+    text: N_('Your runs earn coins for boosters: choose the game’s cards, some foil, holographic, polychrome or negative, then trade them or sell them on the market.'),
   },
   {
     icon: 'eye',

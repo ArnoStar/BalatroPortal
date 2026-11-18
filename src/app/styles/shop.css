@@ -1,0 +1,553 @@
+/* The shop (boosters, a pack opened), the market, and coins. */
+
+/* ---------------------------------------------------------------- coins: the casino's chip */
+.coins {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.coins__chip {
+  display: inline-block;
+  flex: none;
+  width: 0.95em;
+  height: 0.95em;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #ffd24d 0 36%, #9a5a0e 37% 42%, transparent 43%),
+    repeating-conic-gradient(#ffc53d 0 30deg, #fff1c7 30deg 60deg);
+  box-shadow: 0 0 0 1px rgba(120, 66, 10, 0.6), 0 0 10px -2px rgba(255, 190, 60, 0.85);
+}
+
+.coins__n {
+  color: var(--gold);
+}
+
+.coins--sm {
+  font-size: 0.86rem;
+}
+
+.coins--lg {
+  font-size: 1.3rem;
+}
+
+.coins--badge {
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(255, 197, 61, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 197, 61, 0.3);
+}
+
+.btn .coins__n {
+  color: inherit;
+}
+
+/* ---------------------------------------------------------------- a playing card's upgrades */
+.item-card__upgrades {
+  color: var(--text-2);
+  font-size: 0.74rem;
+  text-align: center;
+}
+
+.upgrade {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.12rem 0.55rem;
+  border-radius: 999px;
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+}
+
+.upgrade--gold { box-shadow: inset 0 0 0 1px rgba(255, 197, 61, 0.6); }
+.upgrade--red { box-shadow: inset 0 0 0 1px rgba(255, 92, 108, 0.65); }
+.upgrade--blue { box-shadow: inset 0 0 0 1px rgba(76, 157, 255, 0.65); }
+.upgrade--purple { box-shadow: inset 0 0 0 1px rgba(192, 123, 255, 0.65); }
+
+/* ---------------------------------------------------------------- boosters */
+.tiers {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.tier {
+  display: grid;
+  grid-template-columns: minmax(12rem, 16rem) 1fr;
+  gap: 1rem 1.4rem;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.025);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.tier--boosted {
+  background: linear-gradient(100deg, rgba(76, 157, 255, 0.1), transparent 55%), rgba(255, 255, 255, 0.025);
+  box-shadow: inset 0 0 0 1px rgba(76, 157, 255, 0.25);
+}
+
+.tier--premium {
+  background: linear-gradient(100deg, rgba(255, 197, 61, 0.13), rgba(192, 123, 255, 0.07) 45%, transparent 75%), rgba(255, 255, 255, 0.025);
+  box-shadow: inset 0 0 0 1px rgba(255, 197, 61, 0.32), 0 0 50px -30px rgba(255, 197, 61, 0.7);
+}
+
+@media (max-width: 760px) {
+  .tier {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tier__head h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.tier__head p {
+  margin: 0.2rem 0 0.6rem;
+  font-size: 0.85rem;
+}
+
+.chances {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0;
+}
+
+.chances__item {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.chances__item dt {
+  color: var(--muted);
+}
+
+.chances__item dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.chances__item--uncommon dd { color: var(--rarity-2); }
+.chances__item--rare dd { color: var(--rarity-3); }
+.chances__item--legendary dd { color: var(--rarity-4); }
+.chances__item--negative dd { color: var(--violet-soft); }
+
+.boosters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.booster {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  padding: 0.9rem 0.6rem;
+  border-radius: var(--radius);
+  text-align: center;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  animation: fade-up 0.5s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 0.07s);
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s;
+}
+
+.booster:hover {
+  transform: translateY(-3px);
+  box-shadow: inset 0 0 0 1px var(--line-3), 0 20px 40px -24px rgba(0, 0, 0, 0.9);
+}
+
+.booster .booster-art {
+  margin-bottom: 0.3rem;
+  transition: transform 0.35s var(--ease-spring);
+}
+
+.booster:hover .booster-art {
+  transform: rotate(-3deg) scale(1.05);
+}
+
+/* the game's pack, lit by its tier */
+.booster-art {
+  position: relative;
+  flex: none;
+  filter: drop-shadow(0 12px 14px rgba(0, 0, 0, 0.55));
+}
+
+.booster-art--boosted .booster-art__light {
+  background: linear-gradient(115deg, transparent 25%, rgba(140, 200, 255, 0.7) 42%, rgba(255, 255, 255, 0.85) 50%, rgba(140, 200, 255, 0.7) 58%, transparent 75%) 0 0 / 300% 100% no-repeat;
+  mix-blend-mode: screen;
+  animation: item-sheen 3.4s linear infinite;
+}
+
+.booster-art--premium {
+  filter: drop-shadow(0 0 14px rgba(255, 197, 61, 0.65)) drop-shadow(0 12px 14px rgba(0, 0, 0, 0.55));
+}
+
+.booster-art--premium .booster-art__light {
+  background: linear-gradient(120deg, #ff4f6d, #ffd84f, #4fff9a, #4fc3ff, #b44fff, #ff4f6d, #ffd84f) 0 0 / 300% 300%;
+  mix-blend-mode: hue;
+  opacity: 0.75;
+  animation: item-sheen 5s linear infinite;
+}
+
+/* packs waiting */
+.waiting {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.waiting__pack {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.6rem 1rem 0.6rem 0.7rem;
+  border: 0;
+  border-radius: var(--radius);
+  color: var(--text);
+  text-align: left;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+  cursor: pointer;
+  transition: transform 0.2s var(--ease-out), box-shadow 0.2s;
+}
+
+.waiting__pack:hover {
+  transform: translateY(-2px);
+  box-shadow: inset 0 0 0 1px rgba(255, 197, 61, 0.45);
+}
+
+.waiting__pack > span {
+  display: grid;
+}
+
+/* ---------------------------------------------------------------- a pack opened */
+.pack-tear {
+  display: grid;
+  place-items: center;
+  min-height: 22rem;
+}
+
+.pack-tear .booster-art {
+  animation: pack-shake 1.1s var(--ease-in-out) both;
+}
+
+@keyframes pack-shake {
+  0% { transform: scale(0.6); opacity: 0; }
+  25% { transform: scale(1) rotate(0); opacity: 1; }
+  35% { transform: rotate(-6deg); }
+  45% { transform: rotate(6deg); }
+  55% { transform: rotate(-8deg) scale(1.05); }
+  65% { transform: rotate(8deg) scale(1.08); }
+  80% { transform: rotate(0) scale(1.15); filter: brightness(1.6) drop-shadow(0 0 30px #fff); opacity: 1; }
+  100% { transform: scale(1.6); filter: brightness(3) drop-shadow(0 0 60px #fff); opacity: 0; }
+}
+
+.pack-open {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.pack-open__say {
+  margin: 0;
+  text-align: center;
+  color: var(--text-2);
+}
+
+.pack-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0;
+  padding: 0.5rem 0;
+  list-style: none;
+}
+
+.pack-card {
+  width: 12.5rem;
+  min-height: 21rem;
+  animation-delay: calc(var(--i) * 0.1s);
+}
+
+.pack-card .flip-card__inner {
+  animation-delay: calc(0.25s + var(--i) * 0.35s);
+}
+
+.pack-card .flip-card__inner--up {
+  animation: none;
+}
+
+.pack-card .flip-card__front {
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s;
+}
+
+.pack-card .flip-card__front:disabled {
+  cursor: default;
+}
+
+.pack-card .flip-card__front strong {
+  font-size: 0.98rem;
+}
+
+.pack-card__upgrades {
+  color: var(--text-2);
+  font-size: 0.78rem;
+}
+
+.pack-card--on .flip-card__front {
+  transform: translateY(-10px);
+  box-shadow: inset 0 0 0 2px var(--gold), 0 0 0 4px rgba(255, 197, 61, 0.25), 0 0 60px -10px rgba(255, 197, 61, 0.9);
+}
+
+.pack-card--gone {
+  opacity: 0.35;
+  filter: grayscale(0.7);
+  transition: opacity 0.6s, filter 0.6s;
+}
+
+.pack-card__check {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  color: #1a1206;
+  background: var(--grad-gold);
+  animation: pop-in 0.3s var(--ease-spring) both;
+}
+
+.row--center {
+  justify-content: center;
+}
+
+.row--end {
+  justify-content: flex-end;
+}
+
+/* ---------------------------------------------------------------- coins in and out */
+.coin-moves {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.coin-moves li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.coin-moves li > span:first-child {
+  display: grid;
+  font-size: 0.9rem;
+}
+
+.coin-moves time {
+  font-size: 0.76rem;
+}
+
+.coin-moves__amount {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-weight: 800;
+}
+
+.coin-moves .is-in .coin-moves__amount {
+  color: var(--green);
+}
+
+.coin-moves .is-out .coin-moves__amount {
+  color: var(--mult);
+}
+
+/* ---------------------------------------------------------------- the market */
+.market-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.field--search {
+  display: flex;
+  flex: 1 1 16rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.8rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+}
+
+.field--search input {
+  flex: 1;
+  min-height: 2.35rem;
+  border: 0;
+  color: var(--text);
+  font: inherit;
+  background: transparent;
+  outline: none;
+}
+
+.field--search:focus-within {
+  box-shadow: inset 0 0 0 2px var(--violet);
+}
+
+.listing-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.3rem;
+}
+
+.listing-seller {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-size: 0.74rem;
+}
+
+.market-history {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.market-history li {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  animation: fade-up 0.4s var(--ease-out) both;
+  animation-delay: calc(min(var(--i), 12) * 0.04s);
+}
+
+.market-history__what {
+  display: grid;
+  flex: 1;
+}
+
+.market-history__price {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  font-weight: 800;
+}
+
+.market-history__price.is-in { color: var(--green); }
+.market-history__price.is-out { color: var(--mult); }
+
+.buy-dialog,
+.sell-dialog {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.sell-dialog__item {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+}
+
+.sell-dialog .sell-form {
+  flex: 1 1 18rem;
+}
+
+.sell-form {
+  display: grid;
+  gap: 0.9rem;
+  max-width: 34rem;
+}
+
+.sell-form__facts {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.sell-form__facts dt {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.sell-form__facts dd {
+  margin: 0.15rem 0 0;
+}
+
+.sell-form__sales {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.86rem;
+}
+
+.for-sale {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.2rem;
+  margin: 0.4rem 0 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background: rgba(255, 197, 61, 0.07);
+  box-shadow: inset 0 0 0 1px rgba(255, 197, 61, 0.28);
+}
+
+.for-sale > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+}
+
+.item-grid--pick {
+  max-height: 60vh;
+  overflow: auto;
+  padding: 0.3rem;
+}

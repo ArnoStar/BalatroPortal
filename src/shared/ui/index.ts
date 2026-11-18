@@ -2,6 +2,7 @@ export { Avatar, hue_of } from './avatar';
 export { AnchorButton, Button, LinkButton, type Size, type Tone } from './button';
 export { CardFan } from './card-fan';
 export { BarList, ColumnChart, Meter, Ring, StatTile, plural, type Accent, type Bar, type Column } from './charts';
+export { Coins } from './coins';
 export { CopyText } from './copy';
 export { Field } from './field';
 export { Icon, type IconName } from './icons';

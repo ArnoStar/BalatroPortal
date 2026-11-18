@@ -38,6 +38,8 @@ export function use_links(): LinkGroup[] {
     () => (signed_in ? items_api.trades('incoming').then((list) => list.filter((x) => x.status === 'pending').length, () => 0) : Promise.resolve(0)),
     [signed_in],
   );
+  // packs bought and not opened yet
+  const packs = use_async(() => (signed_in ? items_api.me().then((m) => m.packs, () => 0) : Promise.resolve(0)), [signed_in]);
 
   const groups: LinkGroup[] = [
     {
@@ -67,7 +69,9 @@ export function use_links(): LinkGroup[] {
       {
         label: t('Items'),
         links: [
-          { to: '/inventory', label: t('Your items'), icon: 'cards', hint: t('Jokers and tags found by playing') },
+          { to: '/inventory', label: t('Your items'), icon: 'cards', hint: t('Your cards, and the coins your runs earn') },
+          { to: '/shop', label: t('Shop'), icon: 'gift', hint: t('Boosters: packs of cards to choose from, for coins'), badge: packs.data || undefined },
+          { to: '/market', label: t('Market'), icon: 'scale', hint: t('Items players sell, for coins') },
           { to: '/trades', label: t('Trades'), icon: 'swap', hint: t('Offers to you, and yours'), badge: offers.data || undefined },
           { to: `${CASINO_URL}/`, label: t('Casino'), icon: 'dice', hint: t('Coinflips, dice and the jackpot, live'), external: true },
         ],
