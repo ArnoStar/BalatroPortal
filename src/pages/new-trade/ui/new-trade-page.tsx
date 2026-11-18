@@ -4,7 +4,7 @@ import { ItemCard } from '@/entities/item';
 import { describe, items_api, type Item, type ItemsPlayer } from '@/shared/api';
 import { use_async } from '@/shared/lib';
 import { Alert, Avatar, Button, EmptyState, Field, Icon, PageHeader, Panel, Spinner } from '@/shared/ui';
-import { fmt_date, t, tp, tx } from '@/shared/i18n';
+import { fmt_ago, fmt_datetime, t, tp, tx } from '@/shared/i18n';
 
 const MAX_SIDE = 10;
 
@@ -112,7 +112,9 @@ function Offer({ to, preset }: { to: string; preset: string[] }) {
         {items.map((i, n) => (
           <ItemCard key={i.id} item={i} index={n} selected={list.includes(i.id)} onSelect={i.tradable ? () => toggle(list, set, i.id) : undefined}>
             {i.tradable ? null : (
-              <span className="muted">{i.staked ? t('Staked in the casino') : t('Tradable from {date}', { date: fmt_date(i.tradable_at) })}</span>
+              <span className="muted" title={fmt_datetime(i.tradable_at)}>
+                {i.staked ? t('Staked in the casino') : t('Tradable {when}', { when: fmt_ago(i.tradable_at) })}
+              </span>
             )}
           </ItemCard>
         ))}
