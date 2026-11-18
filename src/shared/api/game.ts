@@ -125,6 +125,37 @@ export interface PlayerProfile {
   stats: PlayerStats | null;
   collection: CollectionView | null;
   runs: RunSummary[];
+  /** their PvP and coop matches (null: none yet) */
+  multiplayer?: MultiplayerStats | null;
+  matches?: MatchHistoryEntry[];
+}
+
+export type MatchMode = 'pvp' | 'coop';
+export interface MatchPlayer { seat: number; name: string | null; you: boolean; host: boolean; left: boolean; id?: string | null }
+export interface MatchSummaryPlayer {
+  seat: number; name: string | null; best_hand: Score;
+  hp?: number | null; damage_dealt?: number | null; damage_taken?: number | null; biggest_hit?: number | null;
+  rounds_won?: number | null; rounds_lost?: number | null;
+  hands?: number | null; chips?: Score | null; best_hand_name?: string | null; discards?: number | null;
+}
+/** a multiplayer match the player played (finished) */
+export interface MatchHistoryEntry {
+  id: string; mode: MatchMode; settings: { deck: string; stake: number; seed: string | null; timer: number }; seed: string | null;
+  created_at: string; finished_at: string | null; seat: number; players: MatchPlayer[];
+  result: { winner: number | null; you_won: boolean; reason: string };
+  summary: { ante: number; rounds: number; run_won: boolean | null; players: MatchSummaryPlayer[] } | null;
+  /** by seat: the runs to watch again (coop: the same run twice) */
+  runs: (string | null)[];
+}
+export interface MatchOpponentStats { id: string; name: string | null; played: number; won: number; lost: number; best_ante: number }
+export interface MultiplayerStats {
+  pvp: {
+    played: number; won: number; lost: number; drawn: number; gave_up: number; opponent_left: number; streak: number;
+    best_streak: number; damage_dealt: number; damage_taken: number; biggest_hit: number; best_ante: number;
+  };
+  coop: { played: number; runs_won: number; best_ante: number; best_round: number; hands: number; chips: Score; best_hand: Score; best_hand_name: string | null };
+  rivals: MatchOpponentStats[];
+  partners: MatchOpponentStats[];
 }
 export interface CatalogItem { key: string; name: string }
 
@@ -156,5 +187,10 @@ export const game_api = {
     }).then((res) => read_json<MeView>(res)),
   player: (id: string) =>
     authorized_fetch(`${API_BASE}/api/v1/players/${encodeURIComponent(id)}`).then((res) => read_json<PlayerProfile>(res)),
+  /** your PvP and coop numbers */
+  multiplayer_stats: () => authorized_fetch(`${API_BASE}/api/v1/matches/stats`).then((res) => read_json<MultiplayerStats>(res)),
+  /** your finished matches, the latest first */
+  match_history: (limit = 10) =>
+    authorized_fetch(`${API_BASE}/api/v1/matches/history?limit=${limit}`).then((res) => read_json<{ matches: MatchHistoryEntry[]; next_before: string | null }>(res)),
   delete_run: (id: string) => authorized_fetch(`${API_BASE}/api/v1/games/${id}`, { method: 'DELETE' }).then((res) => read_json<void>(res)),
 };

@@ -9,10 +9,11 @@ interface Names {
   stake: (stake: number) => string;
 }
 
-/** "Playing Red Deck, White Stake · Ante 3", "In the menu" */
+/** "Playing Red Deck, White Stake · Ante 3", "Playing PvP · Ante 2", "In the menu" */
 export function activity_text(a: Activity, names: Names): string {
   if (a.kind === 'menu') return t('In the game’s menu');
   if (a.kind === 'watching') return t('Watching a run');
+  if (a.mode) return [a.mode === 'pvp' ? t('Playing PvP') : t('Playing coop'), a.ante ? t('Ante {n}', { n: a.ante }) : null].filter(Boolean).join(' · ');
   const what = a.challenge ? t('a challenge') : a.deck ? (a.stake ? `${names.deck(a.deck)}, ${names.stake(a.stake)}` : names.deck(a.deck)) : t('a run');
   return [t('Playing {what}', { what }), a.ante ? t('Ante {n}', { n: a.ante }) : null, a.seeded ? t('seeded') : null].filter(Boolean).join(' · ');
 }

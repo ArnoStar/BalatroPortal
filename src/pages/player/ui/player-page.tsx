@@ -2,13 +2,14 @@ import type { CSSProperties } from 'react';
 import { Link, useParams } from 'react-router';
 import { DeckGlyph, deck_name, stake_name, useCatalogNames } from '@/entities/catalog';
 import { ItemArt, ItemCard, item_label } from '@/entities/item';
+import { MultiplayerPanel } from '@/widgets/multiplayer';
 import { RunCard } from '@/widgets/run-card';
 import { ProblemError, describe, game_api, items_api, type CollectionView, type Item, type ItemsPlayer, type PlayerProfile } from '@/shared/api';
 import { format_number, format_percent, use_async } from '@/shared/lib';
 import { Alert, Avatar, CountUp, EmptyState, Icon, LinkButton, Panel, Ring, Spinner, StatTile, hue_of } from '@/shared/ui';
 import { fmt_number, hand_name, N_, t, tp, tx } from '@/shared/i18n';
 
-/** /players/:id (``me``: your own): a player's stats, items, collection and recent runs */
+/** /players/:id (``me``: your own): a player's stats, items, collection, multiplayer matches and recent runs */
 export function PlayerPage() {
   const { id = 'me' } = useParams();
   const { data, error, loading } = use_async(async () => {
@@ -109,6 +110,7 @@ function Profile({ p }: { p: PlayerProfile }) {
       ) : null}
 
       <Items player={p.id} you={p.you} state={items} />
+      {s ? <MultiplayerPanel stats={p.multiplayer ?? null} matches={p.matches ?? []} you={p.you} /> : null}
       {p.collection ? <Collection c={p.collection} /> : null}
       {s ? (
         <Panel title={p.you ? t('Your recent runs') : t('Recent runs')} icon="history">

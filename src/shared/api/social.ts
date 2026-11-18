@@ -17,6 +17,8 @@ export interface Activity {
   ante: number | null;
   seeded: boolean;
   challenge: string | null;
+  /** a multiplayer run: PvP or coop */
+  mode?: 'pvp' | 'coop' | null;
 }
 
 /** friends' only (others see everyone offline) */
