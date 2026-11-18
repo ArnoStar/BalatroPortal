@@ -1,3 +1,4 @@
+import { MultiplayerPanel } from '@/widgets/multiplayer';
 import { DeckGlyph, deck_name, stake_name, useCatalogNames } from '@/entities/catalog';
 import { describe, game_api, type PlayerStats } from '@/shared/api';
 import { GAME_URL } from '@/shared/config';
@@ -28,8 +29,17 @@ export function StatsPage() {
       {loading && !data ? <Spinner /> : null}
       {error ? <Alert>{describe(error)}</Alert> : null}
       {data ? data.runs.counted ? <Stats s={data} /> : <NoRuns total={data.runs.total} /> : null}
+      <Multiplayer />
     </div>
   );
+}
+
+/** your PvP and coop numbers and latest matches */
+function Multiplayer() {
+  const { data, error } = use_async(() => Promise.all([game_api.multiplayer_stats(), game_api.match_history(10)]), []);
+  if (error) return <Alert>{describe(error)}</Alert>;
+  if (!data) return null;
+  return <MultiplayerPanel stats={data[0]} matches={data[1].matches} you />;
 }
 
 function NoRuns({ total }: { total: number }) {
