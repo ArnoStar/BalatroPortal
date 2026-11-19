@@ -851,7 +851,7 @@ export const ru: Dictionary = {
   "Choose {picks} of these {choices} cards: the others are gone once you take them.": "Выберите {picks} из этих карт ({choices}): остальные исчезнут, когда вы возьмёте свои.",
   "How coins are earned": "Как получить монеты",
   "Only counted runs (not seeded, no challenge) earn coins, and each of these once: nothing can be farmed, so even a common card is worth something.": "Монеты приносят только засчитанные забеги (без сида и испытаний), и каждая награда даётся один раз: ничего нельзя нафармить, поэтому даже обычная карта чего-то стоит.",
-  "A card you choose (or buy, or win) can’t change hands again for {hold}.": "Выбранная (купленная или выигранная) карта не может сменить владельца в течение {hold}.",
+  "A card you choose (or buy) can’t change hands again for {hold}; one won in the casino can at once.": "Выбранная (или купленная) карта не может сменить владельца в течение {hold}; выигранная в казино — может сразу.",
   "Your coins": "Ваши монеты",
   "No coins yet": "Монет пока нет",
   "{n} coins": "Монет: {n}",

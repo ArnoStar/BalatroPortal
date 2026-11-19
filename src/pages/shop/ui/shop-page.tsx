@@ -391,7 +391,7 @@ function Rules({ odds }: { odds: Odds }) {
         ))}
       </ul>
       <p className="muted">
-        {t('A card you choose (or buy, or win) can’t change hands again for {hold}.', { hold: tp(odds.trade_hold_days, '# day', '# days') })}
+        {t('A card you choose (or buy) can’t change hands again for {hold}; one won in the casino can at once.', { hold: tp(odds.trade_hold_days, '# day', '# days') })}
       </p>
     </>
   );
