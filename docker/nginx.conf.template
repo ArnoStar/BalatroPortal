@@ -42,6 +42,8 @@ server {
 
     location /api/ {
         set $api_upstream ${API_UPSTREAM};
+        # (a content mod's package, with its images, is up to 1.5 MB: publishing it, or a run started with it)
+        client_max_body_size 4m;
         proxy_pass $api_upstream;
     }
 
