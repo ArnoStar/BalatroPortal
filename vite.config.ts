@@ -19,6 +19,8 @@ export default defineConfig({
       '^/play(/|$)': { target: process.env.BALATRO_GAME ?? 'http://localhost:5173', ws: true },
       // the casino's dev server (npm run dev in ../BalatroCasino): /casino and /casino/...
       '^/casino(/|$)': { target: process.env.BALATRO_CASINO ?? 'http://localhost:5175', ws: true },
+      // the mod editor's dev server (npm run dev in ../BalatroModEditor): /editor and /editor/...
+      '^/editor(/|$)': { target: process.env.BALATRO_EDITOR ?? 'http://localhost:5176', ws: true },
       // the API (uv run balatro-api)
       '/api': process.env.BALATRO_API ?? 'http://127.0.0.1:8000',
       // the bug report service (make run in ../BalatroBugReportService)

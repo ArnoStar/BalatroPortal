@@ -20,6 +20,8 @@ export const SOCIAL_BASE = env('VITE_SOCIAL_URL') || '/social';
 export const GAME_URL = env('VITE_GAME_URL') || '/play';
 /** the casino (BalatroCasino): its own app, `<casino_url>/` the lobby, `<casino_url>/<game id>` a game */
 export const CASINO_URL = env('VITE_CASINO_URL') || '/casino';
+/** the mod editor (BalatroModEditor): its own app, `<editor_url>/` the player's mods */
+export const EDITOR_URL = env('VITE_EDITOR_URL') || '/editor';
 
 /** the page Google sends the browser back to (one of the identity service's OAUTH_REDIRECT_URIS) */
 export function oauth_redirect_uri(): string {

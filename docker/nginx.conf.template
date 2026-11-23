@@ -3,6 +3,7 @@
 # CORS:
 #   /play/      the game (BalatroFrontEnd's container)        GAME_UPSTREAM
 #   /casino/    the casino (BalatroCasino's container)         CASINO_UPSTREAM
+#   /editor/    the mod editor (BalatroModEditor's container)  EDITOR_UPSTREAM
 #   /api/       the game API (BalatroWebAPI)                  API_UPSTREAM
 #   /identity/  the identity service, without the /identity   IDENTITY_UPSTREAM
 #   /reports/   the bug report service, without the /reports  REPORTS_UPSTREAM
@@ -38,6 +39,16 @@ server {
 
     location = /casino {
         return 301 /casino/$is_args$args;
+    }
+
+    # the mod editor: its own app
+    location /editor/ {
+        set $editor_upstream ${EDITOR_UPSTREAM};
+        proxy_pass $editor_upstream;
+    }
+
+    location = /editor {
+        return 301 /editor/$is_args$args;
     }
 
     location /api/ {
