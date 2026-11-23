@@ -2,6 +2,7 @@ export { load_game_text, type GameText } from './game-text';
 export { identity, type Account, type AccountSummary, type Provider, type Role } from './identity';
 export {
   BOARDS,
+  MULTIPLAYER_BOARDS,
   game_api,
   type BoardName,
   type Catalog,
@@ -17,6 +18,10 @@ export {
   type LeaderboardEntry,
   type MatchHistoryEntry,
   type MatchOpponentStats,
+  type MultiplayerBoardName,
+  type MultiplayerGlobalStats,
+  type MultiplayerLeaderboard,
+  type MultiplayerLeaderboardEntry,
   type MultiplayerStats,
   type Phase,
   type PlayerStats,

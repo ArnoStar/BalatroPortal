@@ -73,7 +73,7 @@ BalatroFrontEnd, then open http://localhost:8087.
 | `/account` | display name, profile picture (BalatroSocial: cut square and sent at 256 x 256; friends and the chat show it), in the game (private profile; "unlock everything" for testers, developers and admins), sign-in methods (link or unlink Google, set a password), log out (everywhere), delete the account |
 | `/players/:id`, `/players/me` | a player's profile: their stats, collection (what they have discovered and unlocked, stakes won by deck) and recent runs (another player's: finished ones), each with *Watch* (`/play/?watch=<id>`). A private profile shows only the name. Leaderboard names link here |
 | `/stats` | the player's statistics, like the game's Profile > Stats: high scores, career stats, the last 30 days, poker hands, decks, jokers, consumables, vouchers |
-| `/leaderboards` | best hand, highest ante and round, most money, bosses in a row and wins, by deck and stake; then everyone's runs together |
+| `/leaderboards` | best hand, highest ante and round, most money, bosses in a row and wins, by deck and stake; then everyone's runs together. `?mode=multiplayer` (the *Multiplayer* switch, and the game's multiplayer menu): PvP wins, wins in a row and biggest hit, coop pairs by ante, coop wins and best coop hand; then everyone's matches together (by day, by deck) |
 | `/admin` | accounts and their roles (admins only): find accounts, tick roles (`admin`, `developer`, `tester`); the identity service checks and records it |
 | `/bugs`, `/bugs/:id` | the bug reports players sent from the game (developers only: the developer or admin role): the player's words, the screenshot, where they were, the errors, the game's recording as a timeline (API calls with their request ids, actions, states, inputs), notes, close/reopen, download, and *Replay it in the game* (`/play/?report=<id>`) |
 | `/casino/` | not a page here: the casino is its own app (BalatroCasino); the sidebar, the inventory and the items' histories link to it, and its old address (`/casino?tab=`) lands there |
@@ -87,7 +87,8 @@ BalatroFrontEnd, then open http://localhost:8087.
 
 `/stats` and `/leaderboards` need a signed-in player, unless the API runs
 without sign-in (`GET /api/v1/health` says `"auth": "off"`). The numbers come
-from the API (`/stats/me`, `/leaderboards/{board}`, `/stats/global`); the
+from the API (`/stats/me`, `/leaderboards/{board}`, `/stats/global`,
+`/matches/leaderboards/{board}`, `/matches/stats/global`); the
 portal only shows them. As in the game, runs with a chosen seed and
 challenges don't count. The charts are plain HTML and CSS
 (`shared/ui/charts.tsx`): one hue each, values at the bar tips, tooltips on

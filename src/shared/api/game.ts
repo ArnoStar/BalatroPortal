@@ -157,6 +157,40 @@ export interface MultiplayerStats {
   rivals: MatchOpponentStats[];
   partners: MatchOpponentStats[];
 }
+export const MULTIPLAYER_BOARDS = ['pvp_wins', 'pvp_streak', 'pvp_biggest_hit', 'coop_ante', 'coop_wins', 'coop_best_hand'] as const;
+export type MultiplayerBoardName = (typeof MULTIPLAYER_BOARDS)[number];
+export interface MultiplayerBoardPlayer { id: string; name: string | null; you: boolean }
+/** a player's best (coop_ante: a pair of coop partners' best run together) */
+export interface MultiplayerLeaderboardEntry {
+  rank: number;
+  /** the player, or the coop pair (coop_ante) */
+  players: MultiplayerBoardPlayer[];
+  you: boolean;
+  value: Score;
+  /** the matches of the board's mode they played (a pair: together) */
+  played: number;
+  /** coop_ante: the rounds that run went */
+  rounds?: number | null;
+  /** coop_best_hand: the poker hand */
+  hand?: string | null;
+  achieved_at: string;
+}
+export interface MultiplayerLeaderboard {
+  board: MultiplayerBoardName;
+  players: number;
+  entries: MultiplayerLeaderboardEntry[];
+  you: MultiplayerLeaderboardEntry | null;
+}
+/** everyone's finished matches together */
+export interface MultiplayerGlobalStats {
+  players: number;
+  matches: number;
+  pvp: { matches: number; drawn: number; left: number; rounds: number; best_ante: number; average_ante: number; damage: number; biggest_hit: number };
+  coop: { matches: number; runs_won: number; best_ante: number; average_ante: number; hands: number; chips: Score; best_hand: Score; best_hand_name: string | null };
+  decks: { deck: string; pvp: number; coop: number }[];
+  /** the last 30 days, oldest first (YYYY-MM-DD, UTC) */
+  days: { day: string; pvp: number; coop: number }[];
+}
 export interface CatalogItem { key: string; name: string }
 
 export interface Health {
@@ -189,6 +223,12 @@ export const game_api = {
     authorized_fetch(`${API_BASE}/api/v1/players/${encodeURIComponent(id)}`).then((res) => read_json<PlayerProfile>(res)),
   /** your PvP and coop numbers */
   multiplayer_stats: () => authorized_fetch(`${API_BASE}/api/v1/matches/stats`).then((res) => read_json<MultiplayerStats>(res)),
+  /** the best of everyone's finished matches on a board */
+  multiplayer_leaderboard: (board: MultiplayerBoardName, limit = 50) =>
+    authorized_fetch(`${API_BASE}/api/v1/matches/leaderboards/${board}?limit=${limit}`).then((res) => read_json<MultiplayerLeaderboard>(res)),
+  /** everyone's finished matches together */
+  multiplayer_global: () =>
+    authorized_fetch(`${API_BASE}/api/v1/matches/stats/global`).then((res) => read_json<MultiplayerGlobalStats>(res)),
   /** your finished matches, the latest first */
   match_history: (limit = 10) =>
     authorized_fetch(`${API_BASE}/api/v1/matches/history?limit=${limit}`).then((res) => read_json<{ matches: MatchHistoryEntry[]; next_before: string | null }>(res)),
