@@ -2,7 +2,7 @@ import { Fragment, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router';
 import { DeckGlyph, deck_name } from '@/entities/catalog';
 import {
-  MULTIPLAYER_BOARDS, describe, game_api, type MultiplayerBoardName, type MultiplayerGlobalStats, type MultiplayerLeaderboardEntry,
+  COOP_BOARDS, PVP_BOARDS, describe, game_api, type MultiplayerBoardName, type MultiplayerGlobalStats, type MultiplayerLeaderboardEntry,
 } from '@/shared/api';
 import { format_number, time_ago, use_async } from '@/shared/lib';
 import {
@@ -10,38 +10,43 @@ import {
 } from '@/shared/ui';
 import { current_lang, fmt_date, fmt_number, hand_name, N_, t, tp } from '@/shared/i18n';
 
-const TITLES: Record<MultiplayerBoardName, string> = {
-  pvp_wins: N_('PvP wins'), pvp_streak: N_('Wins in a row'), pvp_biggest_hit: N_('Biggest hit'),
-  coop_ante: N_('Coop pairs'), coop_wins: N_('Coop wins'), coop_best_hand: N_('Best coop hand'),
+type Kind = 'coop' | 'pvp';
+type Board = (typeof COOP_BOARDS)[number] | (typeof PVP_BOARDS)[number];
+
+const BOARDS_OF: Record<Kind, readonly Board[]> = { coop: COOP_BOARDS, pvp: PVP_BOARDS };
+// (the coop boards are the solo ones, for a pair)
+const TITLES: Record<Board, string> = {
+  coop_best_hand: N_('Best hand'), coop_ante: N_('Highest ante'), coop_round: N_('Highest round'), coop_money: N_('Most money'),
+  coop_boss_streak: N_('Bosses in a row'), coop_wins: N_('Wins'), pvp_wins: N_('Wins'), pvp_streak: N_('Wins in a row'),
 };
-const ICONS: Record<MultiplayerBoardName, IconName> = {
-  pvp_wins: 'trophy', pvp_streak: 'flame', pvp_biggest_hit: 'zap', coop_ante: 'target', coop_wins: 'medal', coop_best_hand: 'cards',
+const ICONS: Record<Board, IconName> = {
+  coop_best_hand: 'zap', coop_ante: 'target', coop_round: 'layers', coop_money: 'coins', coop_boss_streak: 'flame', coop_wins: 'trophy',
+  pvp_wins: 'trophy', pvp_streak: 'flame',
 };
-const ABOUT: Record<MultiplayerBoardName, string> = {
+const ABOUT: Record<Board, string> = {
+  coop_best_hand: N_('The best single hand of each pair’s coop runs, whichever of the two played it.'),
+  coop_ante: N_('The furthest ante each pair reached together, then the round.'),
+  coop_round: N_('The furthest round each pair reached together.'),
+  coop_money: N_('The most money each pair had at once in a coop run.'),
+  coop_boss_streak: N_('The most boss blinds each pair beat in a row in a coop run.'),
+  coop_wins: N_('The coop runs each pair won (ante 8 beaten).'),
   pvp_wins: N_('PvP matches won.'),
   pvp_streak: N_('The most PvP matches won in a row.'),
-  pvp_biggest_hit: N_('The most hit points one blind took from the other player.'),
-  coop_ante: N_('Coop partners, by the ante their run reached, then its rounds.'),
-  coop_wins: N_('Coop runs won (ante 8 beaten).'),
-  coop_best_hand: N_('The best single hand played in a coop run.'),
 };
 
 const day = { format: (d: Date) => new Intl.DateTimeFormat(current_lang(), { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(d) };
 
-function value_of(board: MultiplayerBoardName, e: MultiplayerLeaderboardEntry) {
-  if (board === 'pvp_biggest_hit') return t('{n} HP', { n: fmt_number(Number(e.value)) });
-  if (board === 'coop_ante') return t('Ante {n}', { n: fmt_number(Number(e.value)) });
-  return format_number(e.value);
+function value_of(board: Board, e: MultiplayerLeaderboardEntry) {
+  return board === 'coop_money' ? `$${format_number(e.value)}` : format_number(e.value);
 }
 
-/** what goes with the value: the matches played, the run's rounds, the hand */
-function meta_of(board: MultiplayerBoardName, e: MultiplayerLeaderboardEntry) {
-  if (board === 'coop_ante') {
-    return `${t('round {n}', { n: fmt_number(e.rounds ?? 0) })} · ${tp(e.played, '# run together', '# runs together')}`;
-  }
-  if (board === 'coop_best_hand') return e.hand ? hand_name(e.hand) : tp(e.played, '# coop run', '# coop runs');
-  if (board === 'coop_wins') return tp(e.played, '# coop run', '# coop runs');
-  return tp(e.played, '# PvP match', '# PvP matches');
+/** what goes with the value: the runs or matches played, the run's round, the hand */
+function meta_of(board: Board, e: MultiplayerLeaderboardEntry) {
+  if (board.startsWith('pvp')) return tp(e.played, '# PvP match', '# PvP matches');
+  const together = tp(e.played, '# run together', '# runs together');
+  if (board === 'coop_ante') return `${t('round {n}', { n: fmt_number(e.rounds ?? 0) })} · ${together}`;
+  if (board === 'coop_best_hand' && e.hand) return `${hand_name(e.hand)} · ${together}`;
+  return together;
 }
 
 /** the player, or the coop pair, each with their profile */
@@ -71,10 +76,13 @@ function Avatars({ e, size }: { e: MultiplayerLeaderboardEntry; size: 'sm' | 'lg
   );
 }
 
-/** The best of everyone's PvP and coop matches. */
+/** The best of everyone's coop pairs and PvP players. */
 export function MultiplayerBoards() {
-  const [board, setBoard] = useState<MultiplayerBoardName>('pvp_wins');
-  const { data, error, loading } = use_async(() => game_api.multiplayer_leaderboard(board), [board]);
+  const [kind, setKind] = useState<Kind>('coop');
+  const [board, setBoard] = useState<Board>('coop_best_hand');
+  const choose_kind = (k: Kind) => { setKind(k); setBoard(BOARDS_OF[k][0]); };
+  const { data, error, loading } = use_async(() => game_api.multiplayer_leaderboard(board as MultiplayerBoardName), [board]);
+  const pairs = kind === 'coop';
   const podium = data?.entries.slice(0, 3) ?? [];
   const rest = data?.entries.slice(3) ?? [];
   const you_apart = data?.you && !data.entries.some((e) => e.you) ? data.you : null;
@@ -82,10 +90,19 @@ export function MultiplayerBoards() {
     <Panel>
       <div className="filters">
         <Segmented
+          label={t('Mode')}
+          value={kind}
+          onChange={choose_kind}
+          options={[
+            ['coop', <><Icon name="users" /> {t('Coop pairs')}</>],
+            ['pvp', <><Icon name="swap" /> {t('PvP')}</>],
+          ] as const}
+        />
+        <Segmented
           label={t('Leaderboard')}
           value={board}
           onChange={setBoard}
-          options={MULTIPLAYER_BOARDS.map((b) => [b, <><Icon name={ICONS[b]} /> {t(TITLES[b])}</>] as const)}
+          options={BOARDS_OF[kind].map((b) => [b, <><Icon name={ICONS[b]} /> {t(TITLES[b])}</>] as const)}
         />
       </div>
       <p className="muted">{t(ABOUT[board])}</p>
@@ -121,7 +138,7 @@ export function MultiplayerBoards() {
                     <thead>
                       <tr>
                         <th scope="col" className="num">#</th>
-                        <th scope="col">{board === 'coop_ante' ? t('Players') : t('Player')}</th>
+                        <th scope="col">{pairs ? t('Players') : t('Player')}</th>
                         <th scope="col" className="num">{t(TITLES[board])}</th>
                         <th scope="col">{t('Details')}</th>
                         <th scope="col">{t('When')}</th>
@@ -152,8 +169,8 @@ export function MultiplayerBoards() {
             </EmptyState>
           )}
           <p className="muted footnote">
-            <Icon name="info" /> {board === 'coop_ante' ? tp(data.players, '# pair', '# pairs') : tp(data.players, '# player', '# players')}.{' '}
-            {t('Finished PvP and coop matches count, as their summaries say.')}
+            <Icon name="info" /> {pairs ? tp(data.players, '# pair', '# pairs') : tp(data.players, '# player', '# players')}.{' '}
+            {pairs ? t('A coop run counts for both of its players together.') : t('Finished PvP matches count.')}
           </p>
         </div>
       ) : null}
@@ -161,7 +178,7 @@ export function MultiplayerBoards() {
   );
 }
 
-function Row({ board, e }: { board: MultiplayerBoardName; e: MultiplayerLeaderboardEntry }) {
+function Row({ board, e }: { board: Board; e: MultiplayerLeaderboardEntry }) {
   return (
     <tr className={e.you ? 'board__you' : undefined}>
       <td className="num">
@@ -221,8 +238,6 @@ function Numbers({ s }: { s: MultiplayerGlobalStats }) {
         <StatTile icon="users" accent="violet" label={t('Players')} value={<CountUp value={s.players} />} />
         <StatTile icon="swap" accent="blue" label={t('Matches')} value={<CountUp value={s.matches} />}
           hint={t('{p} PvP, {c} coop', { p: fmt_number(pvp.matches), c: fmt_number(coop.matches) })} />
-        <StatTile icon="zap" accent="red" label={t('Biggest hit')} value={t('{n} HP', { n: fmt_number(pvp.biggest_hit) })}
-          hint={t('{n} HP lost in all', { n: fmt_number(pvp.damage) })} />
         <StatTile icon="flame" accent="orange" label={t('PvP blinds')} value={<CountUp value={pvp.rounds} />}
           hint={pvp.matches ? t('ante {n} at best, {avg} on average', { n: pvp.best_ante, avg: fmt_number(pvp.average_ante) }) : undefined} />
         <StatTile icon="target" accent="gold" label={t('Best coop ante')} value={<CountUp value={coop.best_ante} />}
