@@ -1,6 +1,7 @@
 import { useState, type CSSProperties } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { Everyone } from './everyone';
+import { MultiplayerBoards, MultiplayerEveryone } from './multiplayer';
 import { DECK_KEYS, DeckGlyph, STAKES, deck_name, stake_name } from '@/entities/catalog';
 import { BOARDS, describe, game_api, type BoardName, type LeaderboardEntry } from '@/shared/api';
 import { format_number, time_ago, use_async } from '@/shared/lib';
@@ -18,7 +19,48 @@ const ICONS: Record<BoardName, IconName> = {
 
 const value_of = (board: BoardName, e: LeaderboardEntry) => (board === 'most_money' ? `$${format_number(e.value)}` : format_number(e.value));
 
+type Mode = 'solo' | 'multiplayer';
+
+/** the solo runs' boards, or the multiplayer matches' (?mode=multiplayer) */
 export function LeaderboardsPage() {
+  const [params, setParams] = useSearchParams();
+  const mode: Mode = params.get('mode') === 'multiplayer' ? 'multiplayer' : 'solo';
+  const choose = (m: Mode) => setParams(m === 'multiplayer' ? { mode: m } : {}, { replace: true });
+  return (
+    <div className="stack">
+      <PageHeader
+        eyebrow={t('Compete')}
+        icon="trophy"
+        title={t('Leaderboards')}
+        lead={mode === 'multiplayer' ? t('The best of everyone’s PvP and coop matches.') : t('Each player’s best run on every board.')}
+        actions={
+          <Segmented
+            label={t('Runs or matches')}
+            value={mode}
+            onChange={choose}
+            options={[
+              ['solo', <><Icon name="user" /> {t('Solo')}</>],
+              ['multiplayer', <><Icon name="users" /> {t('Multiplayer')}</>],
+            ] as const}
+          />
+        }
+      />
+      {mode === 'multiplayer' ? (
+        <>
+          <MultiplayerBoards />
+          <MultiplayerEveryone />
+        </>
+      ) : (
+        <>
+          <SoloBoards />
+          <Everyone />
+        </>
+      )}
+    </div>
+  );
+}
+
+function SoloBoards() {
   const [board, setBoard] = useState<BoardName>('best_hand');
   const [deck, setDeck] = useState('');
   const [stake, setStake] = useState(0);
@@ -30,73 +72,64 @@ export function LeaderboardsPage() {
   const rest = data?.entries.slice(3) ?? [];
 
   return (
-    <div className="stack">
-      <PageHeader
-        eyebrow={t('Compete')}
-        icon="trophy"
-        title={t('Leaderboards')}
-        lead={board === 'wins' ? t('Each player’s won runs, counted.') : t('Each player’s best run on every board.')}
-      />
-      <Panel>
-        <div className="filters">
-          <Segmented
-            label={t('Leaderboard')}
-            value={board}
-            onChange={setBoard}
-            options={BOARDS.map((b) => [b, <><Icon name={ICONS[b]} /> {t(TITLES[b])}</>] as const)}
-          />
-          <div className="filters__selects">
-            <label className="select">
-              <span>{t('Deck')}</span>
-              <select value={deck} onChange={(e) => setDeck(e.target.value)}>
-                <option value="">{t('All decks')}</option>
-                {DECK_KEYS.map((k) => (
-                  <option key={k} value={k}>
-                    {deck_name(k)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="select">
-              <span>{t('Stake')}</span>
-              <select value={stake} onChange={(e) => setStake(Number(e.target.value))}>
-                <option value={0}>{t('All stakes')}</option>
-                {STAKES.map((s, i) => (
-                  <option key={s} value={i + 1}>
-                    {stake_name(i + 1)}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+    <Panel>
+      <div className="filters">
+        <Segmented
+          label={t('Leaderboard')}
+          value={board}
+          onChange={setBoard}
+          options={BOARDS.map((b) => [b, <><Icon name={ICONS[b]} /> {t(TITLES[b])}</>] as const)}
+        />
+        <div className="filters__selects">
+          <label className="select">
+            <span>{t('Deck')}</span>
+            <select value={deck} onChange={(e) => setDeck(e.target.value)}>
+              <option value="">{t('All decks')}</option>
+              {DECK_KEYS.map((k) => (
+                <option key={k} value={k}>
+                  {deck_name(k)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="select">
+            <span>{t('Stake')}</span>
+            <select value={stake} onChange={(e) => setStake(Number(e.target.value))}>
+              <option value={0}>{t('All stakes')}</option>
+              {STAKES.map((s, i) => (
+                <option key={s} value={i + 1}>
+                  {stake_name(i + 1)}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
-        {error ? <Alert>{describe(error)}</Alert> : null}
-        {loading && !data ? <Spinner /> : null}
-        {data ? (
-          <div className={loading ? 'refreshing' : undefined}>
-            {data.entries.length ? (
-              <>
-                <Podium board={board} top={podium} />
-                {rest.length || (data.you && !data.entries.some((e) => e.you)) ? (
-                  <Board board={board} entries={rest} you={data.entries.some((e) => e.you) ? null : data.you} />
-                ) : null}
-              </>
-            ) : (
-              <EmptyState icon="trophy" title={t('Nobody is on this board yet')}>
-                {t('Win a run with this deck and stake to be the first.')}
-              </EmptyState>
-            )}
-            <p className="muted footnote">
-              <Icon name="info" /> {tp(data.players, '# player', '# players')}.{' '}
-              {board === 'wins'
-                ? t('Each player’s won runs are counted; runs with a chosen seed, challenges and runs with debug commands don’t count.')
-                : t('Each player’s best run is shown; runs with a chosen seed, challenges and runs with debug commands don’t count.')}
-            </p>
-          </div>
-        ) : null}
-      </Panel>
-      <Everyone />
-    </div>
+      </div>
+      {error ? <Alert>{describe(error)}</Alert> : null}
+      {loading && !data ? <Spinner /> : null}
+      {data ? (
+        <div className={loading ? 'refreshing' : undefined}>
+          {data.entries.length ? (
+            <>
+              <Podium board={board} top={podium} />
+              {rest.length || (data.you && !data.entries.some((e) => e.you)) ? (
+                <Board board={board} entries={rest} you={data.entries.some((e) => e.you) ? null : data.you} />
+              ) : null}
+            </>
+          ) : (
+            <EmptyState icon="trophy" title={t('Nobody is on this board yet')}>
+              {t('Win a run with this deck and stake to be the first.')}
+            </EmptyState>
+          )}
+          <p className="muted footnote">
+            <Icon name="info" /> {tp(data.players, '# player', '# players')}.{' '}
+            {board === 'wins'
+              ? t('Each player’s won runs are counted; runs with a chosen seed, challenges and runs with debug commands don’t count.')
+              : t('Each player’s best run is shown; runs with a chosen seed, challenges and runs with debug commands don’t count.')}
+          </p>
+        </div>
+      ) : null}
+    </Panel>
   );
 }
 
@@ -111,12 +144,12 @@ function Who({ e }: { e: LeaderboardEntry }) {
   );
 }
 
-/** the first three, on their steps (second, first, third) */
+/** the first three, on their steps (second, first, third: by place, tied ranks shown as they are) */
 function Podium({ board, top }: { board: BoardName; top: LeaderboardEntry[] }) {
   return (
     <ol className="podium" aria-label={t('The first three')}>
       {top.map((e, i) => (
-        <li key={e.rank} className={`podium__place podium__place--${e.rank}${e.you ? ' is-you' : ''}`} style={{ '--i': i } as CSSProperties}>
+        <li key={`${e.rank}-${i}`} className={`podium__place podium__place--${i + 1}${e.you ? ' is-you' : ''}`} style={{ '--i': i, '--medal': `var(--medal-${Math.min(e.rank, 3)})` } as CSSProperties}>
           <div className="podium__who">
             {e.rank === 1 ? <Icon name="crown" className="podium__crown" /> : null}
             <Avatar name={e.player} player={e.player_id} size="lg" />
@@ -169,8 +202,8 @@ function Board({ board, entries, you }: { board: BoardName; entries: Leaderboard
           </tr>
         </thead>
         <tbody>
-          {entries.map((e) => (
-            <Row key={e.rank} board={board} e={e} />
+          {entries.map((e, i) => (
+            <Row key={`${e.rank}-${i}`} board={board} e={e} />
           ))}
           {you ? (
             <>

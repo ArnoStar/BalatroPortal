@@ -389,6 +389,16 @@
   font-size: 1.4rem;
 }
 
+/* a coop pair: two pictures, the second over the first's edge */
+.mp-pair {
+  display: inline-flex;
+  align-items: center;
+}
+
+.mp-pair .avatar + .avatar {
+  margin-left: -0.55rem;
+}
+
 .podium__crown {
   position: absolute;
   top: -1.75rem;
