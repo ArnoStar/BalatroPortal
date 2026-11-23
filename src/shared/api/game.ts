@@ -157,13 +157,16 @@ export interface MultiplayerStats {
   rivals: MatchOpponentStats[];
   partners: MatchOpponentStats[];
 }
-export const MULTIPLAYER_BOARDS = ['pvp_wins', 'pvp_streak', 'pvp_biggest_hit', 'coop_ante', 'coop_wins', 'coop_best_hand'] as const;
-export type MultiplayerBoardName = (typeof MULTIPLAYER_BOARDS)[number];
+/** coop boards rank pairs (the two players of a coop run, together); PvP boards rank players */
+export const COOP_BOARDS = ['coop_best_hand', 'coop_ante', 'coop_round', 'coop_money', 'coop_boss_streak', 'coop_wins'] as const;
+export const PVP_BOARDS = ['pvp_wins', 'pvp_streak'] as const;
+/** (the API also has pvp_biggest_hit, not shown for now) */
+export type MultiplayerBoardName = (typeof COOP_BOARDS)[number] | (typeof PVP_BOARDS)[number] | 'pvp_biggest_hit';
 export interface MultiplayerBoardPlayer { id: string; name: string | null; you: boolean }
-/** a player's best (coop_ante: a pair of coop partners' best run together) */
+/** a PvP player's best, or a coop pair's (their runs together) */
 export interface MultiplayerLeaderboardEntry {
   rank: number;
-  /** the player, or the coop pair (coop_ante) */
+  /** the PvP player, or the coop pair */
   players: MultiplayerBoardPlayer[];
   you: boolean;
   value: Score;

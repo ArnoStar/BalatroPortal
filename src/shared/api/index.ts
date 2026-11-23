@@ -2,7 +2,8 @@ export { load_game_text, type GameText } from './game-text';
 export { identity, type Account, type AccountSummary, type Provider, type Role } from './identity';
 export {
   BOARDS,
-  MULTIPLAYER_BOARDS,
+  COOP_BOARDS,
+  PVP_BOARDS,
   game_api,
   type BoardName,
   type Catalog,

@@ -63,8 +63,6 @@ function Numbers({ s }: { s: MultiplayerStats }) {
         hint={finished ? t('{rate} won, {n} drawn', { rate: format_percent(pvp.won, finished), n: pvp.drawn }) : undefined} />
       <StatTile icon="flame" accent="orange" label={t('Best PvP streak')} value={fmt_number(pvp.best_streak)}
         hint={pvp.streak ? tp(pvp.streak, '# win in a row now', '# wins in a row now') : undefined} />
-      <StatTile icon="zap" accent="red" label={t('Biggest hit')} value={t('{n} HP', { n: pvp.biggest_hit })}
-        hint={t('{n} HP dealt in all', { n: fmt_number(pvp.damage_dealt) })} />
       <StatTile icon="users" accent="blue" label={t('Coop runs')} value={fmt_number(coop.played)}
         hint={coop.runs_won ? tp(coop.runs_won, '# won', '# won') : undefined} />
       <StatTile icon="target" accent="gold" label={t('Best coop ante')} value={fmt_number(coop.best_ante)}
@@ -148,10 +146,6 @@ function MatchCard({ m, watch }: { m: MatchHistoryEntry; watch: boolean }) {
                   <dd>
                     {me?.hp ?? '?'} – {them?.hp ?? '?'}
                   </dd>
-                </div>
-                <div>
-                  <dt>{t('Biggest hit')}</dt>
-                  <dd>{me?.biggest_hit ?? 0}</dd>
                 </div>
               </>
             ) : (
