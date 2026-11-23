@@ -14,6 +14,7 @@ the portal and the game share the player's session:
 | `/` | the portal (this app) | |
 | `/play/` | the game | BalatroFrontEnd |
 | `/casino/` | the casino: players stake their items, live | BalatroCasino |
+| `/editor/` | the mod editor: players make, test and publish content mods | BalatroModEditor |
 | `/api/` | the game API | BalatroWebAPI |
 | `/identity/` | accounts and tokens | BalatroIndentityService |
 
@@ -76,6 +77,7 @@ BalatroFrontEnd, then open http://localhost:8087.
 | `/admin` | accounts and their roles (admins only): find accounts, tick roles (`admin`, `developer`, `tester`); the identity service checks and records it |
 | `/bugs`, `/bugs/:id` | the bug reports players sent from the game (developers only: the developer or admin role): the player's words, the screenshot, where they were, the errors, the game's recording as a timeline (API calls with their request ids, actions, states, inputs), notes, close/reopen, download, and *Replay it in the game* (`/play/?report=<id>`) |
 | `/casino/` | not a page here: the casino is its own app (BalatroCasino); the sidebar, the inventory and the items' histories link to it, and its old address (`/casino?tab=`) lands there |
+| `/editor/` | not a page here: the mod editor is its own app (BalatroModEditor); the sidebar links to it |
 | `/inventory`, `/item/:id` | the player's items (BalatroItemService, `/items/`): the game's cards (jokers, tarot, planet and spectral cards, playing cards with their enhancement and seal) with their edition, drawn with the game's sprites; their coins and this week's, *Look for new coins*, the packs waiting; an item's number, odds and value, where it came from, its history (trades, the casino, the market), *Show it on your title screen*, and *Sell it on the market* (or buy it, or take it off) |
 | `/shop` | the boosters coins buy: each kind of card in three tiers (standard, boosted, premium) and three sizes (normal: 1 of 2, jumbo: 1 of 4, mega: 2 of 4), with their chances; a pack opened (`?pack=`: torn open, its cards turned over, the player chooses), the packs waiting, how coins are earned, the coins' history |
 | `/market` | items players sell, for coins: search by name, kind, rarity, edition, cheapest or newest first, *Buy*; *Sell an item* (a price, its value, what the same card sold for); the player's items for sale (*Take it off*) and what they sold and bought |

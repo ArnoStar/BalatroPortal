@@ -422,6 +422,8 @@ export const ru: Dictionary = {
   "Items": "Предметы",
   "Trades": "Обмены",
   "Casino": "Казино",
+  "Mod editor": "Редактор модов",
+  "Make jokers, decks and bosses; test and publish them": "Создавайте джокеров, колоды и боссов, проверяйте и публикуйте их",
   "Trading opens after your first win.": "Обмен открывается после первой победы.",
   "Your collection": "Ваша коллекция",
   "Show": "Показать",

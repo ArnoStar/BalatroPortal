@@ -3,7 +3,7 @@
 import { useSession } from '@/entities/session';
 import { useSocial } from '@/entities/social';
 import { items_api, reports_api } from '@/shared/api';
-import { CASINO_URL } from '@/shared/config';
+import { CASINO_URL, EDITOR_URL } from '@/shared/config';
 import { use_async } from '@/shared/lib';
 import type { IconName } from '@/shared/ui';
 import { t } from '@/shared/i18n';
@@ -47,6 +47,7 @@ export function use_links(): LinkGroup[] {
       links: [
         { to: '/', label: t('Home'), icon: 'home', hint: t('The front door, and your runs'), end: true },
         { to: '/leaderboards', label: t('Leaderboards'), icon: 'trophy', hint: t('Best hands, highest antes, wins') },
+        { to: `${EDITOR_URL}/`, label: t('Mod editor'), icon: 'wand', hint: t('Make jokers, decks and bosses; test and publish them'), external: true },
       ],
     },
   ];
